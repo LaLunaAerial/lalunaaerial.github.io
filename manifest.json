@@ -1,0 +1,15 @@
+{
+  "short_name": "La LUNA Studio",
+  "name": "La LUNA Studio",
+  "icons": [
+    {
+      "src": "LaLUNA_icon.jpg",
+      "type": "image/jpg",
+      "sizes": "192x192"
+    }
+  ],
+  "start_url": ".",
+  "display": "standalone",
+  "theme_color": "#000000",
+  "background_color": "#ffffff"
+}
