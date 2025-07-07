@@ -1,0 +1,41 @@
+/* components/AdminPage.css */
+.admin-container {
+    max-width: 800px;
+    margin: 40px auto;
+    padding: 20px;
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  }
+  
+  .admin-container h2 {
+    margin-top: 0;
+  }
+  
+  .admin-container table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  
+  .admin-container th, .admin-container td {
+    border: 1px solid #ddd;
+    padding: 10px;
+    text-align: left;
+  }
+  
+  .admin-container th {
+    background-color: #f0f0f0;
+  }
+  
+  .admin-container button {
+    background-color: #4CAF50;
+    color: #fff;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  
+  .admin-container button:hover {
+    background-color: #3e8e41;
+  }

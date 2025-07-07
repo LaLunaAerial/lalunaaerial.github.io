@@ -16,7 +16,13 @@ function LoginPage() {
       await signInWithEmailAndPassword(auth, email, password);
       console.log('Sign-in successful');
       alert('Sign-in successful!');
-      navigate('/booking');
+
+      const userId = auth.currentUser.uid;
+      if (userId === '796IkiShehcJ4BQFCXEnpe8If7t1') {
+        navigate('/admin');
+      } else {
+        navigate('/booking');
+      }
     } catch (error) {
       console.error('Error signing in:', error.message);
       alert(`Sign-in failed: ${error.message}`); // Display error to the user

@@ -1,12 +1,10 @@
-// Import the functions you need from the SDKs you need
-import { initializeApp } from "firebase/app";
-import { getAnalytics } from "firebase/analytics";
-import { getAuth } from "firebase/auth";
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
+// src/assets/firebaseConfig.js
 
-// Your web app's Firebase configuration
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+// Import the functions you need from the SDKs you need
+import { initializeApp } from 'firebase/app';
+import { getAuth } from 'firebase/auth';
+import { getDatabase, ref, set,get} from 'firebase/database';
+
 const firebaseConfig = {
   apiKey: "AIzaSyAQL2r9vwcSwmgNv-70jnogSJGGJ2cHzSM",
   authDomain: "laluna-website.firebaseapp.com",
@@ -18,9 +16,8 @@ const firebaseConfig = {
   measurementId: "G-5H6J69TD7N"
 };
 
-// Initialize Firebase
 const app = initializeApp(firebaseConfig);
-const analytics = getAnalytics(app);
+const auth = getAuth(app);
+const db = getDatabase(app);
 
-const auth=getAuth(app);
-export {auth};
+export { auth, db };
