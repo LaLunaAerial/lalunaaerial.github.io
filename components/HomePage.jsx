@@ -2,6 +2,7 @@
 import React from 'react';
 import './HomePage.css'; // Create HomePage.css for styling
 
+
 function HomePage() {
   return (
     <div className="home-container">
