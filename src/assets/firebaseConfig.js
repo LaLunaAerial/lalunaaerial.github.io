@@ -1,6 +1,7 @@
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";
+import { getAuth } from "firebase/auth";
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
 
@@ -13,10 +14,13 @@ const firebaseConfig = {
   projectId: "laluna-website",
   storageBucket: "laluna-website.firebasestorage.app",
   messagingSenderId: "1010305782926",
-  appId: "1:1010305782926:web:f13068fb853892469865df",
-  measurementId: "G-ETL2YPFD24"
+  appId: "1:1010305782926:web:a3abc05b2d8f3ec89865df",
+  measurementId: "G-5H6J69TD7N"
 };
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const analytics = getAnalytics(app);
+
+const auth=getAuth(app);
+export {auth};

@@ -6,7 +6,7 @@ function Navbar() {
   return (
     <nav className='navbar'>
       <div className='navbar-brand'>
-        <Link to="/">My Booking Website</Link> {/* Use Link for the brand */}
+        <Link to="/"><img src="/LaLUNA_icon.jpg" alt="Logo" style={{width: 50}}/></Link> {/* Use Link for the brand */}
       </div>
       <ul className='navbar-links'>
         <li>

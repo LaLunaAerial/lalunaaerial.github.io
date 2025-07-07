@@ -1,6 +1,6 @@
 // components/LoginPage.jsx
 import React, { useState } from 'react';
-import { auth } from '../firebaseConfig';
+import { auth } from '../assets/firebaseConfig';
 import { signInWithEmailAndPassword, createUserWithEmailAndPassword } from 'firebase/auth';
 import { useNavigate } from 'react-router-dom';
 import './LoginPage.css';
@@ -15,6 +15,7 @@ function LoginPage() {
     try {
       await signInWithEmailAndPassword(auth, email, password);
       console.log('Sign-in successful');
+      alert('Sign-in successful!');
       navigate('/booking');
     } catch (error) {
       console.error('Error signing in:', error.message);
