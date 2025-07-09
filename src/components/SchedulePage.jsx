@@ -68,19 +68,19 @@ function SchedulePage() {
 
   return (
     <div className='schedule-container'>
-      <h2>Book a Room</h2>
+      <h2>Room Booking</h2>
       <LocalizationProvider dateAdapter={AdapterDayjs}>
         <DateCalendar value={date} onChange={newDate => setDate(newDate)} />
       </LocalizationProvider>
       <p>
         Selected date: {date ? date.format('MM/DD/YYYY') : 'No date selected'}
       </p>
-      <table>
+      <table class="timetable-table">
         <thead>
           <tr>
-            <th>Time</th>
-            <th>Status</th>
-            <th>Actions</th>
+            <th class="time-column">Time</th>
+            <th class="status-column">Status</th>
+            <th class="actions-column">Actions</th>
           </tr>
         </thead>
         <tbody>

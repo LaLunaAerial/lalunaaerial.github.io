@@ -1,41 +1,56 @@
 /* components/AdminPage.css */
 .admin-container {
-    max-width: 800px;
-    margin: 40px auto;
-    padding: 20px;
-    background-color: #f9f9f9;
-    border: 1px solid #ddd;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-  }
-  
-  .admin-container h2 {
-    margin-top: 0;
-  }
-  
-  .admin-container table {
-    width: 100%;
-    border-collapse: collapse;
-  }
-  
-  .admin-container th, .admin-container td {
-    border: 1px solid #ddd;
-    padding: 10px;
-    text-align: left;
-  }
-  
-  .admin-container th {
-    background-color: #f0f0f0;
-  }
-  
-  .admin-container button {
-    background-color: #4CAF50;
-    color: #fff;
-    padding: 10px 20px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-  }
-  
-  .admin-container button:hover {
-    background-color: #3e8e41;
-  }
+  max-width: 800px;
+  margin: 40px auto;
+  padding: 20px;
+  background-color: #f9f9f9;
+  border: 1px solid #ddd;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.admin-container h2 {
+  margin-top: 0;
+}
+
+.timetable-table {
+  border-collapse: collapse;
+  width: 100%;
+  margin-bottom: 20px;
+}
+
+.timetable-table th, .timetable-table td {
+  border: 1px solid #ddd;
+  padding: 10px;
+  text-align: left;
+}
+
+.timetable-table th {
+  background-color: #f0f0f0;
+}
+
+.timetable-table .time-column {
+  width: 20%;
+}
+
+.timetable-table .status-column {
+  width: 30%;
+}
+
+.timetable-table .actions-column {
+  width: 50%;
+  text-align: center;
+}
+
+.admin-button {
+  margin: 5px;
+  padding: 5px 10px;
+  border: none;
+  border-radius: 5px;
+  background-color: #FF69B4;
+  color: #fff;
+  cursor: pointer;
+}
+
+.admin-button:hover {
+  background-color: #FF99CC;
+}

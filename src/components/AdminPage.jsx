@@ -68,13 +68,13 @@ function AdminPage() {
   return (
     <div className="admin-container">
       <h2>Pending Bookings</h2>
-      <table>
+      <table className="timetable-table">
         <thead>
           <tr>
-            <th>Email</th>
-            <th>Date</th>
-            <th>Time</th>
-            <th>Actions</th>
+            <th className="time-column">Email</th>
+            <th className="status-column">Date</th>
+            <th className="time-column">Time</th>
+            <th className="actions-column">Actions</th>
           </tr>
         </thead>
         <tbody>
@@ -84,8 +84,8 @@ function AdminPage() {
               <td>{pendingBookings[bookingId].date}</td>
               <td>{pendingBookings[bookingId].time}</td>
               <td>
-                <button onClick={() => handleApprove(bookingId)}>Approve</button>
-                <button onClick={() => handleReject(bookingId)}>Reject</button>
+                <button className="admin-button" onClick={() => handleApprove(bookingId)}>Approve</button>
+                <button className="admin-button" onClick={() => handleReject(bookingId)}>Reject</button>
               </td>
             </tr>
           ))}

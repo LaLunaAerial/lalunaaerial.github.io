@@ -3,3 +3,53 @@
   padding: 2rem;
   background-color: #fff; /* Secondary Color */
 }
+
+/* Timetable styles */
+.timetable-table {
+  border-collapse: collapse;
+  width: 100%;
+  margin-bottom: 20px;
+}
+
+.timetable-table th, .timetable-table td {
+  border: 1px solid #ddd;
+  padding: 10px;
+  text-align: left;
+}
+
+.timetable-table th {
+  background-color: #FFC5C5; /* pink background color */
+  color: #fff; /* white text color */
+  font-weight: bold;
+}
+
+.timetable-table td {
+  vertical-align: middle;
+}
+
+.timetable-table .time-column {
+  width: 20%;
+}
+
+.timetable-table .status-column {
+  width: 30%;
+}
+
+.timetable-table .actions-column {
+  width: 50%;
+  text-align: center;
+}
+
+.timetable-table td button {
+  margin: 5px;
+  padding: 5px 10px;
+  border: none;
+  border-radius: 5px;
+  background-color: #FFC5C5; /* pink background color */
+  color: #fff; /* white text color */
+  cursor: pointer;
+}
+
+.timetable-table td button:hover {
+  background-color: #FFC5C5; /* lighter pink background color on hover */
+}
