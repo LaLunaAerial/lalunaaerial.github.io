@@ -3,9 +3,12 @@ import { Link } from 'react-router-dom'; // Import Link
 import { auth } from '../assets/firebaseConfig';
 import './NavBar.css';
 
+const adminUid = '796IkiShehcJ4BQFCXEnpe8If7t1';
+
 function Navbar() {
   const [username, setUsername] = useState('');
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
     auth.onAuthStateChanged((user) => {
@@ -14,9 +17,15 @@ function Navbar() {
         const username = email.split('@')[0];
         setUsername(username);
         setIsLoggedIn(true);
+        if (user.uid === adminUid) {
+          setIsAdmin(true);
+        } else {
+          setIsAdmin(false);
+        }
       } else {
         setUsername('');
         setIsLoggedIn(false);
+        setIsAdmin(false);
       }
     });
   }, []);
@@ -39,6 +48,11 @@ function Navbar() {
           <li>
             <Link to="/booking">Booking</Link> {/* Use Link for Booking */}
           </li>
+          {isAdmin && (
+            <li>
+              <Link to="/admin">Admin</Link>
+            </li>
+          )}
           {isLoggedIn ? (
               <li>
                 <Link to="/" onClick={() => {
