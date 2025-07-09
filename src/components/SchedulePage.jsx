@@ -7,11 +7,20 @@ import dayjs from 'dayjs';
 import { get, ref, set, getDatabase } from 'firebase/database';
 import { auth } from '../assets/firebaseConfig';
 import './SchedulePage.css';
+import { useNavigate } from 'react-router-dom';
 
 function SchedulePage() {
+  const navigate = useNavigate();
   const [date, setDate] = useState(dayjs());
   const [bookingStatus, setBookingStatus] = useState({});
   const [hours, setHours] = useState([]);
+
+  useEffect(() => {
+    // chekc the login status, if the user is not logged in, redirect to login page
+    if (!auth.currentUser) {
+      navigate('/login');
+    }
+  },[]);
 
   useEffect(() => {
     const hours = Array.from({ length: 24 }, (_, i) => `${i.toString().padStart(2, '0')}:00-${(i + 1).toString().padStart(2, '0')}:00`);

@@ -7,11 +7,20 @@
   align-items: center;
 }
 
-.navbar-brand a {
-  color: white;
-  text-decoration: none;
-  font-weight: bold;
-  font-size: 1.2rem;
+.navbar-left {
+  margin-right: auto;
+}
+
+.navbar-brand {
+  text-align: center;
+}
+
+.navbar-brand img {
+  margin: 0 auto;
+}
+
+.navbar-right {
+  margin-left: auto;
 }
 
 .navbar-links {
