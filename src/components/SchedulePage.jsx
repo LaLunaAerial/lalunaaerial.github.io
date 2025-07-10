@@ -20,19 +20,22 @@ function SchedulePage() {
     if (!auth.currentUser) {
       navigate('/login');
     }
-  },[]);
+  }, []);
 
   useEffect(() => {
-    const hours = Array.from({ length: 24 }, (_, i) => `${i.toString().padStart(2, '0')}:00-${(i + 1).toString().padStart(2, '0')}:00`);
+    const hours = Array.from({ length: 48 }, (_, i) => {
+      const hour = Math.floor(i / 2);
+      const minute = (i % 2) * 30;
+      const endTime = (hour + (minute === 30 ? 1 : 0)).toString().padStart(2, '0') + ':' + (minute === 30 ? '00' : '30');
+      return `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}-${endTime}`;
+    });
     setHours(hours);
-  
+
     const dateKey = date.format('YYYY-MM-DD');
     const bookingRef = ref(getDatabase(), `bookings`);
     get(bookingRef).then((snapshot) => {
       if (snapshot.exists()) {
         const bookings = snapshot.val();
-        //TODO: remove this line
-        console.log('Bookings snapshot:', JSON.stringify(snapshot.val()));
         const bookingStatus = {};
         hours.forEach((hour) => {
           let isBooked = false;
@@ -84,20 +87,20 @@ function SchedulePage() {
           </tr>
         </thead>
         <tbody>
-  {hours.map((hour) => (
-    <tr key={hour}>
-      <td>{hour}</td>
-      <td>{bookingStatus[hour] === 'Booked' ? 'Booked' : 'Free'}</td>
-      <td>
-        {bookingStatus[hour] === 'Booked' ? (
-          <span>Booked</span>
-        ) : (
-          <button onClick={() => handleBook(hour)}>Book</button>
-        )}
-      </td>
-    </tr>
-  ))}
-</tbody>
+          {hours.map((hour) => (
+            <tr key={hour}>
+              <td>{hour}</td>
+              <td>{bookingStatus[hour] === 'Booked' ? 'Booked' : 'Free'}</td>
+              <td>
+                {bookingStatus[hour] === 'Booked' ? (
+                  <span>Booked</span>
+                ) : (
+                  <button onClick={() => handleBook(hour)}>Book</button>
+                )}
+              </td>
+            </tr>
+          ))}
+        </tbody>
       </table>
     </div>
   );
