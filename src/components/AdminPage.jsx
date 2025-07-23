@@ -36,7 +36,7 @@ function AdminPage() {
           const pendingBookingData = snapshot.val();
   
           // Create a new booking in the bookings record
-          const bookingRef = ref(db, `bookings/${pendingBookingData.email.split('@')[0]}/${pendingBookingData.date}`);
+          const bookingRef = ref(db, `bookings/${pendingBookingData.username}/${pendingBookingData.date}`);
           set(bookingRef, {
             [pendingBookingData.time]: 'Booked',
           });
@@ -71,7 +71,7 @@ function AdminPage() {
       <table className="timetable-table">
         <thead>
           <tr>
-            <th className="time-column">Email</th>
+            <th className="time-column">Username</th>
             <th className="status-column">Date</th>
             <th className="time-column">Time</th>
             <th className="actions-column">Actions</th>
@@ -80,7 +80,7 @@ function AdminPage() {
         <tbody>
           {Object.keys(pendingBookings).map((bookingId) => (
             <tr key={bookingId}>
-              <td>{pendingBookings[bookingId].email}</td>
+              <td>{pendingBookings[bookingId].username}</td>
               <td>{pendingBookings[bookingId].date}</td>
               <td>{pendingBookings[bookingId].time}</td>
               <td>

@@ -31,7 +31,7 @@ const ShoppingCart = () => {
     const bookingRequests = cart.map((item) => {
       const pendingBookingRef = ref(getDatabase(), `pendingBookings/${auth.currentUser.uid}_${item.date}_${item.time}`);
       return set(pendingBookingRef, {
-        email: auth.currentUser.email,
+        username: auth.currentUser.email.split('@')[0],
         date: item.date,
         time: item.time,
       });

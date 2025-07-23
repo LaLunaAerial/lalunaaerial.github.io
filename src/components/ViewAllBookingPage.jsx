@@ -37,7 +37,7 @@ const ViewAllBookingsPage = () => {
         Object.keys(pendingBookingsData).forEach((key) => {
           const pendingBooking = pendingBookingsData[key];
           allPendingBookings.push({
-            userId: pendingBooking.email,
+            userId: pendingBooking.username,
             date: pendingBooking.date,
             time: pendingBooking.time,
             status: 'Pending',

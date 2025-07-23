@@ -37,7 +37,7 @@ const MyBookingsPage = () => {
         const userPendingBookings = [];
         Object.keys(pendingBookingsData).forEach((key) => {
           const pendingBooking = pendingBookingsData[key];
-          if (pendingBooking.email === auth.currentUser.email) {
+          if (pendingBooking.username === auth.currentUser.email.split('@')[0]) {
             userPendingBookings.push({
               date: pendingBooking.date,
               time: pendingBooking.time,
