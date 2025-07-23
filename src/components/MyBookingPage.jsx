@@ -13,25 +13,22 @@ const MyBookingsPage = () => {
     const bookingsRef = ref(db, 'bookings');
     const pendingBookingsRef = ref(db, 'pendingBookings');
     get(bookingsRef).then((snapshot) => {
-      if (snapshot.exists()) {
-        const bookingsData = snapshot.val();
-        const userBookings = [];
-        Object.keys(bookingsData).forEach((userId) => {
-          if (userId === auth.currentUser.email.split('@')[0] || userId === auth.currentUser.email) {
-            Object.keys(bookingsData[userId]).forEach((date) => {
-              Object.keys(bookingsData[userId][date]).forEach((time) => {
-                userBookings.push({
-                  date,
-                  time,
-                  status: 'Approved',
-                });
-              });
-            });
-          }
-        });
-        setBookings(userBookings);
-      }
-    });
+    if (snapshot.exists()) {
+      const bookingsData = snapshot.val();
+      const userBookings = [];
+      Object.keys(bookingsData).forEach((bookingId) => {
+        const booking = bookingsData[bookingId];
+        if (booking.username === auth.currentUser.email.split('@')[0]) {
+          userBookings.push({
+            date: booking.date,
+            time: booking.time,
+            status: 'Approved'
+          });
+        }
+      });
+      setBookings(userBookings);
+    }
+  });
     get(pendingBookingsRef).then((snapshot) => {
       if (snapshot.exists()) {
         const pendingBookingsData = snapshot.val();

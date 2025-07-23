@@ -30,18 +30,19 @@ function AdminPage() {
     }
   }, [isAdmin]);
 
-  const handleApprove = async (bookingId) => {
-    if (isAdmin) {
-      const pendingBookingRef = ref(db, `pendingBookings/${bookingId}`);
-      get(pendingBookingRef).then((snapshot) => {
-        if (snapshot.exists()) {
-          const pendingBookingData = snapshot.val();
-  
-          // Create a new booking in the bookings record
-          const bookingRef = ref(db, `bookings/${pendingBookingData.username}/${pendingBookingData.date}`);
-          set(bookingRef, {
-            [pendingBookingData.time]: 'Booked',
-          });
+const handleApprove = async (bookingId) => {
+  if (isAdmin) {
+    const pendingBookingRef = ref(db, `pendingBookings/${bookingId}`);
+    get(pendingBookingRef).then((snapshot) => {
+      if (snapshot.exists()) {
+        const pendingBookingData = snapshot.val();
+        const newBookingId = bookingId; // generate a unique ID for the new booking, but now use the oldone instead
+        const bookingRef = ref(db, `bookings/${newBookingId}`);
+        set(bookingRef, {
+          username: pendingBookingData.username,
+          date: pendingBookingData.date,
+          time: pendingBookingData.time
+        });
   
           // Remove the pending booking
           set(pendingBookingRef, null);

@@ -13,24 +13,21 @@ const ViewAllBookingsPage = () => {
     const bookingsRef = ref(db, 'bookings');
     const pendingBookingsRef = ref(db, 'pendingBookings');
     get(bookingsRef).then((snapshot) => {
-      if (snapshot.exists()) {
-        const bookingsData = snapshot.val();
-        const allBookings = [];
-        Object.keys(bookingsData).forEach((userId) => {
-          Object.keys(bookingsData[userId]).forEach((date) => {
-            Object.keys(bookingsData[userId][date]).forEach((time) => {
-              allBookings.push({
-                userId,
-                date,
-                time,
-                status: 'Approved',
-              });
-            });
-          });
+    if (snapshot.exists()) {
+      const bookingsData = snapshot.val();
+      const allBookings = [];
+      Object.keys(bookingsData).forEach((bookingId) => {
+        const booking = bookingsData[bookingId];
+        allBookings.push({
+          username: booking.username,
+          date: booking.date,
+          time: booking.time,
+          status: 'Approved'
         });
-        setBookings(allBookings);
-      }
-    });
+      });
+      setBookings(allBookings);
+    }
+  });
     get(pendingBookingsRef).then((snapshot) => {
       if (snapshot.exists()) {
         const pendingBookingsData = snapshot.val();
@@ -38,7 +35,7 @@ const ViewAllBookingsPage = () => {
         Object.keys(pendingBookingsData).forEach((key) => {
           const pendingBooking = pendingBookingsData[key];
           allPendingBookings.push({
-            userId: pendingBooking.username,
+            username: pendingBooking.username,
             date: pendingBooking.date,
             time: pendingBooking.time,
             status: 'Pending',
@@ -68,7 +65,7 @@ const ViewAllBookingsPage = () => {
           <tbody>
             {[...bookings, ...pendingBookings].map((booking, index) => (
               <tr key={index}>
-                <td>{booking.userId}</td>
+                <td>{booking.username}</td>
                 <td>{booking.date}</td>
                 <td>{booking.time}</td>
                 <td>

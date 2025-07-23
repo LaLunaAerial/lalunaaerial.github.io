@@ -13,9 +13,9 @@ function SchedulePage() {
   const navigate = useNavigate();
   const [date, setDate] = useState(dayjs());
   const [bookingStatus, setBookingStatus] = useState({});
+  const [pendingBookingStatus, setPendingBookingStatus] = useState({});
   const [hours, setHours] = useState([]);
   const [cart, setCart] = useState(JSON.parse(localStorage.getItem('cart')) || []);
-  const [render, setRender] = useState(false);
 
   useEffect(() => {
     // check the login status, if the user is not logged in, redirect to login page
@@ -37,29 +37,57 @@ function SchedulePage() {
     });
     setHours(hours);
 
-    const dateKey = date.format('YYYY-MM-DD');
     const bookingRef = ref(getDatabase(), `bookings`);
+    const pendingBookingRef = ref(getDatabase(), `pendingBookings`);
+    
+    // fethch the bookings and update the bookingStatus state
     get(bookingRef).then((snapshot) => {
       if (snapshot.exists()) {
-        const bookings = snapshot.val();
-        const bookingStatus = {};
-        hours.forEach((hour) => {
-          let isBooked = false;
-          Object.keys(bookings).forEach((userName) => {
-            if (bookings[userName][dateKey] && bookings[userName][dateKey][hour] === 'Booked') {
-              isBooked = true;
-            }
-          });
-          bookingStatus[hour] = isBooked ? 'Booked' : 'Free';
+      const bookingsData = snapshot.val();
+      const bookingStatus = {};
+      hours.forEach((hour) => {
+        let isBooked = false;
+        Object.keys(bookingsData).forEach((bookingId) => {
+          const booking = bookingsData[bookingId];
+          if (booking.date === date.format('YYYY-MM-DD') && booking.time === hour) {
+            isBooked = true;
+          }
         });
-        setBookingStatus(bookingStatus);
-      } else {
-        const bookingStatus = {};
-  hours.forEach((hour) => {
-    bookingStatus[hour] = 'Free';
-  });
-  setBookingStatus(bookingStatus);
-      }
+        bookingStatus[hour] = isBooked ? 'Booked' : 'Free';
+      });
+      setBookingStatus(bookingStatus);
+    } else {
+      const bookingStatus = {};
+      hours.forEach((hour) => {
+        bookingStatus[hour] = 'Free';
+      });
+      setBookingStatus(bookingStatus);
+    }
+    });
+
+    // fethch the bookings and update the bookingStatus state
+    get(pendingBookingRef).then((snapshot) => {
+      if (snapshot.exists()) {
+      const pendingBookingsData = snapshot.val();
+      const pendingBookingStatus = {};
+      hours.forEach((hour) => {
+        let isBooked = false;
+        Object.keys(pendingBookingsData).forEach((bookingId) => {
+          const pendingBooking = pendingBookingsData[bookingId];
+          if (pendingBooking.date === date.format('YYYY-MM-DD') && pendingBooking.time === hour) {
+            isBooked = true;
+          }
+        });
+        pendingBookingStatus[hour] = isBooked ? 'Booked' : 'Free';
+      });
+      setPendingBookingStatus(pendingBookingStatus);
+    } else {
+      const pendingBookingStatus = {};
+      hours.forEach((hour) => {
+        pendingBookingStatus[hour] = 'Free';
+      });
+      setPendingBookingStatus(pendingBookingStatus);
+    }
     });
   }, [date]);
 
@@ -102,12 +130,12 @@ function SchedulePage() {
       <p>
         Selected date: {date ? date.format('MM/DD/YYYY') : 'No date selected'}
       </p>
-      <table class="timetable-table">
+      <table className="timetable-table">
         <thead>
           <tr>
-            <th class="time-column">Time</th>
-            <th class="status-column">Status</th>
-            <th class="actions-column">Actions</th>
+            <th className="time-column">Time</th>
+            <th className="status-column">Status</th>
+            <th className="actions-column">Actions</th>
           </tr>
         </thead>
         <tbody>
@@ -115,7 +143,7 @@ function SchedulePage() {
   <tr key={index}>
     <td>{hour}</td>
     <td>
-          {bookingStatus[hour] === 'Free' ? (
+          {bookingStatus[hour] === 'Free'&& pendingBookingStatus[hour] === 'Free' ? (
             <span>Available</span>
           ) : (
             <span>Occupied</span>
@@ -124,7 +152,7 @@ function SchedulePage() {
     <td>
       {cart.find((item) => item.date === date.format('YYYY-MM-DD') && item.time === hour) ? (
         <button className="selected-grey" disabled>Selected</button>
-      ) : bookingStatus[hour] === 'Booked' ? (
+      ) : bookingStatus[hour] === 'Booked' || pendingBookingStatus[hour] === 'Booked'? (
         <button className="selected-grey" disabled>Registered</button>
       ) : (
         <button className="book-button" onClick={() => handleBook(hour)} disabled={cart.find((item) => item.date === date.format('YYYY-MM-DD') && item.time === hour) ? true : false}>Book</button>
