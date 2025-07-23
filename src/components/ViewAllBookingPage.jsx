@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { getDatabase, ref, get } from 'firebase/database';
 import { auth } from '../assets/firebaseConfig';
+import './ViewAllBookingPage.css';
 
 const ViewAllBookingsPage = () => {
   const [bookings, setBookings] = useState([]);
@@ -50,7 +51,7 @@ const ViewAllBookingsPage = () => {
   }, []);
 
   return (
-    <div>
+    <div className='viewallbookings-page'>
       <h2>All Bookings</h2>
       {loading ? (
         <p>Loading...</p>
@@ -58,10 +59,10 @@ const ViewAllBookingsPage = () => {
         <table>
           <thead>
             <tr>
-              <th>User ID</th>
-              <th>Date</th>
-              <th>Time</th>
-              <th>Status</th>
+              <th className="username-column">User Name</th>
+              <th className="date-column">Date</th>
+              <th className="time-column">Time</th>
+              <th className="status-column">Status</th>
             </tr>
           </thead>
           <tbody>

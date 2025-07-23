@@ -1,0 +1,34 @@
+.mybookings-page table {
+    border-collapse: collapse;
+    width: 100%;
+    margin-bottom: 20px;
+  }
+  
+  .mybookings-page th, .mybookings-page td {
+    border: 1px solid #ddd;
+    padding: 10px;
+    text-align: left;
+  }
+  
+  .mybookings-page th {
+    background-color: #FFC5C5; /* pink background color */
+    color: #fff; /* white text color */
+    font-weight: bold;
+  }
+  
+  .mybookings-page td {
+    vertical-align: middle;
+  }
+  
+  .mybookings-page .date-column {
+    width: 20%;
+  }
+  
+  .mybookings-page .time-column {
+    width: 30%;
+  }
+  
+  .mybookings-page .status-column {
+    width: 50%;
+    text-align: center;
+  }

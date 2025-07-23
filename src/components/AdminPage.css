@@ -1,56 +1,48 @@
-/* components/AdminPage.css */
-.admin-container {
-  max-width: 800px;
-  margin: 40px auto;
-  padding: 20px;
-  background-color: #f9f9f9;
-  border: 1px solid #ddd;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-}
-
 .admin-container h2 {
   margin-top: 0;
 }
 
-.timetable-table {
+.admin-container table{
   border-collapse: collapse;
   width: 100%;
   margin-bottom: 20px;
 }
 
-.timetable-table th, .timetable-table td {
+.admin-container th, .admin-container td {
   border: 1px solid #ddd;
   padding: 10px;
   text-align: left;
 }
 
-.timetable-table th {
-  background-color: #f0f0f0;
+.admin-container th {
+   background-color: #FFC5C5; /* pink background color */
+    color: #fff; /* white text color */
+    font-weight: bold;
 }
 
-.timetable-table .time-column {
+.admin-container .time-column {
   width: 20%;
 }
 
-.timetable-table .status-column {
+.admin-container .status-column {
   width: 30%;
 }
 
-.timetable-table .actions-column {
+.admin-container .actions-column {
   width: 50%;
   text-align: center;
 }
 
-.admin-button {
+.admin-container .admin-button {
   margin: 5px;
   padding: 5px 10px;
   border: none;
   border-radius: 5px;
-  background-color: #FF69B4;
+  background-color: #FFC5C5;
   color: #fff;
   cursor: pointer;
 }
 
-.admin-button:hover {
-  background-color: #FF99CC;
+.admin-container .admin-button:hover {
+  background-color: #f8cce2;
 }

@@ -2,9 +2,11 @@
 import React, { useState, useEffect } from 'react';
 import { getDatabase, ref, get, set } from 'firebase/database';
 import { auth } from '../assets/firebaseConfig';
+import './AdminPage.css';
 
 const db = getDatabase();
 const adminUid = '796IkiShehcJ4BQFCXEnpe8If7t1';
+
 
 function AdminPage() {
   const [pendingBookings, setPendingBookings] = useState({});
@@ -68,13 +70,13 @@ function AdminPage() {
   return (
     <div className="admin-container">
       <h2>Pending Bookings</h2>
-      <table className="timetable-table">
+      <table >
         <thead>
           <tr>
-            <th className="time-column">Username</th>
-            <th className="status-column">Date</th>
-            <th className="time-column">Time</th>
-            <th className="actions-column">Actions</th>
+            <th>Username</th>
+            <th>Date</th>
+            <th>Time</th>
+            <th>Actions</th>
           </tr>
         </thead>
         <tbody>

@@ -1,0 +1,38 @@
+.viewallbookings-page table {
+    border-collapse: collapse;
+    width: 100%;
+    margin-bottom: 20px;
+  }
+  
+  .viewallbookings-page th, .viewallbookings-page td {
+    border: 1px solid #ddd;
+    padding: 10px;
+    text-align: left;
+  }
+  
+  .viewallbookings-page th {
+    background-color: #FFC5C5; /* pink background color */
+    color: #fff; /* white text color */
+    font-weight: bold;
+  }
+  
+  .viewallbookings-page td {
+    vertical-align: middle;
+  }
+  
+  .viewallbookings-page .username-column {
+    width: 30%;
+  }
+  
+  .viewallbookings-page .date-column {
+    width: 30%;
+  }
+  
+  .viewallbookings-page .time-column {
+    width: 20%;
+    text-align: center;
+  }
+  .viewallbookings-page .status-column {
+    width: 20%;
+    text-align: center;
+  }
