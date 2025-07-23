@@ -53,16 +53,23 @@ function Navbar() {
               <Link to="/admin">Admin</Link>
             </li>
           )}
+          {isLoggedIn && (
+            <li>
+              <Link to="/shopping-cart">Shopping Cart</Link>
+            </li>
+          )}
           {isLoggedIn ? (
               <li>
                 <Link to="/" onClick={() => {
                   auth.signOut().then(() => {
                     alert("Logged Out");
+                    localStorage.removeItem('cart');
                   });
                 }}>
                   Logout
                 </Link>
               </li>
+
             ) : (
               <li>
                 <Link to="/login">Login/Register</Link> {/* Add Login/Register link */}

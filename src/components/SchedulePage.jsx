@@ -14,14 +14,20 @@ function SchedulePage() {
   const [date, setDate] = useState(dayjs());
   const [bookingStatus, setBookingStatus] = useState({});
   const [hours, setHours] = useState([]);
+  const [cart, setCart] = useState(JSON.parse(localStorage.getItem('cart')) || []);
+  const [render, setRender] = useState(false);
 
   useEffect(() => {
-    // chekc the login status, if the user is not logged in, redirect to login page
+    // check the login status, if the user is not logged in, redirect to login page
     if (!auth.currentUser) {
       navigate('/login');
     }
   }, []);
 
+  useEffect(() => {
+    setCart(JSON.parse(localStorage.getItem('cart')) || []);
+  }, [localStorage.getItem('cart')]);
+  
   useEffect(() => {
     const hours = Array.from({ length: 48 }, (_, i) => {
       const hour = Math.floor(i / 2);
@@ -48,27 +54,45 @@ function SchedulePage() {
         });
         setBookingStatus(bookingStatus);
       } else {
-        setBookingStatus({});
+        const bookingStatus = {};
+  hours.forEach((hour) => {
+    bookingStatus[hour] = 'Free';
+  });
+  setBookingStatus(bookingStatus);
       }
     });
   }, [date]);
+
+
 
   const handleBook = async (hour) => {
     if (!auth.currentUser) {
       alert('Please log in to book a room');
       return;
     }
-
-    const pendingBookingRef = ref(getDatabase(), `pendingBookings/${auth.currentUser.uid}_${date.format('YYYY-MM-DD')}_${hour}`);
-    await set(pendingBookingRef, {
-      email: auth.currentUser.email,
-      date: date.format('YYYY-MM-DD'),
-      time: hour,
-    });
-
-    alert('Booking submitted for approval');
+  
+    const newCart = JSON.parse(localStorage.getItem('cart')) || [];
+    const isAlreadyInCart = newCart.find((item) => item.date === date.format('YYYY-MM-DD') && item.time === hour);
+  
+    if (isAlreadyInCart) {
+      alert('Time slot is already in your cart');
+      return;
+    }
+  
+    // Add the selected time slot to the shopping cart
+    newCart.push({ date: date.format('YYYY-MM-DD'), time: hour });
+    localStorage.setItem('cart', JSON.stringify(newCart));
+  
+    // Update the bookingStatus state to reflect the selected time slot
+    const newBookingStatus = { ...bookingStatus };
+    newBookingStatus[hour] = 'selected';
+    setBookingStatus(newBookingStatus);
+  
+    // Update the cart state to re-render the component
+    setCart(newCart);
+  
+    alert('Time slot added to cart');
   };
-
   return (
     <div className='schedule-container'>
       <h2>Room Booking</h2>
@@ -87,19 +111,27 @@ function SchedulePage() {
           </tr>
         </thead>
         <tbody>
-          {hours.map((hour) => (
-            <tr key={hour}>
-              <td>{hour}</td>
-              <td>{bookingStatus[hour] === 'Booked' ? 'Booked' : 'Free'}</td>
-              <td>
-                {bookingStatus[hour] === 'Booked' ? (
-                  <span>Booked</span>
-                ) : (
-                  <button onClick={() => handleBook(hour)}>Book</button>
-                )}
-              </td>
-            </tr>
-          ))}
+        {hours.map((hour, index) => (
+  <tr key={index}>
+    <td>{hour}</td>
+    <td>
+          {bookingStatus[hour] === 'Free' ? (
+            <span>Available</span>
+          ) : (
+            <span>Occupied</span>
+          )}
+        </td>
+    <td>
+      {cart.find((item) => item.date === date.format('YYYY-MM-DD') && item.time === hour) ? (
+        <button className="selected-grey" disabled>Selected</button>
+      ) : bookingStatus[hour] === 'Booked' ? (
+        <button className="selected-grey" disabled>Registered</button>
+      ) : (
+        <button className="book-button" onClick={() => handleBook(hour)} disabled={cart.find((item) => item.date === date.format('YYYY-MM-DD') && item.time === hour) ? true : false}>Book</button>
+      )}
+    </td>
+  </tr>
+))}
         </tbody>
       </table>
     </div>

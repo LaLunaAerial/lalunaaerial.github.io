@@ -40,7 +40,7 @@
   text-align: center;
 }
 
-.timetable-table td button {
+.book-button {
   margin: 5px;
   padding: 5px 10px;
   border: none;
@@ -50,6 +50,15 @@
   cursor: pointer;
 }
 
-.timetable-table td button:hover {
-  background-color: #FFC5C5; /* lighter pink background color on hover */
+.book-button:hover {
+  background-color: #f7e3e3; /* lighter pink background color on hover */
+}
+
+.selected-grey {
+  background-color: #ccc; /* grey background color */
+  color: #fff; /* dark grey text color */
+  border: none;
+  border-radius: 5px;
+  padding: 5px 10px;
+  cursor: pointer;
 }

@@ -5,6 +5,7 @@ import HomePage from './components/HomePage';
 import LoginPage from './components/LoginPage';
 import SchedulePage from './components/SchedulePage';
 import AdminPage from './components/AdminPage';
+import ShoppingCart from './components/ShoppingCart';
 
 function New() {
   return (
@@ -15,6 +16,7 @@ function New() {
         <Route path='/login' element={<LoginPage />} />
         <Route path='/booking' element={<SchedulePage />} />
         <Route path='/admin' element={<AdminPage />} />
+        <Route path='/shopping-cart' element={<ShoppingCart />} />
       </Routes>
     </BrowserRouter>
   );

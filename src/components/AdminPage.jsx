@@ -34,16 +34,16 @@ function AdminPage() {
       get(pendingBookingRef).then((snapshot) => {
         if (snapshot.exists()) {
           const pendingBookingData = snapshot.val();
-
+  
           // Create a new booking in the bookings record
           const bookingRef = ref(db, `bookings/${pendingBookingData.email.split('@')[0]}/${pendingBookingData.date}`);
           set(bookingRef, {
             [pendingBookingData.time]: 'Booked',
           });
-
+  
           // Remove the pending booking
           set(pendingBookingRef, null);
-
+  
           // Update the pending bookings state
           const newPendingBookings = { ...pendingBookings };
           delete newPendingBookings[bookingId];
@@ -52,19 +52,19 @@ function AdminPage() {
       });
     }
   };
-
+  
   const handleReject = async (bookingId) => {
     if (isAdmin) {
       const pendingBookingRef = ref(db, `pendingBookings/${bookingId}`);
       set(pendingBookingRef, null);
-
+  
       // Update the pending bookings state
       const newPendingBookings = { ...pendingBookings };
       delete newPendingBookings[bookingId];
       setPendingBookings(newPendingBookings);
     }
   };
-
+  
   return (
     <div className="admin-container">
       <h2>Pending Bookings</h2>
