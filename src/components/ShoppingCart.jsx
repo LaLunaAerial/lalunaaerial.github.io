@@ -3,7 +3,6 @@ import { getDatabase, ref, get, set } from 'firebase/database';
 import { auth } from '../assets/firebaseConfig';
 import './ShoppingCart.css';
 
-const db = getDatabase();
 const ShoppingCart = () => {
   const [cart, setCart] = useState(JSON.parse(localStorage.getItem('cart')) || []);
 

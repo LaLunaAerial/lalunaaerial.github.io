@@ -38,7 +38,7 @@ function Navbar() {
         )}
       </div>
       <div className='navbar-brand'>
-        <Link to="/"><img src="/LaLUNA_icon.jpg" alt="Logo" style={{width: 50}}/></Link> {/* Use Link for the brand */}
+        <Link to="/"><img src="/LaLUNA_icon.jpg" alt="Logo" style={{width: 50}}/></Link>
       </div>
       <div className='navbar-right'>
         <ul className='navbar-links'>
@@ -53,29 +53,32 @@ function Navbar() {
               <Link to="/admin">Admin</Link>
             </li>
           )}
+          {isAdmin && (
+            <li>
+              <Link to="/view-all-bookings">View All Bookings</Link>
+            </li>
+          )}
+          
           {isLoggedIn && (
             <li>
               <Link to="/shopping-cart">Shopping Cart</Link>
             </li>
           )}
-          {isLoggedIn ? (
-              <li>
-                <Link to="/" onClick={() => {
-                  auth.signOut().then(() => {
-                    alert("Logged Out");
-                    localStorage.removeItem('cart');
-                  });
-                }}>
-                  Logout
-                </Link>
-              </li>
-
-            ) : (
-              <li>
-                <Link to="/login">Login/Register</Link> {/* Add Login/Register link */}
-              </li>
-            )}
-         
+          {isLoggedIn && (
+            <li>
+              <Link to="/my-bookings">My Bookings</Link>
+            </li>
+          )}
+          {isLoggedIn && (
+            <li>
+              <Link to="/login" onClick={() => auth.signOut()}>Logout</Link>
+            </li>
+          )}
+          {!isLoggedIn && (
+            <li>
+              <Link to="/login">Login</Link>
+            </li>
+          )}
         </ul>
       </div>
     </nav>
