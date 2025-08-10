@@ -10,7 +10,6 @@ function HomePage() {
         <h1>Welcome to Our Room Booking System</h1>
       </header>
       <img src="/LaLUNA_icon.jpg" alt="Room" className="room-image" />
-      <p>Place for you to always play aerial!</p>
     </div>
   );
 }
