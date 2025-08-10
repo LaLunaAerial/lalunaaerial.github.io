@@ -48,6 +48,9 @@ function Navbar() {
           <li>
             <Link to="/booking">Booking</Link> {/* Use Link for Booking */}
           </li>
+          <li>
+          <Link to="/price">Price</Link>
+        </li>
           {isAdmin && (
             <li>
               <Link to="/admin">Admin</Link>
@@ -79,6 +82,9 @@ function Navbar() {
               <Link to="/login">Login</Link>
             </li>
           )}
+          <li>
+            <Link to=".">       </Link>
+          </li>
         </ul>
       </div>
     </nav>

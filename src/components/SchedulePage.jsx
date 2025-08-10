@@ -8,6 +8,7 @@ import { get, ref, set, getDatabase } from 'firebase/database';
 import { auth } from '../assets/firebaseConfig';
 import './SchedulePage.css';
 import { useNavigate } from 'react-router-dom';
+import { getTimeCategoryPrice } from '../assets/timeCategoriesPrice';
 
 function SchedulePage() {
   const navigate = useNavigate();
@@ -106,9 +107,12 @@ function SchedulePage() {
       alert('Time slot is already in your cart');
       return;
     }
-  
+
+    // Get the price for the selected time slot
+    const price = getTimeCategoryPrice(hour);
+    console.log(`Price for ${hour}: $${price}`); // Debugging line to check the price
     // Add the selected time slot to the shopping cart
-    newCart.push({ date: date.format('YYYY-MM-DD'), time: hour });
+    newCart.push({ date: date.format('YYYY-MM-DD'), time: hour, price });
     localStorage.setItem('cart', JSON.stringify(newCart));
   
     // Update the bookingStatus state to reflect the selected time slot

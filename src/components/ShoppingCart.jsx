@@ -7,8 +7,8 @@ const ShoppingCart = () => {
   const [cart, setCart] = useState(JSON.parse(localStorage.getItem('cart')) || []);
 
   useEffect(() => {
-    
     const storedCart = JSON.parse(localStorage.getItem('cart'));
+    console.log('Stored cart:', storedCart); // Debugging line to check the stored cart
     if (storedCart) {
       setCart(storedCart);
     }
@@ -43,6 +43,9 @@ const ShoppingCart = () => {
     localStorage.setItem('cart', JSON.stringify([]));
   };
 
+  // Calculate the total price of the items in the cart
+  const totalPrice = cart.reduce((acc, item) => acc + item.price, 0);
+
   return (
     <div className="shopping-cart">
       <h2>Shopping Cart</h2>
@@ -51,6 +54,7 @@ const ShoppingCart = () => {
           <tr>
             <th>Date</th>
             <th>Time</th>
+            <th>Price</th>
             <th>Actions</th>
           </tr>
         </thead>
@@ -59,6 +63,7 @@ const ShoppingCart = () => {
             <tr key={index}>
               <td>{item.date}</td>
               <td>{item.time}</td>
+              <td>${item.price}</td>
               <td>
                 <button onClick={() => handleRemove(index)}>Clear</button>
               </td>
@@ -66,6 +71,8 @@ const ShoppingCart = () => {
           ))}
         </tbody>
       </table>
+      <span>Total: ${totalPrice}</span>
+      <br />
       <button className="submit-button" onClick={handleSubmit}>Submit</button>
       <div className="payme-code">
   <img src="/PaymeCode.jpg" alt="Payme Code" />

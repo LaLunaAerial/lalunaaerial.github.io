@@ -8,20 +8,22 @@ import AdminPage from './components/AdminPage';
 import ShoppingCart from './components/ShoppingCart';
 import MyBookingPage from './components/MyBookingPage';
 import ViewAllBookingPage from './components/ViewAllBookingPage';
+import PricePage from './components/PricePage';
 
 function New() {
   return (
     <BrowserRouter>
       <Navbar />
       <Routes>
-        <Route path='/' element={<HomePage />} />
-        <Route path='/login' element={<LoginPage />} />
-        <Route path='/booking' element={<SchedulePage />} />
-        <Route path='/admin' element={<AdminPage />} />
-        <Route path='/shopping-cart' element={<ShoppingCart />} />
-        <Route path="/my-bookings" element={<MyBookingPage />} />
-        <Route path="/view-all-bookings" element={<ViewAllBookingPage />} />
-      </Routes>
+      <Route path='/' element={<HomePage />} />
+      <Route path='/login' element={<LoginPage />} />
+      <Route path='/booking' element={<SchedulePage />} />
+      <Route path='/admin' element={<AdminPage />} />
+      <Route path='/shopping-cart' element={<ShoppingCart />} />
+      <Route path="/my-bookings" element={<MyBookingPage />} />
+      <Route path="/view-all-bookings" element={<ViewAllBookingPage />} />
+      <Route path="/price" element={<PricePage />} />
+    </Routes>
     </BrowserRouter>
   );
 }
