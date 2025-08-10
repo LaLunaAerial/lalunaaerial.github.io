@@ -74,8 +74,12 @@ const ShoppingCart = () => {
       <span>Total: ${totalPrice}</span>
       <br />
       <button className="submit-button" onClick={handleSubmit}>Submit</button>
+      <div className="payment-instruction">
+        <h6>當您提交預訂之後,請將付款金額傳至以下Payme帳號。</h6>
+      </div>
       <div className="payme-code">
-  <img src="/PaymeCode.jpg" alt="Payme Code" />
+        <h2>Payme Code:</h2>
+  <img src={require('../assets/PaymeCode.jpg')} alt="Payme Code" />
 </div>
     </div>
   );
