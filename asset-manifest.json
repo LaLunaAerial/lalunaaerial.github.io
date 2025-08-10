@@ -1,15 +1,15 @@
 {
   "files": {
     "main.css": "/static/css/main.6a2ecb40.css",
-    "main.js": "/static/js/main.f96ba5cf.js",
+    "main.js": "/static/js/main.71cb10f7.js",
     "static/media/PaymeCode.jpg": "/static/media/PaymeCode.45b9ebb9eef91b53bec1.jpg",
     "static/media/Price_List.jpg": "/static/media/Price_List.cf1a845e1c851499c12b.jpg",
     "index.html": "/index.html",
     "main.6a2ecb40.css.map": "/static/css/main.6a2ecb40.css.map",
-    "main.f96ba5cf.js.map": "/static/js/main.f96ba5cf.js.map"
+    "main.71cb10f7.js.map": "/static/js/main.71cb10f7.js.map"
   },
   "entrypoints": [
     "static/css/main.6a2ecb40.css",
-    "static/js/main.f96ba5cf.js"
+    "static/js/main.71cb10f7.js"
   ]
 }
