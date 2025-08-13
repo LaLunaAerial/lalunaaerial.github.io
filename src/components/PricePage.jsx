@@ -6,7 +6,8 @@ import './PricePage.css';
 function PricePage(){
   return (
     <div className="price-page">
-      <img src={require('../assets/Price_List.jpg')} alt="Price List" />
+      <img src={require('../assets/SingleBookingPrice.jpg')} alt="Single Booking Price" />
+      <img src={require('../assets/RentalPackagePrice.jpg')} alt="Rental Package Price" />
     </div>
   );
 };

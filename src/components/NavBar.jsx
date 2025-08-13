@@ -37,9 +37,7 @@ function Navbar() {
           <span>Welcome, {username}</span>
         )}
       </div>
-      <div className='navbar-brand'>
-        <Link to="/"><img src="/LaLUNA_icon.jpg" alt="Logo" style={{width: 50}}/></Link>
-      </div>
+
       <div className='navbar-right'>
         <ul className='navbar-links'>
           <li>

@@ -21,6 +21,7 @@ function SchedulePage() {
   useEffect(() => {
     // check the login status, if the user is not logged in, redirect to login page
     if (!auth.currentUser) {
+      alert("PLease login first.")
       navigate('/login');
     }
   }, []);
