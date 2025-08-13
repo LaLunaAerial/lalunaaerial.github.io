@@ -1,19 +1,20 @@
 // components/LoginPage.jsx
 import React, { useState } from 'react';
 import { auth } from '../assets/firebaseConfig';
-import { signInWithEmailAndPassword, createUserWithEmailAndPassword } from 'firebase/auth';
+import { signInWithEmailAndPassword, createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
 import { useNavigate } from 'react-router-dom';
 import './LoginPage.css';
 
 function LoginPage() {
-  const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
+  const [name, setName] = useState('');
   const [isRegistering, setIsRegistering] = useState(false); // State to toggle between login and register
   const navigate = useNavigate();
 
   const handleSignIn = async () => {
     try {
-      await signInWithEmailAndPassword(auth, email, password);
+      await signInWithEmailAndPassword(auth, phone+"@phone.com", password);
       console.log('Sign-in successful');
       alert('Sign-in successful!');
 
@@ -31,8 +32,10 @@ function LoginPage() {
 
   const handleRegister = async () => {
     try {
-      await createUserWithEmailAndPassword(auth, email, password);
+      await createUserWithEmailAndPassword(auth, phone+"@phone.com", password);
       console.log('User registered successfully');
+      await updateProfile(auth.currentUser, { displayName: name });
+      console.log("Updated the profile with the user.displayName");
       alert('Registration successful! You can now log in.');
       setIsRegistering(false); // Switch back to login after successful registration
     } catch (error) {
@@ -44,14 +47,24 @@ function LoginPage() {
   return (
     <div className="login-container">
       <h2>{isRegistering ? 'Register' : 'Login'}</h2>
-      <div className="input-group">
-        <label htmlFor="email">Email</label>
+      {isRegistering?(<div className="input-group">
+        <label htmlFor="name">Name</label>
         <input
-          type="email"
-          id="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          placeholder="Email"
+          type="name"
+          id="name"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          placeholder="Name"
+        />
+      </div>):null}
+      <div className="input-group">
+        <label htmlFor="phone">Phone</label>
+        <input
+          type="phone"
+          id="phone"
+          value={phone}
+          onChange={(e) => setPhone(e.target.value)}
+          placeholder="Phone"
         />
       </div>
       <div className="input-group">
@@ -64,7 +77,7 @@ function LoginPage() {
           placeholder="Password"
         />
       </div>
-
+      
       {isRegistering ? (
         <>
           <button onClick={handleRegister} className="login-button">

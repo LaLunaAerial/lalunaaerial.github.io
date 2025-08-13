@@ -3,7 +3,8 @@ import { Link } from 'react-router-dom'; // Import Link
 import { auth } from '../assets/firebaseConfig';
 import './NavBar.css';
 
-const adminUid = '796IkiShehcJ4BQFCXEnpe8If7t1';
+const adminUid = 'm27guDkDb4dL7NRm0HfEYYI2Ouw1';
+const oldAdminUid='796IkiShehcJ4BQFCXEnpe8If7t1';
 
 function Navbar() {
   const [username, setUsername] = useState('');
@@ -13,8 +14,7 @@ function Navbar() {
   useEffect(() => {
     auth.onAuthStateChanged((user) => {
       if (user) {
-        const email = user.email;
-        const username = email.split('@')[0];
+        const username = user.displayName;
         setUsername(username);
         setIsLoggedIn(true);
         if (user.uid === adminUid) {

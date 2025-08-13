@@ -18,7 +18,7 @@ const MyBookingsPage = () => {
       const userBookings = [];
       Object.keys(bookingsData).forEach((bookingId) => {
         const booking = bookingsData[bookingId];
-        if (booking.username === auth.currentUser.email.split('@')[0]) {
+        if (booking.username === auth.currentUser.displayName) {
           userBookings.push({
             date: booking.date,
             time: booking.time,
@@ -35,7 +35,7 @@ const MyBookingsPage = () => {
         const userPendingBookings = [];
         Object.keys(pendingBookingsData).forEach((key) => {
           const pendingBooking = pendingBookingsData[key];
-          if (pendingBooking.username === auth.currentUser.email.split('@')[0]) {
+          if (pendingBooking.username === auth.currentUser.displayName) {
             userPendingBookings.push({
               date: pendingBooking.date,
               time: pendingBooking.time,

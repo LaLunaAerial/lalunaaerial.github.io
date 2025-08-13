@@ -4,9 +4,12 @@ import { getDatabase, ref, get, set } from 'firebase/database';
 import { auth } from '../assets/firebaseConfig';
 import './AdminPage.css';
 
-const db = getDatabase();
-const adminUid = '796IkiShehcJ4BQFCXEnpe8If7t1';
 
+
+const adminUid = 'm27guDkDb4dL7NRm0HfEYYI2Ouw1';
+const oldAdminUid='796IkiShehcJ4BQFCXEnpe8If7t1';
+
+const db = getDatabase();
 
 function AdminPage() {
   const [pendingBookings, setPendingBookings] = useState({});

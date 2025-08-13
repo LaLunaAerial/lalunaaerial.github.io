@@ -3,7 +3,8 @@ import { getDatabase, ref, get, set } from 'firebase/database';
 import { auth } from '../assets/firebaseConfig';
 import "./ViewAllBookingPage.css";
 
-const adminUid = '796IkiShehcJ4BQFCXEnpe8If7t1';
+const adminUid = 'm27guDkDb4dL7NRm0HfEYYI2Ouw1';
+const oldAdminUid='796IkiShehcJ4BQFCXEnpe8If7t1';
 
 const ViewAllBookingsPage = () => {
   const [bookings, setBookings] = useState([]);
