@@ -3,10 +3,24 @@ import { getDatabase, ref, get, set } from 'firebase/database';
 import { auth } from '../assets/firebaseConfig';
 import "./ViewAllBookingPage.css";
 
+const adminUid = '796IkiShehcJ4BQFCXEnpe8If7t1';
+
 const ViewAllBookingsPage = () => {
   const [bookings, setBookings] = useState([]);
   const [pendingBookings, setPendingBookings] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [isAdmin, setIsAdmin] = useState(false);
+
+  useEffect(() => {
+    const user = auth.currentUser;
+    if (user && user.uid === adminUid) {
+      setIsAdmin(true);
+    }else{
+      setIsAdmin(false);
+      alert("You are not authorized to access this page.");
+      window.location.href = '/'; // Redirect to home or another page
+    }
+  }, [isAdmin]);
 
   useEffect(() => {
     const db = getDatabase();
@@ -72,8 +86,9 @@ const ViewAllBookingsPage = () => {
     });
   }, [pendingBookings]);
 
+
   const handleApprove = async (bookingId) => {
-    if (auth.currentUser) {
+    if (isAdmin) {
       const db = getDatabase();
       const pendingBookingRef = ref(db, `pendingBookings/${bookingId}`);
       get(pendingBookingRef).then((snapshot) => {
@@ -99,7 +114,7 @@ const ViewAllBookingsPage = () => {
   };
 
   const handleReject = async (bookingId) => {
-    if (auth.currentUser) {
+    if (isAdmin) {
       const db = getDatabase();
       const pendingBookingRef = ref(db, `pendingBookings/${bookingId}`);
       set(pendingBookingRef, null);
@@ -113,7 +128,7 @@ const ViewAllBookingsPage = () => {
   };
 
   const handleCancel = async (bookingId) => {
-    if (auth.currentUser) {
+    if (isAdmin) {
       const db = getDatabase();
       const bookingRef = ref(db, `bookings/${bookingId}`);
       set(bookingRef, null);

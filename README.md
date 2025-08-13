@@ -6,4 +6,3 @@ requirements:
 或者佢會收到個系統自動send俾佢嘅email去confirm ？
 
 1. upload Payme Capscreen呢個係做到嘅
-2. 我可以喺Admin Account嘅View All Booking Page, 加入新功能：可以Delete 確認咗嘅booking

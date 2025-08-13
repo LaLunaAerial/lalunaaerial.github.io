@@ -17,6 +17,11 @@ function AdminPage() {
     if (user && user.uid === adminUid) {
       setIsAdmin(true);
     }
+    else{
+      setIsAdmin(false);
+      alert("You are not authorized to access this page.");
+      window.location.href = '/'; // Redirect to home or another page
+    }
 
     if (isAdmin) {
       const pendingBookingsRef = ref(db, 'pendingBookings');
