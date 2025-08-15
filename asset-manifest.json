@@ -1,15 +1,17 @@
 {
   "files": {
-    "main.css": "/static/css/main.6a2ecb40.css",
-    "main.js": "/static/js/main.71cb10f7.js",
-    "static/media/PaymeCode.jpg": "/static/media/PaymeCode.45b9ebb9eef91b53bec1.jpg",
-    "static/media/Price_List.jpg": "/static/media/Price_List.cf1a845e1c851499c12b.jpg",
+    "main.css": "/static/css/main.6fc9a4fc.css",
+    "main.js": "/static/js/main.feabec07.js",
+    "static/media/RentalPackagePrice.jpg": "/static/media/RentalPackagePrice.abca0f3ce034a9d2749d.jpg",
+    "static/media/PaymeCode.jpg": "/static/media/PaymeCode.9454077a176000eec6b1.jpg",
+    "static/media/LaLUNA_icon.jpg": "/static/media/LaLUNA_icon.c98d69420e1523f31862.jpg",
+    "static/media/SingleBookingPrice.jpg": "/static/media/SingleBookingPrice.e2bc3246b0bb2ed870ec.jpg",
     "index.html": "/index.html",
-    "main.6a2ecb40.css.map": "/static/css/main.6a2ecb40.css.map",
-    "main.71cb10f7.js.map": "/static/js/main.71cb10f7.js.map"
+    "main.6fc9a4fc.css.map": "/static/css/main.6fc9a4fc.css.map",
+    "main.feabec07.js.map": "/static/js/main.feabec07.js.map"
   },
   "entrypoints": [
-    "static/css/main.6a2ecb40.css",
-    "static/js/main.71cb10f7.js"
+    "static/css/main.6fc9a4fc.css",
+    "static/js/main.feabec07.js"
   ]
 }
