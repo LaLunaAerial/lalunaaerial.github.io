@@ -75,6 +75,11 @@ function Navbar() {
           )}
           {isLoggedIn && (
             <li>
+              <Link to="/account-information">Account Information</Link>
+            </li>
+          )}
+          {isLoggedIn && (
+            <li>
               <Link to="/login" onClick={() => auth.signOut()}>Logout</Link>
             </li>
           )}

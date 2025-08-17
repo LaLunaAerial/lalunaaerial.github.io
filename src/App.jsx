@@ -10,6 +10,7 @@ import MyBookingPage from './components/MyBookingPage';
 import ViewAllBookingPage from './components/ViewAllBookingPage';
 import PricePage from './components/PricePage';
 import PackageBuyPage from './components/PackageBuyPage';
+import AccountInformationPage from './components/AccountInformationPage';
 
 function New() {
   return (
@@ -25,6 +26,7 @@ function New() {
       <Route path="/view-all-bookings" element={<ViewAllBookingPage />} />
       <Route path="/price" element={<PricePage />} />
       <Route path="/buy-packages" element={<PackageBuyPage />} />
+      <Route path="/account-information" element={<AccountInformationPage />} />
     </Routes>
     </BrowserRouter>
   );

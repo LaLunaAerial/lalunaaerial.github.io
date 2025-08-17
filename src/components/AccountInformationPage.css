@@ -1,0 +1,57 @@
+/* AccountInformationPage.css */
+.account-information-page {
+  max-width: 800px;
+  margin: 40px auto;
+  padding: 20px;
+  background-color: #f9f9f9;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.account-info {
+  margin-bottom: 20px;
+}
+
+.account-info p {
+  margin-bottom: 10px;
+}
+
+.edit-form {
+  margin-top: 20px;
+}
+
+.edit-form input {
+  width: 100%;
+  height: 40px;
+  margin-bottom: 10px;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+.edit-form button {
+  width: 100%;
+  height: 40px;
+  margin-bottom: 10px;
+  padding: 10px;
+  background-color: #EFC3CA;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.edit-form button:hover {
+  background-color: #e0d0d0;
+}
+
+.edit-button {
+  background-color: #EFC3CA;
+  color: white;
+  padding: 5px 10px;
+  border: none;
+  cursor: pointer;
+  font-size: 0.8rem;
+  border-radius: 4px;
+}
