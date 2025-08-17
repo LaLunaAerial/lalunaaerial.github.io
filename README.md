@@ -13,13 +13,12 @@ Remainning Task:
 
 Changed:
 1. Now will use phone number to do Authentication. email:{phone number}+@phone.com
-2. Now created user.displayName for the Name inpput on Registeration.
+2. Now created user.displayName for the Name input on Registeration, will display into the navBar.
 
 
 
 Fast Key:
 I am doing a room booking webiste using React. Now please scan the code in the project directory to familar yourself with the project.
-
 
 Currently, the user can book the time section by adding the time section into the shopping cart, and then click submit in the shopping cart page.
 
