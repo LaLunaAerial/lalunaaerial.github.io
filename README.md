@@ -1,23 +1,23 @@
 requirements:
 
-
+raw requirement:
 會唔會整到個function係可以user 俾咗錢之後我哋Approved
 佢喺網站睇返confirm Booking嘅資料 eg 地址 密碼鎖pw
 或者佢會收到個系統自動send俾佢嘅email去confirm ？
 
+Remainning Task:
 1. upload Payme Capscreen呢個係做到嘅
-
-
-2. 2. shopping cart可以俾user揀用套票定直接俾錢
-3. User page，俾user睇自己仲有幾多套票/改名/改密碼
-4. Upload Payment 截圖
-5. （User Page可以喺一個鐘前show 密碼鎖密碼）
+2. shopping cart可以俾user揀用套票定直接俾錢
+3. Upload Payment 截圖
+4. (User Page可以喺一個鐘前show 密碼鎖密碼)
 
 Changed:
 1. Now will use phone number to do Authentication. email:{phone number}+@phone.com
 2. Now created user.displayName for the Name inpput on Registeration.
 
 
+
+Fast Key:
 I am doing a room booking webiste using React. Now please scan the code in the project directory to familar yourself with the project.
 
 
