@@ -1,14 +1,17 @@
 import React, { useState, useEffect } from 'react';
-import { getDatabase, ref, get } from 'firebase/database';
+import { getDatabase, ref, get, set } from 'firebase/database';
 import { auth } from '../assets/firebaseConfig';
 import './MyBookingPage.css';
 
 const MyBookingsPage = () => {
   const [bookings, setBookings] = useState([]);
   const [pendingBookings, setPendingBookings] = useState([]);
+  const [userPackages, setUserPackages] = useState({});
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+
+    //get the bookings and pending bookings from the database
     const db = getDatabase();
     const bookingsRef = ref(db, 'bookings');
     const pendingBookingsRef = ref(db, 'pendingBookings');
@@ -47,6 +50,21 @@ const MyBookingsPage = () => {
       }
       setLoading(false);
     });
+
+    // get the package information for the user
+      const userId = auth.currentUser.uid;
+      const userPackagesRef = ref(db, `userPackages/${userId}`);
+      get(userPackagesRef).then((snapshot) => {
+        if (snapshot.exists()) {
+          const userPackagesData = snapshot.val();
+          console.log('User Packages:', userPackagesData);
+          setUserPackages(userPackagesData);
+        } else {
+          console.log('No packages found for the user.');
+        }
+      });
+    
+    
   }, []);
 
   return (
@@ -79,6 +97,22 @@ const MyBookingsPage = () => {
             ))}
           </tbody>
         </table>
+      )}
+      {userPackages && Object.keys(userPackages).length > 0 ? (
+      <div className="user-packages">
+        <h3>Packages</h3>
+        {Object.keys(userPackages).map((packageId) => (
+          <div key={packageId} className="package-info">
+            <p>Package Name: {userPackages[packageId].packageName}</p>
+            <p>Package Type: {userPackages[packageId].packageType}</p>
+            <p>Number of Sections: {userPackages[packageId].numberOfSections}</p>
+            <p>Expiry Date: {userPackages[packageId].expiryDate}</p>
+            <p>Remaining Quota: {userPackages[packageId].remainingQuota}</p>
+          </div>
+        ))}
+      </div>
+      ) : (
+        <p>No packages found for this user.</p>
       )}
     </div>
   );
