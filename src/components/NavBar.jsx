@@ -47,6 +47,9 @@ function Navbar() {
             <Link to="/booking">Booking</Link> {/* Use Link for Booking */}
           </li>
           <li>
+            <Link to="/buy-packages">Buy Packages</Link> {/* Use Link for Booking */}
+          </li>
+          <li>
           <Link to="/price">Price</Link>
         </li>
           {isAdmin && (
