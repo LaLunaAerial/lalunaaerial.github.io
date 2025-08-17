@@ -1,9 +1,10 @@
 // PackageBuyPage.js
 import React, { useState, useEffect } from 'react';
-import { get, getDatabase, ref } from 'firebase/database';
+import { set, get, getDatabase, ref } from 'firebase/database';
+import { auth } from '../assets/firebaseConfig';
 
 const PackageBuyPage = () => {
-  const [packages, setPackages] = useState([]);
+  const [packages, setPackages] = useState({});
   const [selectedPackage, setSelectedPackage] = useState(null);
 
   useEffect(() => {
@@ -11,27 +12,40 @@ const PackageBuyPage = () => {
     const packagesRef = ref(db, 'packages');
     get(packagesRef).then((snapshot) => {
       const packagesData = snapshot.val();
+      console.log(packagesData);
       setPackages(packagesData);
     });
   }, []);
 
-  const handleBuyPackage = (packageId) => {
-    // Handle payment processing and update user account information
-    // ...
-    console.log(`Package ${packageId} purchased!`);
-    setSelectedPackage(packageId);
+const handleBuyPackage = (packageId) => {
+  const userId = auth.currentUser.uid;
+  const packageRef = ref(getDatabase(), `userPackages/${userId}/${packageId}`);
+  const packageData = {
+    packageName: packages[packageId].name,
+    packageType: packages[packageId].type,
+    numberOfSections: packages[packageId].numberOfSection,
+    expiryDate: new Date(Date.now() + packages[packageId].effectivePeriod * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+    remainingQuota: packages[packageId].numberOfSection
   };
+  set(packageRef, packageData).then(() => {
+    console.log(`Package ${packageId} bought successfully!`);
+    alert(`You have successfully bought the ${packages[packageId].name} package!`);
+  }).catch((error) => {
+    console.error(`Error buying package ${packageId}:`, error);
+  });
+};
 
-  return (
+   return (
     <div>
       <h2>Buy Packages</h2>
       <ul>
-        {packages.map((packageItem) => (
-          <li key={packageItem.id}>
-            <h3>{packageItem.name}</h3>
-            <p>{packageItem.description}</p>
-            <p>Price: {packageItem.price}</p>
-            <button onClick={() => handleBuyPackage(packageItem.id)}>Buy</button>
+        {Object.keys(packages).map((packageId) => (
+          <li key={packageId}>
+            <h3>{packages[packageId].name}</h3>
+            <p>Type: {packages[packageId].type}</p>
+            <p>Number of Sections: {packages[packageId].numberOfSection}</p>
+            <p>Effective Period: {packages[packageId].effectivePeriod}</p>
+            <button onClick={() => handleBuyPackage(packageId)}>Buy</button>
           </li>
         ))}
       </ul>
