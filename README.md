@@ -8,7 +8,7 @@ raw requirement:
 Remainning Task:
 1. upload Payme Capscreen呢個係做到嘅
 2. shopping cart可以俾user揀用套票定直接俾錢
-3. Upload Payment 截圖
+3. ADmin Page to edit the package information
 4. (User Page可以喺一個鐘前show 密碼鎖密碼)
 
 Changed:
