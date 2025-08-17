@@ -9,6 +9,7 @@ import ShoppingCart from './components/ShoppingCart';
 import MyBookingPage from './components/MyBookingPage';
 import ViewAllBookingPage from './components/ViewAllBookingPage';
 import PricePage from './components/PricePage';
+import PackageBuyPage from './components/PackageBuyPage';
 
 function New() {
   return (
@@ -23,6 +24,7 @@ function New() {
       <Route path="/my-bookings" element={<MyBookingPage />} />
       <Route path="/view-all-bookings" element={<ViewAllBookingPage />} />
       <Route path="/price" element={<PricePage />} />
+      <Route path="/buy-packages" element={<PackageBuyPage />} />
     </Routes>
     </BrowserRouter>
   );
