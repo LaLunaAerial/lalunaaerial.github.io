@@ -8,8 +8,8 @@ raw requirement:
 Remainning Task:
 1. upload Payme Capscreen呢個係做到嘅
 2. shopping cart可以俾user揀用套票定直接俾錢
-3. ADmin Page to edit the package information
-4. (User Page可以喺一個鐘前show 密碼鎖密碼)
+3. (User Page可以喺一個鐘前show 密碼鎖密碼)
+4. Modify the website design layout the fit the mobile phone user. (use collapse menu to replace navBar)
 
 Changed:
 1. Now will use phone number to do Authentication. email:{phone number}+@phone.com
