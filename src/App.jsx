@@ -11,6 +11,7 @@ import ViewAllBookingPage from './components/ViewAllBookingPage';
 import PricePage from './components/PricePage';
 import PackageBuyPage from './components/PackageBuyPage';
 import AccountInformationPage from './components/AccountInformationPage';
+import ViewAllPackagesPage from './components/ViewAllPackagesPage';
 
 function New() {
   return (
@@ -24,6 +25,7 @@ function New() {
       <Route path='/shopping-cart' element={<ShoppingCart />} />
       <Route path="/my-bookings" element={<MyBookingPage />} />
       <Route path="/view-all-bookings" element={<ViewAllBookingPage />} />
+      <Route path="/view-all-packages" element={<ViewAllPackagesPage />} />
       <Route path="/price" element={<PricePage />} />
       <Route path="/buy-packages" element={<PackageBuyPage />} />
       <Route path="/account-information" element={<AccountInformationPage />} />

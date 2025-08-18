@@ -62,6 +62,11 @@ function Navbar() {
               <Link to="/view-all-bookings">View All Bookings</Link>
             </li>
           )}
+          {isAdmin && (
+            <li>
+              <Link to="/view-all-packages">View All Package</Link>
+            </li>
+          )}
           
           {isLoggedIn && (
             <li>

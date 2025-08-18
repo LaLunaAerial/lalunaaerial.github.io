@@ -1,0 +1,56 @@
+/* ViewAllPackagesPage.css */
+
+.view-all-packages-page {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: calc(100vh - 60px); /* subtract the height of the navbar */
+  background-color: #fff;
+  padding: 20px;
+  margin-top: 100px; /* add margin to push the content below the navbar */
+  font-size: 0.8rem; /* reduce font size */
+}
+
+table {
+  background-color: #EFC3CA;
+  border-collapse: collapse;
+  width: 100%;
+}
+
+th, td {
+  border: 1px solid #ddd;
+  padding: 10px;
+  text-align: left;
+}
+
+th {
+  background-color: #EFC3CA;
+  color: #fff;
+}
+
+td {
+  background-color: #fff;
+}
+
+button {
+  background-color: #EFC3CA;
+  color: #fff;
+  padding: 10px 20px;
+  border: none;
+  cursor: pointer;
+  font-size: 1rem;
+  border-radius: 4px;
+  margin-top: 10px;
+}
+
+button:hover {
+  background-color: #e0d0d0;
+}
+
+input[type="text"], input[type="number"], input[type="date"] {
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 1rem;
+}

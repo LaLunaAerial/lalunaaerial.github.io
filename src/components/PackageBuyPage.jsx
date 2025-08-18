@@ -25,7 +25,8 @@ const handleBuyPackage = (packageId) => {
     packageType: packages[packageId].type,
     numberOfSections: packages[packageId].numberOfSection,
     expiryDate: new Date(Date.now() + packages[packageId].effectivePeriod * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-    remainingQuota: packages[packageId].numberOfSection
+    remainingQuota: packages[packageId].numberOfSection,
+    status: 'pending',
   };
   set(packageRef, packageData).then(() => {
     console.log(`Package ${packageId} bought successfully!`);
