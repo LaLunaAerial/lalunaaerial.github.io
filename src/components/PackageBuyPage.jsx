@@ -18,8 +18,8 @@ const PackageBuyPage = () => {
   }, []);
 
 const handleBuyPackage = (packageId) => {
-  const userId = auth.currentUser.uid;
-  const packageRef = ref(getDatabase(), `userPackages/${userId}/${packageId}`);
+  const userName = auth.currentUser.displayName;
+  const packageRef = ref(getDatabase(), `userPackages/${userName}/${packageId}`);
   const packageData = {
     packageName: packages[packageId].name,
     packageType: packages[packageId].type,

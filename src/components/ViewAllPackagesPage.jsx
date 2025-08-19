@@ -16,19 +16,19 @@ const ViewAllPackagesPage = () => {
     });
   }, []);
 
-  const handleEdit = (userId, packageType, field, value) => {
+  const handleEdit = (userName, packageType, field, value) => {
     setEditedPackages((prevEditedPackages) => ({
       ...prevEditedPackages,
-      [userId]: {
-        ...prevEditedPackages[userId],
-        [packageType]: { ...prevEditedPackages[userId][packageType], [field]: value },
+      [userName]: {
+        ...prevEditedPackages[userName],
+        [packageType]: { ...prevEditedPackages[userName][packageType], [field]: value },
       },
     }));
   };
 
-  const handleSubmitEdit = (userId, packageType) => {
-    const packageRef = ref(db, `userPackages/${userId}/${packageType}`);
-    update(packageRef, editedPackages[userId][packageType]).then(() => {
+  const handleSubmitEdit = (userName, packageType) => {
+    const packageRef = ref(db, `userPackages/${userName}/${packageType}`);
+    update(packageRef, editedPackages[userName][packageType]).then(() => {
       alert('Package updated successfully!');
       const userPackagesRef = ref(db, 'userPackages');
       get(userPackagesRef).then((snapshot) => {
@@ -38,8 +38,8 @@ const ViewAllPackagesPage = () => {
     });
   };
 
-  const handleApprove = (userId, packageType) => {
-    const packageRef = ref(db, `userPackages/${userId}/${packageType}`);
+  const handleApprove = (userName, packageType) => {
+    const packageRef = ref(db, `userPackages/${userName}/${packageType}`);
     update(packageRef, { status: 'approved' }).then(() => {
       alert('Package approved!');
       const userPackagesRef = ref(db, 'userPackages');
@@ -50,8 +50,8 @@ const ViewAllPackagesPage = () => {
     });
   };
 
-  const handleReject = (userId, packageType) => {
-    const packageRef = ref(db, `userPackages/${userId}/${packageType}`);
+  const handleReject = (userName, packageType) => {
+    const packageRef = ref(db, `userPackages/${userName}/${packageType}`);
     update(packageRef, { status: 'rejected' }).then(() => {
       alert('Package rejected!');
       const userPackagesRef = ref(db, 'userPackages');
@@ -62,9 +62,9 @@ const ViewAllPackagesPage = () => {
     });
   };
 
-  const handleDeletePackage = (userId, packageType) => {
+  const handleDeletePackage = (userName, packageType) => {
     if (window.confirm('Are you sure you want to delete this package?')) {
-      const packageRef = ref(db, `userPackages/${userId}/${packageType}`);
+      const packageRef = ref(db, `userPackages/${userName}/${packageType}`);
       remove(packageRef).then(() => {
         alert('Package deleted successfully!');
         const userPackagesRef = ref(db, 'userPackages');
@@ -82,7 +82,7 @@ const ViewAllPackagesPage = () => {
       <table>
         <thead>
           <tr>
-            <th>User ID</th>
+            <th>User Name</th>
             <th>Package Type</th>
             <th>Package Name</th>
             <th>Number of Sections</th>
@@ -93,67 +93,67 @@ const ViewAllPackagesPage = () => {
           </tr>
         </thead>
         <tbody>
-          {Object.keys(userPackages).map((userId) => (
-            <React.Fragment key={userId}>
-              {Object.keys(userPackages[userId]).map((packageType) => (
+          {Object.keys(userPackages).map((userName) => (
+            <React.Fragment key={userName}>
+              {Object.keys(userPackages[userName]).map((packageType) => (
                 <tr key={packageType}>
-                  <td>{userId}</td>
+                  <td>{userName}</td>
                   <td>{packageType}</td>
                   <td>
-                    <p>{userPackages[userId][packageType].packageName}</p>
+                    <p>{userPackages[userName][packageType].packageName}</p>
                     <input
                       type="text"
-                      value={editedPackages[userId]?.[packageType]?.packageName || ''}
-                      onChange={(e) => handleEdit(userId, packageType, 'packageName', e.target.value)}
+                      value={editedPackages[userName]?.[packageType]?.packageName || ''}
+                      onChange={(e) => handleEdit(userName, packageType, 'packageName', e.target.value)}
                       placeholder="Enter new value"
                     />
                   </td>
                   <td>
-                    <p>{userPackages[userId][packageType].numberOfSections}</p>
+                    <p>{userPackages[userName][packageType].numberOfSections}</p>
                     <input
                       type="number"
-                      value={editedPackages[userId]?.[packageType]?.numberOfSections || ''}
-                      onChange={(e) => handleEdit(userId, packageType, 'numberOfSections', e.target.value)}
+                      value={editedPackages[userName]?.[packageType]?.numberOfSections || ''}
+                      onChange={(e) => handleEdit(userName, packageType, 'numberOfSections', e.target.value)}
                       placeholder="Enter new value"
                     />
                   </td>
                   <td>
-                    <p>{userPackages[userId][packageType].expiryDate}</p>
+                    <p>{userPackages[userName][packageType].expiryDate}</p>
                     <input
                       type="date"
-                      value={editedPackages[userId]?.[packageType]?.expiryDate || ''}
-                      onChange={(e) => handleEdit(userId, packageType, 'expiryDate', e.target.value)}
+                      value={editedPackages[userName]?.[packageType]?.expiryDate || ''}
+                      onChange={(e) => handleEdit(userName, packageType, 'expiryDate', e.target.value)}
                       placeholder="Enter new value"
                     />
                   </td>
                   <td>
-                    <p>{userPackages[userId][packageType].remainingQuota}</p>
+                    <p>{userPackages[userName][packageType].remainingQuota}</p>
                     <input
                       type="number"
-                      value={editedPackages[userId]?.[packageType]?.remainingQuota || ''}
-                      onChange={(e) => handleEdit(userId, packageType, 'remainingQuota', e.target.value)}
+                      value={editedPackages[userName]?.[packageType]?.remainingQuota || ''}
+                      onChange={(e) => handleEdit(userName, packageType, 'remainingQuota', e.target.value)}
                       placeholder="Enter new value"
                     />
                   </td>
                   <td>
-                    <p>{userPackages[userId][packageType].status}</p>
+                    <p>{userPackages[userName][packageType].status}</p>
                     <input
                       type="text"
-                      value={editedPackages[userId]?.[packageType]?.status || ''}
-                      onChange={(e) => handleEdit(userId, packageType, 'status', e.target.value)}
+                      value={editedPackages[userName]?.[packageType]?.status || ''}
+                      onChange={(e) => handleEdit(userName, packageType, 'status', e.target.value)}
                       placeholder="Enter new value"
                     />
                   </td>
                   <td>
-                    {userPackages[userId][packageType].status === 'pending' ? (
+                    {userPackages[userName][packageType].status === 'pending' ? (
                       <div>
-                        <button onClick={() => handleApprove(userId, packageType)}>Approve</button>
-                        <button onClick={() => handleReject(userId, packageType)}>Reject</button>
+                        <button onClick={() => handleApprove(userName, packageType)}>Approve</button>
+                        <button onClick={() => handleReject(userName, packageType)}>Reject</button>
                       </div>
                     ) : (
                         <div>
-                            <button onClick={() => handleSubmitEdit(userId, packageType)}>Submit Edit</button>
-                            <button onClick={() => handleDeletePackage(userId, packageType)}>Delete</button>
+                            <button onClick={() => handleSubmitEdit(userName, packageType)}>Submit Edit</button>
+                            <button onClick={() => handleDeletePackage(userName, packageType)}>Delete</button>
                         </div>
                     )}
                   </td>

@@ -52,8 +52,8 @@ const MyBookingsPage = () => {
     });
 
     // get the package information for the user
-      const userId = auth.currentUser.uid;
-      const userPackagesRef = ref(db, `userPackages/${userId}`);
+      const userName = auth.currentUser.displayName;
+      const userPackagesRef = ref(db, `userPackages/${userName}`);
       get(userPackagesRef).then((snapshot) => {
         if (snapshot.exists()) {
           const userPackagesData = snapshot.val();
