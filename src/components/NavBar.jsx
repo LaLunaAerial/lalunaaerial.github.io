@@ -6,7 +6,7 @@ import './NavBar.css';
 const adminUid = 'm27guDkDb4dL7NRm0HfEYYI2Ouw1';
 const oldAdminUid='796IkiShehcJ4BQFCXEnpe8If7t1';
 
-function Navbar() {
+function Navbar({ onLinkClick }) {
   const [username, setUsername] = useState('');
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
@@ -41,46 +41,46 @@ function Navbar() {
       <div className='navbar-right'>
         <ul className='navbar-links'>
           <li>
-            <Link to="/">Home</Link> {/* Use Link for Home */}
+            <Link to="/" onClick={onLinkClick}>Home</Link> {/* Use Link for Home */}
           </li>
           <li>
-            <Link to="/booking">Booking</Link> {/* Use Link for Booking */}
+            <Link to="/booking" onClick={onLinkClick}>Booking</Link> {/* Use Link for Booking */}
           </li>
           <li>
-            <Link to="/buy-packages">Buy Packages</Link> {/* Use Link for Booking */}
+            <Link to="/buy-packages" onClick={onLinkClick}>Buy Packages</Link> {/* Use Link for Booking */}
           </li>
           <li>
-          <Link to="/price">Price</Link>
+          <Link to="/price" onClick={onLinkClick}>Price</Link>
         </li>
           {isAdmin && (
             <li>
-              <Link to="/admin">Admin</Link>
+              <Link to="/admin" onClick={onLinkClick}>Admin</Link>
             </li>
           )}
           {isAdmin && (
             <li>
-              <Link to="/view-all-bookings">View All Bookings</Link>
+              <Link to="/view-all-bookings" onClick={onLinkClick}>View All Bookings</Link>
             </li>
           )}
           {isAdmin && (
             <li>
-              <Link to="/view-all-packages">View All Package</Link>
+              <Link to="/view-all-packages" onClick={onLinkClick}>View All Package</Link>
             </li>
           )}
           
           {isLoggedIn && (
             <li>
-              <Link to="/shopping-cart">Shopping Cart</Link>
+              <Link to="/shopping-cart" onClick={onLinkClick}>Shopping Cart</Link>
             </li>
           )}
           {isLoggedIn && (
             <li>
-              <Link to="/my-bookings">My Bookings</Link>
+              <Link to="/my-bookings" onClick={onLinkClick}>My Bookings</Link>
             </li>
           )}
           {isLoggedIn && (
             <li>
-              <Link to="/account-information">Account Information</Link>
+              <Link to="/account-information" onClick={onLinkClick}>Account Information</Link>
             </li>
           )}
           {isLoggedIn && (
@@ -90,7 +90,7 @@ function Navbar() {
           )}
           {!isLoggedIn && (
             <li>
-              <Link to="/login">Login</Link>
+              <Link to="/login" onClick={onLinkClick}>Login</Link>
             </li>
           )}
           <li>
