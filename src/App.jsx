@@ -1,4 +1,4 @@
-import React from 'react';
+import {useState} from 'react';
 import Navbar from './components/NavBar';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import HomePage from './components/HomePage';
@@ -14,22 +14,37 @@ import AccountInformationPage from './components/AccountInformationPage';
 import ViewAllPackagesPage from './components/ViewAllPackagesPage';
 
 function New() {
+  const [showNavbar, setShowNavbar] = useState(false);
+
+  const handleToggleNavbar = () => {
+    setShowNavbar(!showNavbar);
+  };
+  
   return (
     <BrowserRouter>
-      <Navbar />
-      <Routes>
-      <Route path='/' element={<HomePage />} />
-      <Route path='/login' element={<LoginPage />} />
-      <Route path='/booking' element={<SchedulePage />} />
-      <Route path='/admin' element={<AdminPage />} />
-      <Route path='/shopping-cart' element={<ShoppingCart />} />
-      <Route path="/my-bookings" element={<MyBookingPage />} />
-      <Route path="/view-all-bookings" element={<ViewAllBookingPage />} />
-      <Route path="/view-all-packages" element={<ViewAllPackagesPage />} />
-      <Route path="/price" element={<PricePage />} />
-      <Route path="/buy-packages" element={<PackageBuyPage />} />
-      <Route path="/account-information" element={<AccountInformationPage />} />
-    </Routes>
+      <div>
+        <button onClick={handleToggleNavbar} style={{ position: 'fixed', top: 0, left: 0, zIndex: 1 }}>
+          {(showNavbar)?"X":"Menu"}
+        </button>
+        {showNavbar && (
+          <Navbar />
+        )}
+        <div style={{ marginLeft: showNavbar ? '200px' : '0', filter: showNavbar ? 'blur(8px)' : 'none', pointerEvents: showNavbar ? 'none' : 'auto' }}>
+          <Routes>
+            <Route path='/' element={<HomePage />} />
+            <Route path='/login' element={<LoginPage />} />
+            <Route path='/booking' element={<SchedulePage />} />
+            <Route path='/admin' element={<AdminPage />} />
+            <Route path='/shopping-cart' element={<ShoppingCart />} />
+            <Route path="/my-bookings" element={<MyBookingPage />} />
+            <Route path="/view-all-bookings" element={<ViewAllBookingPage />} />
+            <Route path="/view-all-packages" element={<ViewAllPackagesPage />} />
+            <Route path="/price" element={<PricePage />} />
+            <Route path="/buy-packages" element={<PackageBuyPage />} />
+            <Route path="/account-information" element={<AccountInformationPage />} />
+          </Routes>
+        </div>
+      </div>
     </BrowserRouter>
   );
 }

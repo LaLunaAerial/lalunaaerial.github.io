@@ -3,36 +3,34 @@
   color: white; /* Secondary Color */
   padding: 1rem 2rem;
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  width: 100%;
-}
-
-.navbar-left {
-  margin-right: auto;
-}
-
-.navbar-brand {
-  text-align: center;
-}
-
-.navbar-brand img {
-  margin: 0 auto;
-}
-
-.navbar-right {
-  margin-left: auto;
+  flex-direction: column; /* Change to column layout */
+  margin-top: 50px;
+  justify-content: top;
+  align-items: left;
+  width: 250px; /* Set a fixed width for the navbar */
+  height: 100vh; /* Set the navbar to full height */
+  position: fixed; /* Fix the navbar to the left side of the screen */
+  top: 0;
+  left: 0;
 }
 
 .navbar-links {
   list-style: none;
+  padding: 0;
+  margin-top: 10px;
   display: flex;
-  gap: 2rem;
+  flex-direction: column; /* Change to column layout */
+  align-items: left;
+}
+
+.navbar-links li {
+  margin-bottom: 20px; /* Add some space between links */
 }
 
 .navbar-links a {
   color: white;
   text-decoration: none;
+  font-size: 18px; /* Increase font size */
 }
 
 .navbar-links a:hover {
