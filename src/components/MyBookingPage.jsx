@@ -82,8 +82,8 @@ const MyBookingsPage = () => {
             </tr>
           </thead>
           <tbody>
-            {bookings.map((booking) => (
-              <tr key={booking.date}>
+            {[...bookings, ...pendingBookings].map((booking, index) => (
+              <tr key={index}>
                 <td>{booking.date}</td>
                 <td>{booking.time}</td>
                 <td>
@@ -125,7 +125,7 @@ const MyBookingsPage = () => {
                 <td>{userPackages[packageId].expiryDate}</td>
                 <td>{userPackages[packageId].remainingQuota}</td>
                 <td>
-                  {userPackages[packageId].status === 'active' ? (
+                  {userPackages[packageId].status === 'approved' ? (
                     <span style={{ color: 'green' }}>Active</span>
                   ) : (
                     <span style={{ color: 'red' }}>Pending for approval on your payment</span>
