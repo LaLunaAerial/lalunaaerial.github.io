@@ -96,11 +96,22 @@ function SchedulePage() {
 
 
   const handleBook = async (hour) => {
+    // Check if the user is logged in
     if (!auth.currentUser) {
       alert('Please log in to book a room');
       return;
     }
-  
+
+    // Get the current time
+    const currentTime = dayjs();
+    const hourStart = dayjs(`${date.format('YYYY-MM-DD')} ${hour.split('-')[0]}`, 'YYYY-MM-DD HH:mm');
+    
+    // Check if the hour is in the past
+    if (hourStart.isBefore(currentTime)) {
+      alert('Cannot book for past time sections');
+      return;
+    }
+
     const newCart = JSON.parse(localStorage.getItem('cart')) || [];
     const isAlreadyInCart = newCart.find((item) => item.date === date.format('YYYY-MM-DD') && item.time === hour);
   
@@ -145,24 +156,26 @@ function SchedulePage() {
         </thead>
         <tbody>
         {hours.map((hour, index) => (
-  <tr key={index}>
-    <td>{hour}</td>
-    <td>
-          {bookingStatus[hour] === 'Free'&& pendingBookingStatus[hour] === 'Free' ? (
-            <span>Available</span>
-          ) : (
-            <span>Occupied</span>
-          )}
-        </td>
-    <td>
-      {cart.find((item) => item.date === date.format('YYYY-MM-DD') && item.time === hour) ? (
-        <button className="selected-grey" disabled>Selected</button>
-      ) : bookingStatus[hour] === 'Booked' || pendingBookingStatus[hour] === 'Booked'? (
-        <button className="selected-grey" disabled>Registered</button>
-      ) : (
-        <button className="book-button" onClick={() => handleBook(hour)} disabled={cart.find((item) => item.date === date.format('YYYY-MM-DD') && item.time === hour) ? true : false}>Book</button>
-      )}
-    </td>
+          <tr key={index}>
+          <td>{hour}</td>
+          <td>
+            {bookingStatus[hour] === 'Free'&& pendingBookingStatus[hour] === 'Free' ? (
+              <span>Available</span>
+            ) : (
+              <span>Occupied</span>
+            )}
+          </td>
+          <td>
+            {dayjs(`${date.format('YYYY-MM-DD')} ${hour.split('-')[0]}`, 'YYYY-MM-DD HH:mm').isBefore(dayjs())? (
+              <button className="selected-grey" disabled>Expired</button>
+            ): cart.find((item) => item.date === date.format('YYYY-MM-DD') && item.time === hour) ? (
+              <button className="selected-grey" disabled>Selected</button>
+            ) : bookingStatus[hour] === 'Booked' || pendingBookingStatus[hour] === 'Booked'? (
+              <button className="selected-grey" disabled>Registered</button>
+            ) : (
+              <button className="book-button" onClick={() => handleBook(hour)} disabled={cart.find((item) => item.date === date.format('YYYY-MM-DD') && item.time === hour) ? true : false}>Book</button>
+            )}
+          </td>
   </tr>
 ))}
         </tbody>
