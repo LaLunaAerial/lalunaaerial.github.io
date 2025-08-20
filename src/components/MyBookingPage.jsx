@@ -70,9 +70,9 @@ const MyBookingsPage = () => {
   return (
     <div className='mybookings-page'>
       <h2>My Bookings</h2>
-      {loading ? (
-        <p>Loading...</p>
-      ) : (
+      {bookings && bookings.length > 0 ? (
+      <div className="bookings">
+        <h3>Bookings</h3>
         <table>
           <thead>
             <tr>
@@ -82,38 +82,63 @@ const MyBookingsPage = () => {
             </tr>
           </thead>
           <tbody>
-            {[...bookings, ...pendingBookings].map((booking, index) => (
-              <tr key={index}>
+            {bookings.map((booking) => (
+              <tr key={booking.date}>
                 <td>{booking.date}</td>
                 <td>{booking.time}</td>
                 <td>
                   {booking.status === 'Approved' ? (
                     <span style={{ color: 'green' }}>Approved</span>
                   ) : (
-                    <span style={{ color: 'orange' }}>Pending</span>
+                    <span style={{ color: 'red' }}>Pending</span>
                   )}
                 </td>
               </tr>
             ))}
           </tbody>
         </table>
-      )}
-      {userPackages && Object.keys(userPackages).length > 0 ? (
+      </div>
+    ) : (
+      <p>No bookings found for this user.</p>
+    )}
+
+    {userPackages && Object.keys(userPackages).length > 0 ? (
       <div className="user-packages">
         <h3>Packages</h3>
-        {Object.keys(userPackages).map((packageId) => (
-          <div key={packageId} className="package-info">
-            <p>Package Name: {userPackages[packageId].packageName}</p>
-            <p>Package Type: {userPackages[packageId].packageType}</p>
-            <p>Number of Sections: {userPackages[packageId].numberOfSections}</p>
-            <p>Expiry Date: {userPackages[packageId].expiryDate}</p>
-            <p>Remaining Quota: {userPackages[packageId].remainingQuota}</p>
-          </div>
-        ))}
+        <table>
+          <thead>
+            <tr>
+              <th className="package-name-column">Package Name</th>
+              <th className="package-type-column">Package Type</th>
+              <th className="number-of-sections-column">Number of Sections</th>
+              <th className="expiry-date-column">Expiry Date</th>
+              <th className="remaining-quota-column">Remaining Quota</th>
+              <th className="status-column">Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            {Object.keys(userPackages).map((packageId) => (
+              <tr key={packageId}>
+                <td>{userPackages[packageId].packageName}</td>
+                <td>{userPackages[packageId].packageType}</td>
+                <td>{userPackages[packageId].numberOfSections}</td>
+                <td>{userPackages[packageId].expiryDate}</td>
+                <td>{userPackages[packageId].remainingQuota}</td>
+                <td>
+                  {userPackages[packageId].status === 'active' ? (
+                    <span style={{ color: 'green' }}>Active</span>
+                  ) : (
+                    <span style={{ color: 'red' }}>Pending for approval on your payment</span>
+                  )}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
-      ) : (
-        <p>No packages found for this user.</p>
-      )}
+    ) : (
+      <p>No packages found for this user.</p>
+    )}
     </div>
   );
 };
