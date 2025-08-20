@@ -6,12 +6,14 @@
   flex-direction: column; /* Change to column layout */
   margin-top: 50px;
   justify-content: top;
-  align-items: left;
-  width: 250px; /* Set a fixed width for the navbar */
+  align-items: right;
+  width: 200px; /* Set a fixed width for the navbar */
   height: 100vh; /* Set the navbar to full height */
-  position: fixed; /* Fix the navbar to the left side of the screen */
+  position: fixed; /* Fix the navbar to the right side of the screen */
   top: 0;
-  left: 0;
+  right: 0;
+  border-radius: 2px;
+  border-color: none;
 }
 
 .navbar-links {

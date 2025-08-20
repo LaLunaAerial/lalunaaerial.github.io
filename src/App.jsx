@@ -23,13 +23,13 @@ function New() {
   return (
     <BrowserRouter>
       <div>
-        <button onClick={handleToggleNavbar} style={{ position: 'fixed', top: 0, left: 0, zIndex: 1 }}>
+        <button onClick={handleToggleNavbar} style={{ position: 'fixed', top: 0, right: 0, zIndex: 1 }}>
           {(showNavbar)?"X":"Menu"}
         </button>
         {showNavbar && (
-          <Navbar />
+        <Navbar style={{ position: 'fixed', top: 0, right: 0, height: '100vh', width: '300px' }} />
         )}
-        <div style={{ marginLeft: showNavbar ? '200px' : '0', filter: showNavbar ? 'blur(8px)' : 'none', pointerEvents: showNavbar ? 'none' : 'auto' }}>
+        <div style={{ marginLeft: showNavbar ? '0' : '0', marginRight: showNavbar ? '300px' : '0', filter: showNavbar ? 'blur(8px)' : 'none', pointerEvents: showNavbar ? 'none' : 'auto' }}>
           <Routes>
             <Route path='/' element={<HomePage />} />
             <Route path='/login' element={<LoginPage />} />
