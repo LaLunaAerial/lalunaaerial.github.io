@@ -4,17 +4,17 @@ const timeCategories = {
   Peak: {
     startTime: 18, // 6pm
     endTime: 23, // 11pm
-    price: 148,
+    price: 74,
   },
   NonPeak: {
     startTime: 7, // 7am
     endTime: 18, // 6pm
-    price: 118,
+    price: 59,
   },
   Overnight: {
     startTime: 23, // 11pm
     endTime: 7, // 7am
-    price: 88,
+    price: 44,
   },
 };
 
