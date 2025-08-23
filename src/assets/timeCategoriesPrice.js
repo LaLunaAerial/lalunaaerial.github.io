@@ -35,4 +35,4 @@ const getTimeCategoryPrice = (time) => {
   return null;
 };
 
-export {getTimeCategoryPrice};
+export { timeCategories, getTimeCategoryPrice };

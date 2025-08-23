@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { getDatabase, ref, get, set } from 'firebase/database';
+import { getStorage, ref as storageRef, deleteObject,uploadBytes, getDownloadURL } from 'firebase/storage';
 import { auth } from '../assets/firebaseConfig';
 import "./ViewAllBookingPage.css";
 
+import { timeCategories } from '../assets/timeCategoriesPrice';
 const adminUid = 'm27guDkDb4dL7NRm0HfEYYI2Ouw1';
 const oldAdminUid='796IkiShehcJ4BQFCXEnpe8If7t1';
 
@@ -56,6 +58,7 @@ const ViewAllBookingsPage = () => {
             time: pendingBooking.time,
             status: 'Pending',
             bookingId: key,
+            paymentMethod: pendingBooking.paymentMethod,
             paymentScreenshot: pendingBooking.paymentScreenshot,
           });
         });
@@ -90,30 +93,114 @@ const ViewAllBookingsPage = () => {
 
 
   const handleApprove = async (bookingId) => {
-    if (isAdmin) {
-      const db = getDatabase();
-      const pendingBookingRef = ref(db, `pendingBookings/${bookingId}`);
-      get(pendingBookingRef).then((snapshot) => {
-        if (snapshot.exists()) {
-          const pendingBookingData = snapshot.val();
-          const newBookingId = bookingId;
-          const bookingRef = ref(db, `bookings/${newBookingId}`);
-          set(bookingRef, {
-            username: pendingBookingData.username,
-            date: pendingBookingData.date,
-            time: pendingBookingData.time,
+  if (isAdmin) {
+    const db = getDatabase();
+    const pendingBookingRef = ref(db, `pendingBookings/${bookingId}`);
+    get(pendingBookingRef).then((snapshot) => {
+      if (snapshot.exists()) {
+        const pendingBookingData = snapshot.val();
+        if (pendingBookingData.paymentMethod === 'package') {
+          const userPackagesRef = ref(db, `userPackages/${auth.currentUser.uid}`);
+          get(userPackagesRef).then((userPackagesSnapshot) => {
+            if (userPackagesSnapshot.exists()) {
+              const userPackagesData = userPackagesSnapshot.val();
+              const peakPackageKey = Object.keys(userPackagesData).find((key) => userPackagesData[key].packageType === 'Peak');
+              const nonPeakPackageKey = Object.keys(userPackagesData).find((key) => userPackagesData[key].packageType === 'Non-peak');
+              console.log("Peak Package Key:", peakPackageKey);
+              console.log("Non-Peak Package Key:", nonPeakPackageKey);
+
+              const bookingStartTimeHour = parseInt(pendingBookingData.time.split('-')[0].split(':')[0]);
+              console.log("Booking Start Time Hour:", bookingStartTimeHour);
+              console.log("Start Time:",timeCategories.Peak.startTime, "End Time:",timeCategories.Peak.endTime);
+              let timePeriod;
+              if (bookingStartTimeHour >= timeCategories.Peak.startTime && bookingStartTimeHour <= timeCategories.Peak.endTime) {
+                  timePeriod = 'peak';
+              } else  {
+                timePeriod = 'non-peak';
+              }
+
+              if (timePeriod === 'peak') {
+                if (peakPackageKey && userPackagesData[peakPackageKey].remainingQuota > 0) {
+                  const newRemainingQuota = userPackagesData[peakPackageKey].remainingQuota - 1;
+                  if (newRemainingQuota === 0) {
+                    // Delete the package if the new remaining quota is 0
+                    set(ref(db, `userPackages/${auth.currentUser.uid}/${peakPackageKey}`), null);
+
+                    // Delete the payment screenshot from storage
+                    const paymentScreenshot = userPackagesData[peakPackageKey].paymentScreenshot
+                    const filePath = paymentScreenshot.substring(paymentScreenshot.lastIndexOf("%2F") + 3, paymentScreenshot.indexOf("?alt"));
+                    console.log("File Path to delete:", filePath);
+                    const storage = getStorage();
+                    const paymentScreenshotRef = storageRef(storage, `payme-screenshots/${filePath}`);
+                    deleteObject(paymentScreenshotRef).then(() => {
+                      alert('Payment screenshot deleted successfully');
+                    }).catch((error) => {
+                      console.error('Error deleting payment screenshot:', error);
+                    });
+                  } else {
+                    const updatedPeakPackage = { ...userPackagesData[peakPackageKey], remainingQuota: newRemainingQuota };
+                    set(ref(db, `userPackages/${auth.currentUser.uid}/${peakPackageKey}`), updatedPeakPackage);
+                  }
+                  alert('Use 1 quota from peak package!');
+                } else {
+                  alert('Insufficient peak package quota!');
+                  return;
+                }
+              } else if (timePeriod === 'non-peak') {
+                if (nonPeakPackageKey && userPackagesData[nonPeakPackageKey].remainingQuota > 0) {
+                  const newRemainingQuota = userPackagesData[nonPeakPackageKey].remainingQuota - 1;
+                  if (newRemainingQuota === 0) {
+                    // Delete the package if the new remaining quota is 0
+                    set(ref(db, `userPackages/${auth.currentUser.uid}/${nonPeakPackageKey}`), null);
+
+                    // Delete the payment screenshot from storage
+                    const paymentScreenshot = userPackagesData[nonPeakPackageKey].paymentScreenshot
+                    const filePath = paymentScreenshot.substring(paymentScreenshot.lastIndexOf("%2F") + 3, paymentScreenshot.indexOf("?alt"));
+                    console.log("File Path to delete:", filePath);
+                    const storage = getStorage();
+                    const paymentScreenshotRef = storageRef(storage, `payme-screenshots/${filePath}`);
+                    deleteObject(paymentScreenshotRef).then(() => {
+                      alert('Payment screenshot deleted successfully');
+                    }).catch((error) => {
+                      console.error('Error deleting payment screenshot:', error);
+                    });
+                  } else {
+                    const updatedNonPeakPackage = { ...userPackagesData[nonPeakPackageKey], remainingQuota: newRemainingQuota };
+                    set(ref(db, `userPackages/${auth.currentUser.uid}/${nonPeakPackageKey}`), updatedNonPeakPackage);
+                  }
+                  alert('Use 1 quota from non-peak package!');
+                } else {
+                  alert('Insufficient non-peak package quota!');
+                  return;
+                }
+              } else {
+                alert('Error on calculating time period!');
+                return;
+              }
+            }
           });
-          set(pendingBookingRef, null);
-          const newPendingBookings = [...pendingBookings];
-          const index = newPendingBookings.findIndex((booking) => booking.bookingId === bookingId);
-          if (index !== -1) {
-            newPendingBookings.splice(index, 1);
-            setPendingBookings(newPendingBookings);
-          }
         }
-      });
-    }
-  };
+        const newBookingId = bookingId;
+        const bookingRef = ref(db, `bookings/${newBookingId}`);
+        // Set the booking data to the bookings node
+        set(bookingRef, {
+          username: pendingBookingData.username,
+          date: pendingBookingData.date,
+          time: pendingBookingData.time,
+        });
+        // Remove the booking from pending bookings
+        set(pendingBookingRef, null);
+        const newPendingBookings = [...pendingBookings];
+        const index = newPendingBookings.findIndex((booking) => booking.bookingId === bookingId);
+        if (index !== -1) {
+          newPendingBookings.splice(index, 1);
+          setPendingBookings(newPendingBookings);
+        }
+        alert(`Booking for ${pendingBookingData.username} on ${pendingBookingData.date} at ${pendingBookingData.time} has been approved!`);
+      }
+    });
+  }
+};
 
   const handleReject = async (bookingId) => {
     if (isAdmin) {
@@ -173,6 +260,7 @@ const ViewAllBookingsPage = () => {
               <th>Time</th>
               <th>Status</th>
               <th>Actions</th>
+              <th>Payment Method</th>
               <th>Payment Screenshot</th>
             </tr>
           </thead>
@@ -194,6 +282,7 @@ const ViewAllBookingsPage = () => {
                   )}
                 </td>
                 <td></td>
+                <td></td>
               </tr>
             ))}
             {pendingBookings.map((booking) => (
@@ -208,9 +297,12 @@ const ViewAllBookingsPage = () => {
                     <button onClick={() => handleReject(booking.bookingId)}>Reject</button>
                   </div>
                 </td>
-                <td>
-                  <button onClick={() => handleShowCapscreen(booking.bookingId)}>Show Capscreen</button>
-                </td>
+                <td>{booking.paymentMethod}</td>
+                {booking.paymentMethod !== 'package' && (
+                  <td>
+                    <button onClick={() => handleShowCapscreen(booking.bookingId)}>Show Capscreen</button>
+                  </td>
+                )}
               </tr>
             ))}
           </tbody>
