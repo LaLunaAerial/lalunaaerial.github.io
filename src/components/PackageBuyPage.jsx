@@ -53,6 +53,9 @@ const PackageBuyPage = () => {
       getDownloadURL(fileRef).then((downloadURL) => {
         console.log('Image uploaded successfully:', downloadURL);
 
+        // Generate a unique packageId for the new package
+        const newPackageId = `${auth.currentUser.uid}_${packageId}_${new Date().getTime()}`;
+
         // Create a package data with the payment screenshot download URL
         const packageData = {
           packageName: packages[packageId].name,
@@ -66,12 +69,12 @@ const PackageBuyPage = () => {
 
         // Save the package data
         const db = getDatabase();
-        const packageRef = ref(db, `userPackages/${auth.currentUser.displayName}/${packageId}`);
+        const packageRef = ref(db, `userPackages/${auth.currentUser.uid}/${newPackageId}`);
         set(packageRef, packageData).then(() => {
-          console.log(`Package ${packageId} bought successfully!`);
+          console.log(`Package ${newPackageId} bought successfully!`);
           alert(`You have successfully bought the ${packages[packageId].name} package!`);
         }).catch((error) => {
-          console.error(`Error buying package ${packageId}:`, error);
+          console.error(`Error buying package ${newPackageId}:`, error);
         });
       });
     }).catch((error) => {
