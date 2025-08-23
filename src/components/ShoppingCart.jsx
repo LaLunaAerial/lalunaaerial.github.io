@@ -72,7 +72,7 @@ const ShoppingCart = () => {
             username: auth.currentUser.displayName,
             date: item.date,
             time: item.time,
-            paymeScreenshot: downloadURL,
+            paymentScreenshot: downloadURL,
           });
         });
 

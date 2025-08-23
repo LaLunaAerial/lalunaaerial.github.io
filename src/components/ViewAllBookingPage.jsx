@@ -56,6 +56,7 @@ const ViewAllBookingsPage = () => {
             time: pendingBooking.time,
             status: 'Pending',
             bookingId: key,
+            paymentScreenshot: pendingBooking.paymentScreenshot,
           });
         });
         setPendingBookings(allPendingBookings);
@@ -142,6 +143,22 @@ const ViewAllBookingsPage = () => {
     }
   };
 
+  const handleShowCapscreen = (bookingId) => {
+    const paymentScreenshotUrl = pendingBookings.find((booking) => booking.bookingId === bookingId).paymentScreenshot;
+    if (paymentScreenshotUrl) {
+      // Create a modal to display the payment screenshot
+      const modal = document.getElementById('capscreen-modal');
+      modal.style.display = 'block';
+      const image = document.getElementById('capscreen-image');
+      const loadingText = document.getElementById('capscreen-loading-text');
+      loadingText.style.display = 'block';
+      image.src = paymentScreenshotUrl;
+      image.onload = () => {
+        loadingText.style.display = 'none';
+      };
+    }
+  };
+
   return (
     <div className="viewallbookings-page">
       <h2>All Bookings</h2>
@@ -156,6 +173,7 @@ const ViewAllBookingsPage = () => {
               <th>Time</th>
               <th>Status</th>
               <th>Actions</th>
+              <th>Payment Screenshot</th>
             </tr>
           </thead>
           <tbody>
@@ -175,6 +193,7 @@ const ViewAllBookingsPage = () => {
                     </div>
                   )}
                 </td>
+                <td></td>
               </tr>
             ))}
             {pendingBookings.map((booking) => (
@@ -189,11 +208,20 @@ const ViewAllBookingsPage = () => {
                     <button onClick={() => handleReject(booking.bookingId)}>Reject</button>
                   </div>
                 </td>
+                <td>
+                  <button onClick={() => handleShowCapscreen(booking.bookingId)}>Show Capscreen</button>
+                </td>
               </tr>
             ))}
           </tbody>
         </table>
       )}
+      {/* Modal to display the payment screenshot */}
+      <div id="capscreen-modal" style={{ display: 'none', position: 'fixed', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', backgroundColor: 'white', padding: '20px', border: '1px solid black' }}>
+        <img id="capscreen-image" src="" alt="Payment Screenshot" style={{ width: '100%', height: '100%' }} />
+        <p id="capscreen-loading-text" style={{ display: 'none' }}>Loading...</p>
+        <button onClick={() => document.getElementById('capscreen-modal').style.display = 'none'}>Close</button>
+      </div>
     </div>
   );
 };
