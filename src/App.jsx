@@ -27,13 +27,15 @@ function New() {
     return (
     <BrowserRouter>
       <div>
+        <div style={{position: 'fixed', top: 0, right: 0, zIndex: 1000}}>
         <button onClick={handleToggleNavbar} style={{ position: 'fixed', top: 0, right: 0}}>
           {(showNavbar)?"X":"Menu"}
         </button>
         {showNavbar && (
         <Navbar style={{ position: 'fixed', top: 0, right: 0, height: '100vh', width: '300px' }} onLinkClick={handleLinkClick} />
         )}
-        <div style={{marginLeft: showNavbar ? '0' : '0', marginRight: showNavbar ? '400px' : '0', filter: showNavbar ? 'blur(8px)' : 'none', pointerEvents: showNavbar ? 'none' : 'auto' }}>
+        </div>
+        <div style={{position: 'relative', zIndex: 0, marginLeft: '0', marginRight: '0', filter: showNavbar ? 'blur(8px)' : 'none', pointerEvents: showNavbar ? 'none' : 'auto' }}>
           <Routes>
             <Route path='/' element={<HomePage />} />
             <Route path='/login' element={<LoginPage />} />
