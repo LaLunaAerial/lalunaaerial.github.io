@@ -91,11 +91,13 @@ const ViewAllPackagesPage = () => {
       };
     }
   };
-  
+
 return (
   <div className="view-all-packages-page">
     <h2>All User Packages</h2>
-    <table>
+    {userPackages?(
+      <div className="view-all-packages-table">
+      <table>
       <thead>
         <tr>
           <th>User Name</th>
@@ -179,6 +181,10 @@ return (
         ))}
       </tbody>
     </table>
+    </div>
+    ):(
+      <p>No any packages found in the database.</p>
+    )}
     {/* Modal to display the payment screenshot */}
     <div id="capscreen-modal" style={{ display: 'none', position: 'fixed', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', backgroundColor: 'white', padding: '20px', border: '1px solid black' }}>
       <img id="capscreen-image" src="" alt="Payment Screenshot" style={{ width: '100%', height: '100%' }} />
