@@ -1,6 +1,7 @@
 // ViewAllPackagesPage.jsx
 import React, { useState, useEffect } from 'react';
 import { getDatabase, ref, get, update,remove } from 'firebase/database';
+import { getStorage, ref as storageRef, deleteObject,uploadBytes, getDownloadURL } from 'firebase/storage';
 import './ViewAllPackagesPage.css';
 
 const ViewAllPackagesPage = () => {
@@ -67,6 +68,19 @@ const ViewAllPackagesPage = () => {
       const packageRef = ref(db, `userPackages/${userName}/${packageType}`);
       remove(packageRef).then(() => {
         alert('Package deleted successfully!');
+  
+        // Delete the payment screenshot from storage
+        const paymentScreenshot = userPackages[userName][packageType].paymentScreenshot;
+        const filePath = paymentScreenshot.substring(paymentScreenshot.lastIndexOf("%2F") + 3, paymentScreenshot.indexOf("?alt"));
+        console.log("File Path to delete:", filePath);
+        const storage = getStorage();
+        const paymentScreenshotRef = storageRef(storage, `payme-screenshots/${filePath}`);
+        deleteObject(paymentScreenshotRef).then(() => {
+          console.log('Payment screenshot deleted successfully');
+        }).catch((error) => {
+          console.error('Error deleting payment screenshot:', error);
+        });
+  
         const userPackagesRef = ref(db, 'userPackages');
         get(userPackagesRef).then((snapshot) => {
           setUserPackages(snapshot.val());
@@ -166,11 +180,8 @@ return (
                   </select>
                 </td>
                 <td>
-                  
-                  
-                  
                   {
-                    userPackages[userName] && userPackages[userName][packageType] && userPackages[userName][packageType].status === 'approved' ? (
+                    userPackages[userName][packageType].status === 'approved' ? (
                       <button onClick={() => handleSubmitEdit(userName, packageType)}>Submit Edit</button>
                     ) : (
                       <div>
