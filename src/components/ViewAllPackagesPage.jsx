@@ -166,8 +166,19 @@ return (
                   </select>
                 </td>
                 <td>
-                  <button onClick={() => handleApprove(userName, packageType)}>Approve</button>
-                  <button onClick={() => handleReject(userName, packageType)}>Reject</button>
+                  
+                  
+                  
+                  {
+                    userPackages[userName] && userPackages[userName][packageType] && userPackages[userName][packageType].status === 'approved' ? (
+                      <button onClick={() => handleSubmitEdit(userName, packageType)}>Submit Edit</button>
+                    ) : (
+                      <div>
+                        <button onClick={() => handleApprove(userName, packageType)}>Approve</button>
+                        <button onClick={() => handleReject(userName, packageType)}>Reject</button>
+                      </div>
+                    )
+                  }
                   <button onClick={() => handleDeletePackage(userName, packageType)}>Delete</button>
                 </td>
                 <td>
