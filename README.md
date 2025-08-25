@@ -20,8 +20,5 @@ Changed:
 Fast Key:
 I am doing a room booking webiste using React. Now please scan the code in the project directory to familar yourself with the project.
 
-Currently, the user can book the time section by adding the time section into the shopping cart, and then click submit in the shopping cart page.
-
-I want to create a page that can let user buy package, which can let user to choose to use it as a payment method when click the submit in the shopping cart.
-
-Please help me to create a page for buying the package, later I will let you to create a page to let user to see his account information, and also create a page for admin to modify and see the infomration of all user.
+Now I want to modify the AdminPage to do some user accounts' management function on that page.
+I want the Admin Page to show a table which list out all the accounts, and could modify the fields of the user account, including changing password,displayName and delete account.

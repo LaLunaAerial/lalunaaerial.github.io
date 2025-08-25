@@ -39,7 +39,7 @@ function New() {
           <Routes>
             <Route path='/' element={<HomePage />} />
             <Route path='/login' element={<LoginPage />} />
-            <Route path='/booking' element={<SchedulePage />} />
+            <Route path='/schedule' element={<SchedulePage />} />
             <Route path='/admin' element={<AdminPage />} />
             <Route path='/shopping-cart' element={<ShoppingCart />} />
             <Route path="/my-bookings" element={<MyBookingPage />} />

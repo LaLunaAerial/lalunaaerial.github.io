@@ -22,7 +22,7 @@ function LoginPage() {
       if (userId === '796IkiShehcJ4BQFCXEnpe8If7t1') {
         navigate('/admin');
       } else {
-        navigate('/booking');
+        navigate('/schedule');
       }
     } catch (error) {
       console.error('Error signing in:', error.message);
