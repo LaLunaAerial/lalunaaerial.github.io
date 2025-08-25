@@ -8,6 +8,7 @@ const MyBookingsPage = () => {
   const [pendingBookings, setPendingBookings] = useState([]);
   const [userPackages, setUserPackages] = useState({});
   const [loading, setLoading] = useState(true);
+  const [roomPassword, setRoomPassword] = useState('');
 
   useEffect(() => {
 
@@ -63,9 +64,35 @@ const MyBookingsPage = () => {
           console.log('No packages found for the user.');
         }
       });
-    
-    
   }, []);
+
+useEffect(() => {
+  // Check if any booking's time slot starts within the next hour
+  const checkIfTimeSlotStartsWithinOneHour = () => {
+    const currentTime = new Date().getTime();
+    const oneHourLater = new Date(currentTime).setHours(new Date(currentTime).getHours() + 1);
+    const bookingsWithTimeSlotWithinOneHour = bookings.filter((booking) => {
+      const [startTime, endTime] = booking.time.split('-');
+      const [startHour, startMinute] = startTime.split(':');
+      const [endHour, endMinute] = endTime.split(':');
+      const bookingStartDate = new Date(`${booking.date}T${startHour}:${startMinute}:00`);
+      const bookingStartTime = bookingStartDate.getTime();
+      const bookingEndDate = new Date(`${booking.date}T${endHour}:${endMinute}:00`);
+      const bookingEndTime = bookingEndDate.getTime();
+      console.log(bookingEndTime >= currentTime && bookingStartTime <= oneHourLater)
+      return bookingEndTime >= currentTime && bookingStartTime <= oneHourLater;
+    });
+    if (bookingsWithTimeSlotWithinOneHour.length > 0) {
+      const db = getDatabase();
+      const roomPasswordRef = ref(db, 'roomPassword');
+      get(roomPasswordRef).then((snapshot) => {
+        const roomPasswordData = snapshot.val();
+        setRoomPassword(roomPasswordData);
+      });
+    }
+  };
+  checkIfTimeSlotStartsWithinOneHour();
+}, [bookings]);
 
   return (
     <div className='mybookings-page'>
@@ -79,6 +106,7 @@ const MyBookingsPage = () => {
               <th className="date-column">Date</th>
               <th className="time-column">Time</th>
               <th className="status-column">Status</th>
+              <th className="room-password-column">Room Password</th>
             </tr>
           </thead>
           <tbody>
@@ -93,6 +121,7 @@ const MyBookingsPage = () => {
                     <span style={{ color: 'red' }}>Pending</span>
                   )}
                 </td>
+                <td>{booking.status === 'Approved' && roomPassword ? roomPassword : 'Password can only be seen 1 hours before the booking starts'}</td>
               </tr>
             ))}
           </tbody>

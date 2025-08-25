@@ -18,7 +18,5 @@ Changed:
 
 
 Fast Key:
-I am doing a room booking webiste using React. Now please scan the code in the project directory to familar yourself with the project.
+I am doing a room booking webiste using React. Now please scan the code in the project directory to familiar yourself with the project.
 
-Now I want to modify the AdminPage to do some user accounts' management function on that page.
-I want the Admin Page to show a table which list out all the accounts, and could modify the fields of the user account, including changing password,displayName and delete account.
