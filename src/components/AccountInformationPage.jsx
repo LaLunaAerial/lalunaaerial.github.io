@@ -1,6 +1,7 @@
 // AccountInformationPage.jsx
 import React, { useState, useEffect } from 'react';
 import { getAuth, updateProfile, updatePassword } from 'firebase/auth';
+import { getDatabase, ref, set } from 'firebase/database';
 import './AccountInformationPage.css';
 
 const AccountInformationPage = () => {
@@ -49,7 +50,18 @@ const AccountInformationPage = () => {
       updatePassword(user, newPassword).then(() => {
         setUsername(newUsername);
         setIsEditing(false);
+        // Update password in database
+        storeUserInDatabase(user, newPassword);
       });
+    });
+  };
+
+  const storeUserInDatabase = async (user, password) => {
+    const db = getDatabase();
+    const usersRef = ref(db, 'users');
+    await set(usersRef.child(user.uid), {
+      displayName: user.displayName,
+      password: password,
     });
   };
 

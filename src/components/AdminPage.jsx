@@ -2,14 +2,11 @@
 
 import React, { useState, useEffect } from 'react';
 import { getAuth, updateProfile, updatePassword, deleteUser } from 'firebase/auth';
+import { getDatabase, ref, onValue } from 'firebase/database';
 import './AdminPage.css';
 
 const AdminPage = () => {
   const [users, setUsers] = useState([]);
-  const [editingUser, setEditingUser] = useState(null);
-  const [newUsername, setNewUsername] = useState('');
-  const [newPassword, setNewPassword] = useState('');
-  const [confirmNewPassword, setConfirmNewPassword] = useState('');
   const [isAdmin, setIsAdmin] = useState(false);
 
   const auth = getAuth();
@@ -26,101 +23,49 @@ const oldAdminUid='796IkiShehcJ4BQFCXEnpe8If7t1';
       window.location.href = '/'; // Redirect to home or another page
     }
   }, []);
+
   useEffect(() => {
-    const fetchUsers = async () => {
+    const db = getDatabase();
+    const usersRef = ref(db, 'users');
+    onValue(usersRef, (snapshot) => {
+      const usersData = snapshot.val();
       const usersList = [];
-      const user = auth.currentUser;
-      if (user) {
-        usersList.push(user);
+      for (const userId in usersData) {
+        usersList.push({
+          displayName: usersData[userId].displayName,
+          phone: usersData[userId].phone,
+          password: usersData[userId].password,
+        });
       }
       setUsers(usersList);
-    };
-    fetchUsers();
+    });
   }, []);
 
-  const handleEditUser = (user) => {
-    setEditingUser(user);
-    setNewUsername(user.displayName);
-    setNewPassword('');
-    setConfirmNewPassword('');
-  };
 
-  const handleUpdateUser = () => {
-    if (editingUser) {
-      updateProfile(editingUser, {
-        displayName: newUsername,
-      }).then(() => {
-        console.log('Display name updated successfully');
-      });
-      if (newPassword !== '') {
-        if (newPassword === confirmNewPassword) {
-          updatePassword(editingUser, newPassword).then(() => {
-            console.log('Password updated successfully');
-          });
-        } else {
-          console.log('Passwords do not match');
-        }
-      }
-      setEditingUser(null);
-    }
-  };
-
-  const handleDeleteUser = (user) => {
-    deleteUser(user).then(() => {
-      console.log('User deleted successfully');
-      setUsers(users.filter((u) => u !== user));
-    });
-  };
 
   return (
-    <div className="admin-container">
-      <h2>Users Management</h2>
+    <div className="admin-page">
+      <h2>Admin Page</h2>
+
+      <h4>Users Information</h4>
       <table>
         <thead>
           <tr>
             <th>Display Name</th>
-            <th>Email</th>
-            <th>Actions</th>
+            <th>Phone</th>
+            <th>Password</th>
           </tr>
         </thead>
         <tbody>
-          {users.map((user) => (
-            <tr key={user.uid}>
+          {users.map((user, index) => (
+            <tr key={index}>
               <td>{user.displayName}</td>
-              <td>{user.email}</td>
-              <td>
-                <button onClick={() => handleEditUser(user)}>Edit</button>
-                <button onClick={() => handleDeleteUser(user)}>Delete</button>
-              </td>
+              <td>{user.phone}</td>
+              <td>{user.password}</td>
             </tr>
           ))}
         </tbody>
       </table>
-      {editingUser && (
-        <div className="edit-form">
-          <h3>Edit User</h3>
-          <input
-            type="text"
-            value={newUsername}
-            onChange={(e) => setNewUsername(e.target.value)}
-            placeholder="New Display Name"
-          />
-          <input
-            type="password"
-            value={newPassword}
-            onChange={(e) => setNewPassword(e.target.value)}
-            placeholder="New Password"
-          />
-          <input
-            type="password"
-            value={confirmNewPassword}
-            onChange={(e) => setConfirmNewPassword(e.target.value)}
-            placeholder="Confirm New Password"
-          />
-          <button onClick={handleUpdateUser}>Update</button>
-          <button onClick={() => setEditingUser(null)}>Cancel</button>
-        </div>
-      )}
     </div>
   );
 };

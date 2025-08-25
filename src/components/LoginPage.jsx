@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import { auth } from '../assets/firebaseConfig';
 import { signInWithEmailAndPassword, createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
+import { getDatabase, ref, set,update } from 'firebase/database';
 import { useNavigate } from 'react-router-dom';
 import './LoginPage.css';
 
@@ -32,10 +33,12 @@ function LoginPage() {
 
   const handleRegister = async () => {
     try {
-      await createUserWithEmailAndPassword(auth, phone+"@phone.com", password);
+      const userCredential = await createUserWithEmailAndPassword(auth, phone+"@phone.com", password);
+      const user = userCredential.user;
       console.log('User registered successfully');
       await updateProfile(auth.currentUser, { displayName: name });
       console.log("Updated the profile with the user.displayName");
+      await storeUserInDatabase(user,phone, password);
       alert('Registration successful! You can now log in.');
       setIsRegistering(false); // Switch back to login after successful registration
     } catch (error) {
@@ -43,6 +46,18 @@ function LoginPage() {
       alert(`Registration failed: ${error.message}`); // Display error to the user
     }
   };
+
+  const storeUserInDatabase = async (user,phone, password) => {
+  const db = getDatabase();
+  const usersRef = ref(db, 'users');
+  await update(usersRef, {
+    [user.uid]: {
+      phone: phone,
+      displayName: user.displayName,
+      password: password,
+    },
+  });
+};
 
   return (
     <div className="login-container">
