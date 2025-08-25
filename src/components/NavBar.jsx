@@ -43,18 +43,42 @@ function Navbar({ onLinkClick }) {
           <li>
             <Link to="/" onClick={onLinkClick}>Home</Link> {/* Use Link for Home */}
           </li>
+
           <li>
             <Link to="/schedule" onClick={onLinkClick}>Schedule</Link> {/* Use Link for Booking */}
           </li>
+          
+          <li>
+            <Link to="/price" onClick={onLinkClick}>Price</Link>
+          </li>
+
+          {!isLoggedIn && (
+            <li>
+              <Link to="/login" onClick={onLinkClick}>Login</Link>
+            </li>
+          )}
+
+          {isLoggedIn && (
+            <li>
+              <Link to="/my-bookings" onClick={onLinkClick}>My Bookings & Packages</Link>
+            </li>
+          )}
+
+          {isLoggedIn && (
+            <li>
+              <Link to="/shopping-cart" onClick={onLinkClick}>Shopping Cart</Link>
+            </li>
+          )}
+
+          {isLoggedIn && (
           <li>
             <Link to="/buy-packages" onClick={onLinkClick}>Purchase Packages</Link> {/* Use Link for Booking */}
           </li>
-          <li>
-          <Link to="/price" onClick={onLinkClick}>Price</Link>
-        </li>
+          )}
+
           {isAdmin && (
             <li>
-              <Link to="/admin" onClick={onLinkClick}>Admin</Link>
+              <Link to="/admin" onClick={onLinkClick}>Admin Page</Link>
             </li>
           )}
           {isAdmin && (
@@ -70,32 +94,16 @@ function Navbar({ onLinkClick }) {
           
           {isLoggedIn && (
             <li>
-              <Link to="/shopping-cart" onClick={onLinkClick}>Shopping Cart</Link>
-            </li>
-          )}
-          {isLoggedIn && (
-            <li>
-              <Link to="/my-bookings" onClick={onLinkClick}>My Bookings & Packages</Link>
-            </li>
-          )}
-          {isLoggedIn && (
-            <li>
               <Link to="/account-information" onClick={onLinkClick}>Account Information</Link>
             </li>
           )}
+
           {isLoggedIn && (
             <li>
-              <Link to="/login" onClick={() => auth.signOut()}>Logout</Link>
+              <Link to="/home" onClick={() => auth.signOut()}>Logout</Link>
             </li>
           )}
-          {!isLoggedIn && (
-            <li>
-              <Link to="/login" onClick={onLinkClick}>Login</Link>
-            </li>
-          )}
-          <li>
-            <Link to=".">       </Link>
-          </li>
+
         </ul>
       </div>
     </nav>
