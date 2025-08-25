@@ -61,11 +61,18 @@ const ShoppingCart = () => {
     // Get the image file from the input field
     const imageFile = document.getElementById('image-input').files[0];
 
+    //Check if the cart is empty
+    if (cart.length === 0) {
+      alert("Your cart is empty");
+      return;
+    }
+
     // Check if there is no upload file
     if (!imageFile) {
       alert("You should insert the capscreen of payment for the booking");
       return;
     }
+
 
     // Check if the uploaded file size is larger than 5MB
     const fileSize = imageFile.size;
