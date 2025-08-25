@@ -28,7 +28,6 @@ const ViewAllBookingsPage = () => {
   useEffect(() => {
     const db = getDatabase();
     const bookingsRef = ref(db, 'bookings');
-    const pendingBookingsRef = ref(db, 'pendingBookings');
     get(bookingsRef).then((snapshot) => {
       if (snapshot.exists()) {
         const bookingsData = snapshot.val();
@@ -41,11 +40,15 @@ const ViewAllBookingsPage = () => {
             time: booking.time,
             status: 'Approved',
             bookingId,
+            paymentMethod: booking.paymentMethod,
+            paymentScreenshot: booking.paymentScreenshot || '', // Add paymentScreenshot field
           });
         });
         setBookings(allBookings);
       }
     });
+
+    const pendingBookingsRef = ref(db, 'pendingBookings');
     get(pendingBookingsRef).then((snapshot) => {
       if (snapshot.exists()) {
         const pendingBookingsData = snapshot.val();
@@ -84,6 +87,8 @@ const ViewAllBookingsPage = () => {
             time: booking.time,
             status: 'Approved',
             bookingId,
+            paymentMethod: booking.paymentMethod,
+            paymentScreenshot: booking.paymentScreenshot || '', // Add paymentScreenshot field
           });
         });
         setBookings(allBookings);
@@ -179,17 +184,37 @@ const ViewAllBookingsPage = () => {
               }
             }
           });
+          const newBookingId = bookingId;
+          const bookingRef = ref(db, `bookings/${newBookingId}`);
+          // Set the booking data to the bookings node
+          set(bookingRef, {
+            username: pendingBookingData.username,
+            date: pendingBookingData.date,
+            time: pendingBookingData.time,
+            bookingId,
+            paymentMethod: pendingBookingData.paymentMethod,
+          });
+          // Remove the booking from pending bookings
+          set(pendingBookingRef, null);
+        }else{
+          const paymentScreenshotUrl = pendingBookingData.paymentScreenshot;
+          const bookingData = {
+            username: pendingBookingData.username,
+            date: pendingBookingData.date,
+            time: pendingBookingData.time,
+            status: 'Approved',
+            bookingId,
+            paymentMethod: pendingBookingData.paymentMethod,
+            paymentScreenshot: paymentScreenshotUrl, // Add paymentScreenshot field
+          };
+          const newBookingId = bookingId;
+          const bookingsRef = ref(db, `bookings/${newBookingId}`);
+          // Set the booking data to the bookings node
+          set(bookingsRef, bookingData);
+          // Remove the booking from pending bookings
+          set(pendingBookingRef, null);
         }
-        const newBookingId = bookingId;
-        const bookingRef = ref(db, `bookings/${newBookingId}`);
-        // Set the booking data to the bookings node
-        set(bookingRef, {
-          username: pendingBookingData.username,
-          date: pendingBookingData.date,
-          time: pendingBookingData.time,
-        });
-        // Remove the booking from pending bookings
-        set(pendingBookingRef, null);
+        
         const newPendingBookings = [...pendingBookings];
         const index = newPendingBookings.findIndex((booking) => booking.bookingId === bookingId);
         if (index !== -1) {
@@ -217,21 +242,52 @@ const ViewAllBookingsPage = () => {
   };
 
   const handleCancel = async (bookingId) => {
-    if (isAdmin) {
-      const db = getDatabase();
-      const bookingRef = ref(db, `bookings/${bookingId}`);
-      set(bookingRef, null);
-      const newBookings = [...bookings];
-      const index = newBookings.findIndex((booking) => booking.bookingId === bookingId);
-      if (index !== -1) {
-        newBookings.splice(index, 1);
-        setBookings(newBookings);
+  if (isAdmin) {
+    const db = getDatabase();
+    const bookingRef = ref(db, `bookings/${bookingId}`);
+    get(bookingRef).then((snapshot) => {
+      if (snapshot.exists()) {
+        const bookingData = snapshot.val();
+        const paymentScreenshotUrl = bookingData.paymentScreenshot;
+        if (paymentScreenshotUrl) {
+          const storage = getStorage();
+          const paymentScreenshotRef = storageRef(storage, paymentScreenshotUrl);
+          deleteObject(paymentScreenshotRef).then(() => {
+            console.log('Payment screenshot deleted successfully');
+          }).catch((error) => {
+            console.error('Error deleting payment screenshot:', error);
+          });
+        }
+        set(bookingRef, null);
+        const newBookings = [...bookings];
+        const index = newBookings.findIndex((booking) => booking.bookingId === bookingId);
+        if (index !== -1) {
+          newBookings.splice(index, 1);
+          setBookings(newBookings);
+        }
       }
+    });
+  }
+};
+
+  const handleShowCapscreenForPedningBooking = (bookingId) => {
+    const paymentScreenshotUrl = pendingBookings.find((booking) => booking.bookingId === bookingId).paymentScreenshot;
+    if (paymentScreenshotUrl) {
+      // Create a modal to display the payment screenshot
+      const modal = document.getElementById('capscreen-modal');
+      modal.style.display = 'block';
+      const image = document.getElementById('capscreen-image');
+      const loadingText = document.getElementById('capscreen-loading-text');
+      loadingText.style.display = 'block';
+      image.src = paymentScreenshotUrl;
+      image.onload = () => {
+        loadingText.style.display = 'none';
+      };
     }
   };
 
-  const handleShowCapscreen = (bookingId) => {
-    const paymentScreenshotUrl = pendingBookings.find((booking) => booking.bookingId === bookingId).paymentScreenshot;
+  const handleShowCapscreenForBooking = (bookingId) => {
+    const paymentScreenshotUrl = bookings.find((booking) => booking.bookingId === bookingId).paymentScreenshot;
     if (paymentScreenshotUrl) {
       // Create a modal to display the payment screenshot
       const modal = document.getElementById('capscreen-modal');
@@ -253,24 +309,24 @@ const ViewAllBookingsPage = () => {
         <p>Loading...</p>
       ) : (
         <table>
-          <thead>
-            <tr>
-              <th>Username</th>
-              <th>Date</th>
-              <th>Time</th>
-              <th>Status</th>
-              <th>Actions</th>
-              <th>Payment Method</th>
-              <th>Payment Screenshot</th>
-            </tr>
-          </thead>
-          <tbody>
-            {bookings.map((booking) => (
-              <tr key={booking.bookingId}>
-                <td>{booking.username}</td>
-                <td>{booking.date}</td>
-                <td>{booking.time}</td>
-                <td>{booking.status}</td>
+        <thead>
+          <tr>
+            <th>Username</th>
+            <th>Date</th>
+            <th>Time</th>
+            <th>Status</th>
+            <th>Actions</th>
+            <th>Payment Method</th>
+            <th>Payment Screenshot</th>
+          </tr>
+        </thead>
+        <tbody>
+          {bookings.map((booking) => (
+            <tr key={booking.bookingId}>
+              <td>{booking.username}</td>
+              <td>{booking.date}</td>
+              <td>{booking.time}</td>
+              <td>{booking.status}</td>
                 <td>
                   {booking.status === 'Approved' ? (
                     <button onClick={() => handleCancel(booking.bookingId)}>Cancel</button>
@@ -281,8 +337,14 @@ const ViewAllBookingsPage = () => {
                     </div>
                   )}
                 </td>
-                <td></td>
-                <td></td>
+                <td>{booking.paymentMethod}</td>
+                <td>
+                {booking.paymentScreenshot ? (
+                  <button onClick={() => handleShowCapscreenForBooking(booking.bookingId)}>Show Capscreen</button>
+                ) : (
+                  <span>No Payment Screenshot</span>
+                )}
+              </td>
               </tr>
             ))}
             {pendingBookings.map((booking) => (
@@ -300,7 +362,7 @@ const ViewAllBookingsPage = () => {
                 <td>{booking.paymentMethod}</td>
                 {booking.paymentMethod !== 'package' && (
                   <td>
-                    <button onClick={() => handleShowCapscreen(booking.bookingId)}>Show Capscreen</button>
+                    <button onClick={() => handleShowCapscreenForPedningBooking(booking.bookingId)}>Show Capscreen</button>
                   </td>
                 )}
               </tr>
