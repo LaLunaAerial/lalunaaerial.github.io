@@ -15,24 +15,27 @@ const MyBookingsPage = () => {
     //get the bookings and pending bookings from the database
     const db = getDatabase();
     const bookingsRef = ref(db, 'bookings');
-    const pendingBookingsRef = ref(db, 'pendingBookings');
+    
     get(bookingsRef).then((snapshot) => {
-    if (snapshot.exists()) {
-      const bookingsData = snapshot.val();
-      const userBookings = [];
-      Object.keys(bookingsData).forEach((bookingId) => {
-        const booking = bookingsData[bookingId];
-        if (booking.username === auth.currentUser.displayName) {
-          userBookings.push({
-            date: booking.date,
-            time: booking.time,
-            status: 'Approved'
-          });
-        }
-      });
-      setBookings(userBookings);
-    }
-  });
+      if (snapshot.exists()) {
+        const bookingsData = snapshot.val();
+        const userBookings = [];
+        Object.keys(bookingsData).forEach((bookingId) => {
+          const booking = bookingsData[bookingId];
+          if (booking.username === auth.currentUser.displayName) {
+            userBookings.push({
+              date: booking.date,
+              time: booking.time,
+              status: 'Approved'
+            });
+          }
+        });
+        setBookings(userBookings);
+      }
+      setLoading(false);
+    });
+
+    const pendingBookingsRef = ref(db, 'pendingBookings');
     get(pendingBookingsRef).then((snapshot) => {
       if (snapshot.exists()) {
         const pendingBookingsData = snapshot.val();
@@ -42,12 +45,15 @@ const MyBookingsPage = () => {
           if (pendingBooking.username === auth.currentUser.displayName) {
             userPendingBookings.push({
               date: pendingBooking.date,
+              paymentMethod: pendingBooking.paymentMethod,
+              paymentScreenshot: pendingBooking.paymentScreenshot,
               time: pendingBooking.time,
               status: 'Pending',
             });
           }
         });
         setPendingBookings(userPendingBookings);
+        console.log('Pending Bookings:', userPendingBookings);
       }
       setLoading(false);
     });
@@ -97,7 +103,7 @@ useEffect(() => {
   return (
     <div className='mybookings-page'>
       <h2>My Bookings</h2>
-      {bookings && bookings.length > 0 ? (
+      {bookings.length > 0 || pendingBookings.length > 0 ? (
       <div className="bookings">
         <h3>Bookings</h3>
         <table>
@@ -105,6 +111,7 @@ useEffect(() => {
             <tr>
               <th className="date-column">Date</th>
               <th className="time-column">Time</th>
+              <th className="payment-method-column">Payment Method</th>
               <th className="status-column">Status</th>
               <th className="room-password-column">Room Password</th>
             </tr>
@@ -114,6 +121,7 @@ useEffect(() => {
               <tr key={index}>
                 <td>{booking.date}</td>
                 <td>{booking.time}</td>
+                <td>{booking.paymentMethod ? booking.paymentMethod : 'N/A'}</td>
                 <td>
                   {booking.status === 'Approved' ? (
                     <span style={{ color: 'green' }}>Approved</span>

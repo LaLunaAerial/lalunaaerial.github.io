@@ -238,6 +238,7 @@ const ViewAllBookingsPage = () => {
         newPendingBookings.splice(index, 1);
         setPendingBookings(newPendingBookings);
       }
+      alert('Booking rejected!');
     }
   };
 
@@ -253,12 +254,13 @@ const ViewAllBookingsPage = () => {
           const storage = getStorage();
           const paymentScreenshotRef = storageRef(storage, paymentScreenshotUrl);
           deleteObject(paymentScreenshotRef).then(() => {
-            console.log('Payment screenshot deleted successfully');
+            alert('Payment screenshot of the booking has been deleted successfully');
           }).catch((error) => {
             console.error('Error deleting payment screenshot:', error);
           });
         }
         set(bookingRef, null);
+        alert(`Booking for ${bookingData.username} on ${bookingData.date} at ${bookingData.time} has been cancelled!`);
         const newBookings = [...bookings];
         const index = newBookings.findIndex((booking) => booking.bookingId === bookingId);
         if (index !== -1) {

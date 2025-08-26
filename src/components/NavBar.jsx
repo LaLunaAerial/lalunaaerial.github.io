@@ -58,7 +58,7 @@ function Navbar({ onLinkClick }) {
 
           {!isLoggedIn && (
             <li>
-              <Link to="/login" onClick={onLinkClick}>Login</Link>
+              <Link to="/login" onClick={onLinkClick}>Login or Register</Link>
             </li>
           )}
 

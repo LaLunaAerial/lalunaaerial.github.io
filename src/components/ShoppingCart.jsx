@@ -177,7 +177,7 @@ const ShoppingCart = () => {
   Promise.all(bookingRequests).then(() => {
     setCart([]);
     localStorage.setItem('cart', JSON.stringify([]));
-    alert('Booking requests submitted for approval');
+    alert('The request of booking by package has been submitted for approval');
   });
   };
 
@@ -210,16 +210,19 @@ const ShoppingCart = () => {
         </tbody>
       </table>
       <span>Total: ${totalPrice}</span>
-      <br />
+
+      <hr />
 
       {auth.currentUser && (
         <div>
-          <h6>Package Quota:</h6>
+          <h4>Package Quota:</h4>
           <p>Peak: {peakQuota}</p>
           <p>Non-Peak: {nonPeakQuota}</p>
         </div>
       )}
 
+      <hr />
+      
       <div className="payment-instruction">
         <h6>當您提交預訂之後,請將付款金額傳至以下Payme帳號。</h6>
       </div>
@@ -231,8 +234,8 @@ const ShoppingCart = () => {
           <h6>請上載您的Payme付款截圖</h6>
 
         </div>
-        <button className="submit-button" onClick={handleSubmit}>Submit</button>
-        <button className="submit-button" onClick={handlePayByPackage}>Pay By Package</button>
+        <button className="submit-button" onClick={handleSubmit}>Submit Booking With Payme Screenshot</button>
+        <button className="submit-button" onClick={handlePayByPackage}>Submit Booking By Using Package</button>
       </div>
     </div>
   );

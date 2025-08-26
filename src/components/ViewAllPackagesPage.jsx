@@ -30,7 +30,7 @@ const ViewAllPackagesPage = () => {
   const handleSubmitEdit = (userName, packageType) => {
     const packageRef = ref(db, `userPackages/${userName}/${packageType}`);
     update(packageRef, editedPackages[userName][packageType]).then(() => {
-      alert('Package updated successfully!');
+      alert('Package informationupdated successfully!');
       const userPackagesRef = ref(db, 'userPackages');
       get(userPackagesRef).then((snapshot) => {
         setUserPackages(snapshot.val());
@@ -76,9 +76,9 @@ const ViewAllPackagesPage = () => {
         const storage = getStorage();
         const paymentScreenshotRef = storageRef(storage, `payme-screenshots/${filePath}`);
         deleteObject(paymentScreenshotRef).then(() => {
-          console.log('Payment screenshot deleted successfully');
+          alert('Payment screenshot deleted successfully');
         }).catch((error) => {
-          console.error('Error deleting payment screenshot:', error);
+          alert('Error deleting payment screenshot:', error);
         });
   
         const userPackagesRef = ref(db, 'userPackages');

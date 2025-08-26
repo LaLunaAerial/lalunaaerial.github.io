@@ -25,10 +25,14 @@
   }
   
   .mybookings-page .time-column {
-    width: 30%;
+    width: 20%;
   }
-  
+  .mybookings-page .payment-method-column {
+    width: 20%;
+  }
   .mybookings-page .status-column {
-    width: 50%;
-    text-align: center;
+    width: 10%;
+  }
+  .mybookings-page .room-password-column {
+    width: 30%;
   }

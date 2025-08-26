@@ -72,7 +72,7 @@ const PackageBuyPage = () => {
         const packageRef = ref(db, `userPackages/${auth.currentUser.uid}/${newPackageId}`);
         set(packageRef, packageData).then(() => {
           console.log(`Package ${newPackageId} bought successfully!`);
-          alert(`You have successfully bought the ${packages[packageId].name} package!`);
+          alert(`You have successfully submit request for buying the ${packages[packageId].name} package! The request is now pending for admin approval.`);
         }).catch((error) => {
           console.error(`Error buying package ${newPackageId}:`, error);
         });
