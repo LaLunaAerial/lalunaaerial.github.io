@@ -44,13 +44,17 @@ function Navbar({ onLinkClick }) {
             <Link to="/" onClick={onLinkClick}>Home</Link> {/* Use Link for Home */}
           </li>
 
+          {(isLoggedIn && !isAdmin)&&(
           <li>
             <Link to="/schedule" onClick={onLinkClick}>Schedule</Link> {/* Use Link for Booking */}
           </li>
+          )}
           
+          {!isLoggedIn && (
           <li>
             <Link to="/price" onClick={onLinkClick}>Price</Link>
           </li>
+          )}
 
           {!isLoggedIn && (
             <li>
@@ -58,19 +62,19 @@ function Navbar({ onLinkClick }) {
             </li>
           )}
 
-          {isLoggedIn && (
+          {(isLoggedIn && !isAdmin)&&(
             <li>
               <Link to="/my-bookings" onClick={onLinkClick}>My Bookings & Packages</Link>
             </li>
           )}
 
-          {isLoggedIn && (
+          {(isLoggedIn && !isAdmin)&&(
             <li>
               <Link to="/shopping-cart" onClick={onLinkClick}>Shopping Cart</Link>
             </li>
           )}
 
-          {isLoggedIn && (
+          {(isLoggedIn && !isAdmin)&&(
           <li>
             <Link to="/buy-packages" onClick={onLinkClick}>Purchase Packages</Link> {/* Use Link for Booking */}
           </li>
@@ -92,7 +96,7 @@ function Navbar({ onLinkClick }) {
             </li>
           )}
           
-          {isLoggedIn && (
+          {(isLoggedIn && !isAdmin)&&(
             <li>
               <Link to="/account-information" onClick={onLinkClick}>Account Information</Link>
             </li>
