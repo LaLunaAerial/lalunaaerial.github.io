@@ -20,3 +20,5 @@ Changed:
 Fast Key:
 I am doing a room booking webiste using React. Now please scan the code in the project directory to familiar yourself with the project.
 
+Now the PackageBuyPage.jsx, there is a button that will trigger handleBuyPackage(packageId), that will directly submit a buy package request. 
+Now I want to modify the Buy Packages buttons into ShoppingCart.jsx. And also please modfify the button action to be: "Add the selected package into a table", and when the user click a submit button, then execute the handleBuyPackage(packageId) to submit the buy package request.

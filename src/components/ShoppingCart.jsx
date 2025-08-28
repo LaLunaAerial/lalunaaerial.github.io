@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { getDatabase, ref, set, onValue } from 'firebase/database';
+import { getDatabase, ref, set, get, onValue } from 'firebase/database';
 import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { auth } from '../assets/firebaseConfig';
 import './ShoppingCart.css';
@@ -9,6 +9,14 @@ const ShoppingCart = () => {
   const [userPackages, setUserPackages] = useState({});
   const [peakQuota, setPeakQuota] = useState(0);
   const [nonPeakQuota, setNonPeakQuota] = useState(0);
+  const [packages, setPackages] = useState({});
+  const [packageCart, setPackageCart] = useState([]);
+
+  useEffect(() => {
+    if (!auth.currentUser) {
+      localStorage.removeItem('cart');
+    }
+  }, [auth.currentUser]);
 
   useEffect(() => {
     const storedCart = JSON.parse(localStorage.getItem('cart'));
@@ -16,13 +24,23 @@ const ShoppingCart = () => {
     if (storedCart) {
       setCart(storedCart);
     }
+
+    const packageCartData = localStorage.getItem('packageCart');
+    console.log('Package cart data:', packageCartData);
+    if (packageCartData) {
+      setPackageCart(JSON.parse(packageCartData));
+    }
   }, []);
 
   useEffect(() => {
-    if (!auth.currentUser) {
-      localStorage.removeItem('cart');
-    }
-  }, [auth.currentUser]);
+    const db = getDatabase();
+    const packagesRef = ref(db, 'packages');
+    get(packagesRef).then((snapshot) => {
+      const packagesData = snapshot.val();
+      console.log(packagesData);
+      setPackages(packagesData);
+    });
+  }, []);
 
   useEffect(() => {
   const db = getDatabase();
@@ -48,6 +66,89 @@ const ShoppingCart = () => {
     setNonPeakQuota(nonPeakQuota);
   });
 }, [auth.currentUser]);
+
+
+  // handleBuyPackage
+  const handleBuyPackage = async (packageId) => {
+    // Get the image file from the input field
+    const imageFile = document.getElementById('image-input').files[0];
+
+    // Check if there is no upload file
+    if (!imageFile) {
+      alert("You should insert the capscreen of payment for the booking");
+      return;
+    }
+
+    // Check if the uploaded file size is larger than 5MB
+    const fileSize = imageFile.size;
+    const maxSize = 5 * 1024 * 1024; // 5MB
+    if (fileSize > maxSize) {
+      alert("The upload image should not be larger than 5MB");
+      return;
+    }
+
+    // Create a reference to the Firebase Storage
+    const storage = getStorage();
+
+    // Create a reference to the file in the storage bucket
+    const fileRef = storageRef(storage, `payme-screenshots/${auth.currentUser.uid}_${new Date().getTime()}`);
+
+    // Upload the image file to Firebase Storage
+    const uploadTask = uploadBytes(fileRef, imageFile);
+
+    // Create a package data with the payment screenshot download URL
+    const packageData = {
+      packageName: packages[packageId].name,
+      packageType: packages[packageId].type,
+      numberOfSections: packages[packageId].numberOfSection,
+      expiryDate: new Date(Date.now() + packages[packageId].effectivePeriod * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+      remainingQuota: packages[packageId].numberOfSection,
+      status: 'pending',
+      paymentScreenshot: "",
+    };
+
+    // Wait for the upload to complete
+    uploadTask.then((snapshot) => {
+      console.log('Image uploaded successfully');
+
+      // Get the download URL of the uploaded image
+      getDownloadURL(fileRef).then((downloadURL) => {
+        console.log('Image uploaded successfully:', downloadURL);
+        // update the packageData.paymentScrrenshot with downloadURL
+        packageData.paymentScreenshot = downloadURL;
+
+        // Generate a unique packageId for the new package
+        const newPackageId = `${auth.currentUser.uid}_${packageId}_${new Date().getTime()}`;
+        
+        // Save the package data
+        const db = getDatabase();
+        const packageRef = ref(db, `userPackages/${auth.currentUser.uid}/${newPackageId}`);
+        set(packageRef, packageData).then(() => {
+          console.log(`Package ${newPackageId} bought successfully!`);
+          alert(`You have successfully submit request for buying the ${packages[packageId].name} package! The request is now pending for admin approval.`);
+        }).catch((error) => {
+          console.error(`Error buying package ${newPackageId}:`, error);
+        });
+      });
+
+      // Remove the package from the package cart
+      const newPackageCart = packageCart.filter((packageItem) => packageItem.id !== packageData.id);
+      setPackageCart(newPackageCart);
+      localStorage.setItem('packageCart', JSON.stringify(newPackageCart));
+      }).catch((error) => {
+        console.error('Error uploading image:', error);
+      });
+
+     
+
+  };
+  
+  // Remove package from the package cart
+  const handleRemovePackage = (packageId) => {
+    const newPackageCart = packageCart.filter((packageItem) => packageItem.id !== packageId);
+    setPackageCart(newPackageCart);
+    localStorage.setItem('packageCart', JSON.stringify(newPackageCart));
+  };
 
   const handleRemove = (index) => {
     const newCart = [...cart];
@@ -212,7 +313,34 @@ const ShoppingCart = () => {
       <span>Total: ${totalPrice}</span>
 
       <hr />
-
+      <h3>Packages:</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Package Name</th>
+            <th>Package Type</th>
+            <th>Number of Sections</th>
+            <th>Effective Period</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {packageCart.map((packageItem, index) => (
+            <tr key={index}>
+              <td>{packageItem.name}</td>
+              <td>{packageItem.type}</td>
+              <td>{packageItem.numberOfSection}</td>
+              <td>{packageItem.effectivePeriod}</td>
+              <td>
+                <button onClick={() => handleBuyPackage(packageItem)}>Buy</button>
+                <button onClick={() => handleRemovePackage(packageItem.id)}>Remove</button>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+      <hr />
+      
       {auth.currentUser && (
         <div>
           <h4>Package Quota:</h4>

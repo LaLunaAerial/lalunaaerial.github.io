@@ -1,6 +1,6 @@
 // src/utils/timeCategories.js
 
-//the JSON from 1823 api
+//the JSON from 1823 api, need to be updated mannually every year.
 const holidayData={
     "vcalendar": [
       {

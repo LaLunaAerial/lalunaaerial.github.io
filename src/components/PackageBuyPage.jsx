@@ -1,91 +1,51 @@
-// PackageBuyPage.js
 import React, { useState, useEffect } from 'react';
-import { set, get, getDatabase, ref } from 'firebase/database';
+import { useNavigate } from 'react-router-dom';
+import { getDatabase, ref, get } from 'firebase/database';
 import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { auth } from '../assets/firebaseConfig';
 
 const PackageBuyPage = () => {
   const [packages, setPackages] = useState({});
   const [selectedPackage, setSelectedPackage] = useState(null);
+  const [packageCart, setPackageCart] = useState([]);
 
   useEffect(() => {
     const db = getDatabase();
     const packagesRef = ref(db, 'packages');
     get(packagesRef).then((snapshot) => {
       const packagesData = snapshot.val();
-      console.log(packagesData);
+      console.log("Package Data: "+JSON.stringify(packagesData));
       setPackages(packagesData);
     });
   }, []);
 
-  const handleBuyPackage = async (packageId) => {
-    // Get the image file from the input field
-    const imageFile = document.getElementById('image-input').files[0];
-
-    // Check if there is no upload file
-    if (!imageFile) {
-      alert("You should insert the capscreen of payment for the booking");
-      return;
+  useEffect(()=>{
+    const packageCartData = localStorage.getItem('packageCart');
+    console.log('Package cart data:', packageCartData);
+    if (packageCartData) {
+      setPackageCart(JSON.parse(packageCartData));
     }
+    console.log("PackageCart: "+packageCartData)
+  },[])
 
-    // Check if the uploaded file size is larger than 5MB
-    const fileSize = imageFile.size;
-    const maxSize = 5 * 1024 * 1024; // 5MB
-    if (fileSize > maxSize) {
-      alert("The upload image should not be larger than 5MB");
-      return;
+  const handleAddToPackageCart = (packageId) => {
+    const packageData = packages[packageId];
+    const packageCart = localStorage.getItem('packageCart');
+    if (packageCart) {
+      const packageCartArray = JSON.parse(packageCart);
+      packageCartArray.push(packageData);
+      localStorage.setItem('packageCart', JSON.stringify(packageCartArray));
+      setPackageCart(packageCartArray); // Update this line
+    } else {
+      localStorage.setItem('packageCart', JSON.stringify([packageData]));
+      setPackageCart([packageData]); // Update this line
     }
-
-    // Create a reference to the Firebase Storage
-    const storage = getStorage();
-
-    // Create a reference to the file in the storage bucket
-    const fileRef = storageRef(storage, `payme-screenshots/${auth.currentUser.uid}_${new Date().getTime()}`);
-
-    // Upload the image file to Firebase Storage
-    const uploadTask = uploadBytes(fileRef, imageFile);
-
-    // Wait for the upload to complete
-    uploadTask.then((snapshot) => {
-      console.log('Image uploaded successfully');
-
-      // Get the download URL of the uploaded image
-      getDownloadURL(fileRef).then((downloadURL) => {
-        console.log('Image uploaded successfully:', downloadURL);
-
-        // Generate a unique packageId for the new package
-        const newPackageId = `${auth.currentUser.uid}_${packageId}_${new Date().getTime()}`;
-
-        // Create a package data with the payment screenshot download URL
-        const packageData = {
-          packageName: packages[packageId].name,
-          packageType: packages[packageId].type,
-          numberOfSections: packages[packageId].numberOfSection,
-          expiryDate: new Date(Date.now() + packages[packageId].effectivePeriod * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-          remainingQuota: packages[packageId].numberOfSection,
-          status: 'pending',
-          paymentScreenshot: downloadURL,
-        };
-
-        // Save the package data
-        const db = getDatabase();
-        const packageRef = ref(db, `userPackages/${auth.currentUser.uid}/${newPackageId}`);
-        set(packageRef, packageData).then(() => {
-          console.log(`Package ${newPackageId} bought successfully!`);
-          alert(`You have successfully submit request for buying the ${packages[packageId].name} package! The request is now pending for admin approval.`);
-        }).catch((error) => {
-          console.error(`Error buying package ${newPackageId}:`, error);
-        });
-      });
-    }).catch((error) => {
-      console.error('Error uploading image:', error);
-    });
+    alert("Added the package into the Shopping Cart!");
   };
 
   return (
     <div>
       <h2>Buy Packages</h2>
-      <input type="file" id="image-input" />
       <ul>
         {Object.keys(packages).map((packageId) => (
           <li key={packageId}>
@@ -93,7 +53,12 @@ const PackageBuyPage = () => {
             <p>Type: {packages[packageId].type}</p>
             <p>Number of Sections: {packages[packageId].numberOfSection}</p>
             <p>Effective Period: {packages[packageId].effectivePeriod}</p>
-            <button onClick={() => handleBuyPackage(packageId)}>Buy</button>
+            {packageCart.some((item) => item.type === packages[packageId].type) ? (
+              <button disabled style={{backgroundColor: 'grey'}}>Already added into Shopping Cart</button>
+            ) : (
+              <button onClick={() => handleAddToPackageCart(packageId)}>Add to Package Cart</button>
+            )}
+            
           </li>
         ))}
       </ul>

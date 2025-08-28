@@ -18,10 +18,11 @@ function SchedulePage() {
   const [hours, setHours] = useState([]);
   const [cart, setCart] = useState(JSON.parse(localStorage.getItem('cart')) || []);
 
+  
   useEffect(() => {
     // check the login status, if the user is not logged in, redirect to login page
     if (!auth.currentUser) {
-      alert("PLease login first.")
+      alert("Please login first.")
       navigate('/login');
     }
   }, []);
