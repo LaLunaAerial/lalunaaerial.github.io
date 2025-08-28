@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { getDatabase, ref, set, get, onValue } from 'firebase/database';
+import { getDatabase, ref, set, get, onValue,push } from 'firebase/database';
 import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { auth } from '../assets/firebaseConfig';
 import './ShoppingCart.css';
@@ -69,16 +69,16 @@ const ShoppingCart = () => {
 
 
   // handleBuyPackage
-  const handleBuyPackage = async (packageId) => {
+  const handleBuyPackage = async (packageItem) => {
     // Get the image file from the input field
     const imageFile = document.getElementById('image-input').files[0];
-
+  
     // Check if there is no upload file
     if (!imageFile) {
       alert("You should insert the capscreen of payment for the booking");
       return;
     }
-
+  
     // Check if the uploaded file size is larger than 5MB
     const fileSize = imageFile.size;
     const maxSize = 5 * 1024 * 1024; // 5MB
@@ -86,61 +86,49 @@ const ShoppingCart = () => {
       alert("The upload image should not be larger than 5MB");
       return;
     }
-
+  
     // Create a reference to the Firebase Storage
     const storage = getStorage();
-
+  
     // Create a reference to the file in the storage bucket
     const fileRef = storageRef(storage, `payme-screenshots/${auth.currentUser.uid}_${new Date().getTime()}`);
-
+  
     // Upload the image file to Firebase Storage
     const uploadTask = uploadBytes(fileRef, imageFile);
-
+  
     // Create a package data with the payment screenshot download URL
     const packageData = {
-      packageName: packages[packageId].name,
-      packageType: packages[packageId].type,
-      numberOfSections: packages[packageId].numberOfSection,
-      expiryDate: new Date(Date.now() + packages[packageId].effectivePeriod * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-      remainingQuota: packages[packageId].numberOfSection,
+      packageName: packageItem.name,
+      packageType: packageItem.type,
+      numberOfSections: packageItem.numberOfSection,
+      expiryDate: new Date(Date.now() + packageItem.effectivePeriod * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+      remainingQuota: packageItem.numberOfSection,
       status: 'pending',
       paymentScreenshot: "",
     };
-
+  
     // Wait for the upload to complete
     uploadTask.then((snapshot) => {
-      console.log('Image uploaded successfully');
-
       // Get the download URL of the uploaded image
       getDownloadURL(fileRef).then((downloadURL) => {
         console.log('Image uploaded successfully:', downloadURL);
+        alert('Payment screenshot image uploaded Successfully')
         // update the packageData.paymentScrrenshot with downloadURL
         packageData.paymentScreenshot = downloadURL;
-
-        // Generate a unique packageId for the new package
-        const newPackageId = `${auth.currentUser.uid}_${packageId}_${new Date().getTime()}`;
-        
-        // Save the package data
+  
+        // Update the user package with the new package data
         const db = getDatabase();
-        const packageRef = ref(db, `userPackages/${auth.currentUser.uid}/${newPackageId}`);
-        set(packageRef, packageData).then(() => {
-          console.log(`Package ${newPackageId} bought successfully!`);
-          alert(`You have successfully submit request for buying the ${packages[packageId].name} package! The request is now pending for admin approval.`);
-        }).catch((error) => {
-          console.error(`Error buying package ${newPackageId}:`, error);
-        });
+        const userPackagesRef = ref(db, `userPackages/${auth.currentUser.uid}`);
+        const newPackageRef = push(userPackagesRef);
+        set(newPackageRef, packageData);
+        console.log(`Package ${packageData.name} bought successfully!`);
+        alert(`You have successfully submit request for buying the ${packageData.name} package! The request is now pending for admin approval.`);
+        // Update the packageCart state
+        const newPackageCart = packageCart.filter((item) => item.id !== packageItem.id);
+        setPackageCart(newPackageCart);
+        localStorage.setItem('packageCart', JSON.stringify(newPackageCart));
       });
-
-      // Remove the package from the package cart
-      const newPackageCart = packageCart.filter((packageItem) => packageItem.id !== packageData.id);
-      setPackageCart(newPackageCart);
-      localStorage.setItem('packageCart', JSON.stringify(newPackageCart));
-      }).catch((error) => {
-        console.error('Error uploading image:', error);
-      });
-
-     
-
+    });
   };
   
   // Remove package from the package cart
