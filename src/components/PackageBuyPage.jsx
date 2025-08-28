@@ -6,7 +6,6 @@ import { auth } from '../assets/firebaseConfig';
 
 const PackageBuyPage = () => {
   const [packages, setPackages] = useState({});
-  const [selectedPackage, setSelectedPackage] = useState(null);
   const [packageCart, setPackageCart] = useState([]);
 
   useEffect(() => {
@@ -51,6 +50,7 @@ const PackageBuyPage = () => {
           <li key={packageId}>
             <h3>{packages[packageId].name}</h3>
             <p>Type: {packages[packageId].type}</p>
+            <p>Price: {packages[packageId].price}</p>
             <p>Number of Sections: {packages[packageId].numberOfSection}</p>
             <p>Effective Period: {packages[packageId].effectivePeriod}</p>
             {packageCart.some((item) => item.type === packages[packageId].type) ? (

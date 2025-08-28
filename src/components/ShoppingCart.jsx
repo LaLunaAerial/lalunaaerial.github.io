@@ -57,7 +57,7 @@ const ShoppingCart = () => {
         console.log(`Package Type: ${packageType}, Remaining Quota: ${remainingQuota}`); // Debugging line to check package type and remaining quota
         if (packageType === 'Peak') {
           peakQuota += remainingQuota;
-        } else if (packageType === 'Non-peak') {
+        } else if (packageType === 'Non-Peak') {
           nonPeakQuota += remainingQuota;
         }
       });
@@ -309,6 +309,7 @@ const ShoppingCart = () => {
             <th>Package Type</th>
             <th>Number of Sections</th>
             <th>Effective Period</th>
+            <th>Price</th>
             <th>Actions</th>
           </tr>
         </thead>
@@ -319,6 +320,7 @@ const ShoppingCart = () => {
               <td>{packageItem.type}</td>
               <td>{packageItem.numberOfSection}</td>
               <td>{packageItem.effectivePeriod}</td>
+              <td>${packageItem.price}</td>
               <td>
                 <button onClick={() => handleBuyPackage(packageItem)}>Buy</button>
                 <button onClick={() => handleRemovePackage(packageItem.id)}>Remove</button>
