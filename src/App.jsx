@@ -38,6 +38,7 @@ function New() {
         <div style={{position: 'relative', zIndex: 0, marginLeft: '0', marginRight: '0', filter: showNavbar ? 'blur(8px)' : 'none', pointerEvents: showNavbar ? 'none' : 'auto' }}>
           <Routes>
             <Route path='/' element={<HomePage />} />
+            <Route path='/home' element={<HomePage />} />
             <Route path='/login' element={<LoginPage />} />
             <Route path='/schedule' element={<SchedulePage />} />
             <Route path='/admin' element={<AdminPage />} />

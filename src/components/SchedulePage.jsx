@@ -95,7 +95,7 @@ function SchedulePage() {
 
 
 
-  const handleBook = async (hour) => {
+  const handleBook = async (hour,date) => {
     // Check if the user is logged in
     if (!auth.currentUser) {
       alert('Please log in to book a room');
@@ -121,7 +121,8 @@ function SchedulePage() {
     }
 
     // Get the price for the selected time slot
-    const price = getTimeCategoryPrice(hour);
+    const dateObject= new Date(date)
+    const price = getTimeCategoryPrice(hour,dateObject);
     console.log(`Price for ${hour}: $${price}`); // Debugging line to check the price
     // Add the selected time slot to the shopping cart
     newCart.push({ date: date.format('YYYY-MM-DD'), time: hour, price });
@@ -173,7 +174,7 @@ function SchedulePage() {
             ) : bookingStatus[hour] === 'Booked' || pendingBookingStatus[hour] === 'Booked'? (
               <button className="selected-grey" disabled>Registered</button>
             ) : (
-              <button className="book-button" onClick={() => handleBook(hour)} disabled={cart.find((item) => item.date === date.format('YYYY-MM-DD') && item.time === hour) ? true : false}>Book</button>
+              <button className="book-button" onClick={() => handleBook(hour,date)} disabled={cart.find((item) => item.date === date.format('YYYY-MM-DD') && item.time === hour) ? true : false}>Book</button>
             )}
           </td>
   </tr>
