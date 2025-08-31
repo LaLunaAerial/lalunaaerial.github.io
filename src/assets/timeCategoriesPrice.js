@@ -1,5 +1,40 @@
 // src/utils/timeCategories.js
 
+// Define time categories with their respective start and end times and prices
+// Modify the start and end times and prices as needed
+const timeCategories = {
+  PeakWeekday: {
+    startTime: 18, // 6pm
+    endTime: 23, // 11pm
+    price: 74,
+  },
+  PeakWeekend: {
+    startTime: 12, // 12pm
+    endTime: 23, //11pm
+    price: 74,
+  },
+  NonPeakWeekday: {
+    startTime: 7, // 7am
+    endTime: 18, // 12pm
+    price: 59,
+  },
+  NonPeakWeekend: {
+    startTime: 7, // 7am
+    endTime: 12, // 12pm
+    price: 59,
+  },
+  OvernightWeekday: {
+    startTime: 23, // 11pm
+    endTime: 7, // 7am
+    price: 44,
+  },
+  OvernightWeekend: {
+    startTime: 23, // 11pm
+    endTime: 7, // 7am
+    price: 44,
+  },
+};
+
 //the JSON from 1823 api, need to be updated mannually every year.
 const holidayData={
     "vcalendar": [
@@ -933,42 +968,6 @@ const holidayData={
       }
     ]
 }
-
-
-const timeCategories = {
-  PeakWeekday: {
-    startTime: 18, // 6pm
-    endTime: 23, // 11pm
-    price: 74,
-  },
-  PeakWeekend: {
-    startTime: 12, // 12pm
-    endTime: 23, //11pm
-    price: 74,
-  },
-  NonPeakWeekday: {
-    startTime: 7, // 7am
-    endTime: 18, // 12pm
-    price: 59,
-  },
-  NonPeakWeekend: {
-    startTime: 7, // 7am
-    endTime: 12, // 12pm
-    price: 59,
-  },
-  OvernightWeekday: {
-    startTime: 23, // 11pm
-    endTime: 7, // 7am
-    price: 44,
-  },
-  OvernightWeekend: {
-    startTime: 23, // 11pm
-    endTime: 7, // 7am
-    price: 44,
-  },
-};
-
-
 
 // Function to get the price for a specific time category
 const getTimeCategoryPrice = (time, date) => {
