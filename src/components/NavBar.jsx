@@ -56,7 +56,7 @@ function Navbar({ onLinkClick }) {
             </li>
           )}
 
-          {(isLoggedIn && !isAdmin)&&(
+          {(isLoggedIn)&&(
             <li>
               <Link to="/schedule" onClick={onLinkClick}>Schedule</Link> {/* Use Link for Booking */}
             </li>
@@ -64,7 +64,7 @@ function Navbar({ onLinkClick }) {
 
           {(isLoggedIn && !isAdmin)&&(
           <li>
-            <Link to="/buy-packages" onClick={onLinkClick}>Purchase Packages</Link> {/* Use Link for Booking */}
+            <Link to="/buy-packages" onClick={onLinkClick}>Packages</Link> {/* Use Link for Booking */}
           </li>
           )}
 

@@ -936,17 +936,32 @@ const holidayData={
 
 
 const timeCategories = {
-  Peak: {
+  PeakWeekday: {
     startTime: 18, // 6pm
     endTime: 23, // 11pm
     price: 74,
   },
-  NonPeak: {
+  PeakWeekend: {
+    startTime: 12, // 12pm
+    endTime: 23, //11pm
+    price: 74,
+  },
+  NonPeakWeekday: {
     startTime: 7, // 7am
-    endTime: 18, // 6pm
+    endTime: 18, // 12pm
     price: 59,
   },
-  Overnight: {
+  NonPeakWeekend: {
+    startTime: 7, // 7am
+    endTime: 12, // 12pm
+    price: 59,
+  },
+  OvernightWeekday: {
+    startTime: 23, // 11pm
+    endTime: 7, // 7am
+    price: 44,
+  },
+  OvernightWeekend: {
     startTime: 23, // 11pm
     endTime: 7, // 7am
     price: 44,
@@ -970,21 +985,25 @@ const getTimeCategoryPrice = (time, date) => {
   const dayOfWeek = date.getDay(); // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
   const dateIsPublicHoliday = isPublicHoliday(holidayData,date);
 
-  if (dateIsPublicHoliday || dayOfWeek === 0 || dayOfWeek === 6) { // weekends and public holidays
-    if (hour >= 12 && hour < 18) { // Peak
-      return timeCategories.Peak.price;
-    } else if (hour >= 7 && hour < 12) { // Non-Peak
-      return timeCategories.NonPeak.price;
-    } else if (hour >= 23 || hour < 7) { // Overnight
-      return timeCategories.Overnight.price;
+  console.log("Hour: "+hour)
+  console.log("Day of Week: "+dayOfWeek)
+  console.log("dateIsPublicHoliday: "+dateIsPublicHoliday)
+
+  if (dateIsPublicHoliday || dayOfWeek === 0 || dayOfWeek === 6) { // if it is public holidays/weekends,
+    if (hour >= timeCategories.PeakWeekend.startTime && hour < timeCategories.PeakWeekend.endTime) { // PeakWeekend
+      return timeCategories.PeakWeekend.price;
+    } else if (hour >= timeCategories.NonPeakWeekend.startTime && hour < timeCategories.NonPeakWeekend.endTime) { // NonPeakWeekend
+      return timeCategories.NonPeakWeekend.price;
+    } else if (hour >= timeCategories.OvernightWeekend.startTime || hour < timeCategories.OvernightWeekend.endTime) { // Overnight
+      return timeCategories.OvernightWeekend.price;
     }
   } else { // Monday to Friday
-    if (hour >= 18 && hour < 23) { // Peak
-      return timeCategories.Peak.price;
-    } else if (hour >= 7 && hour < 18) { // Non-Peak
-      return timeCategories.NonPeak.price;
-    } else if (hour >= 23 || hour < 7) { // Overnight
-      return timeCategories.Overnight.price;
+    if (hour >= timeCategories.PeakWeekday.startTime && hour < timeCategories.PeakWeekday.endTime) { // PeakWeekday
+      return timeCategories.PeakWeekday.price;
+    } else if (hour >= timeCategories.NonPeakWeekday.startTime && hour < timeCategories.NonPeakWeekday.endTime) { // NonPeakWeekday
+      return timeCategories.NonPeakWeekday.price;
+    } else if (hour >= timeCategories.OvernightWeekday.startTime || hour < timeCategories.OvernightWeekday.endTime) { // Overnight
+      return timeCategories.OvernightWeekday.price;
     }
   }
 };
