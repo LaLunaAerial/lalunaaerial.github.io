@@ -227,14 +227,14 @@ const ShoppingCart = () => {
     Object.keys(userPackages).forEach((key) => {
       if (userPackages[key].packageType === 'Peak') {
         peakPackage = userPackages[key];
-      } else if (userPackages[key].packageType === 'Non-peak') {
+      } else if (userPackages[key].packageType === 'Non-Peak') {
         nonPeakPackage = userPackages[key];
       }
     });
     console.log('Peak Package:', peakPackage); // Debugging line to check the peak package
-    console.log('Non-Peak Package:', nonPeakPackage); // Debugging line to check the non-peak package
-    const peakSections = cart.filter((item) => item.time === 'peak').length;
-    const nonPeakSections = cart.filter((item) => item.time === 'non-peak').length;
+    console.log('Non-Peak Package:', nonPeakPackage); // Debugging line to check the non-Peak package
+    const peakSections = cart.filter((item) => item.time === 'Peak').length;
+    const nonPeakSections = cart.filter((item) => item.time === 'Non-Peak').length;
 
     if (peakSections > 0) {
     if (!peakPackage) {
@@ -249,11 +249,11 @@ const ShoppingCart = () => {
 
     if (nonPeakSections > 0) {
       if (!nonPeakPackage) {
-        alert('No non-peak package found!');
+        alert('No Non-Peak package found!');
         return;
       }
       if (nonPeakPackage.remainingQuota < nonPeakSections) {
-        alert('Insufficient non-peak package quota!');
+        alert('Insufficient Non-Peak package quota!');
         return;
       }
     }

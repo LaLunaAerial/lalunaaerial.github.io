@@ -13,27 +13,3 @@ firebase.initializeApp({
   measurementId: "G-5H6J69TD7N"
 });
 
-// Get a reference to the packages node
-const packagesRef = database().ref('packages');
-
-// Update the packages data
-const packagesData = {
-  "package1": {
-    "name": "Non-peak package",
-    "type": "Non-Peak",
-    "numberOfSection": 6,
-    "effectiveTime": "2025-12-31"
-  },
-  "package2": {
-    "name": "Peak package",
-    "type": "Peak",
-    "numberOfSection": 3,
-    "effectiveTime": "2025-06-30"
-  }
-};
-
-packagesRef.set(packagesData).then(() => {
-  console.log('Packages data updated successfully!');
-}).catch((error) => {
-  console.error('Error updating packages data:', error);
-});

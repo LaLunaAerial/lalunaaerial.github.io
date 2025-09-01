@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { getDatabase, ref, get, set } from 'firebase/database';
+import { getDatabase, ref, get, set, onValue } from 'firebase/database';
 import { getStorage, ref as storageRef, deleteObject,uploadBytes, getDownloadURL } from 'firebase/storage';
 import { auth } from '../assets/firebaseConfig';
 import "./ViewAllBookingPage.css";
@@ -112,27 +112,31 @@ const ViewAllBookingsPage = () => {
             //  if no, set the expiry date of the package to 30 days from now and deduct 1 quota from the package and approve the booking
           // if no, alert the admin that the user does not have enough quota and do not approve the booking
         if (pendingBookingData.paymentMethod === 'package') {
-          const userPackagesRef = ref(db, `userPackages/${auth.currentUser.displayName}`);
-          get(userPackagesRef).then((userPackagesSnapshot) => {
+          console.log("Payment method is package");
+          const userPackagesRef = ref(db, `userPackages/${pendingBookingData.username}`); // reference to the user's who make the booking, look for his packages
+          onValue(userPackagesRef, (userPackagesSnapshot) => {
+              const packages = userPackagesSnapshot.val();
+              console.log("User Packages:", packages);
             if (userPackagesSnapshot.exists()) {
               console.log("User packages data exists");
               const userPackagesData = userPackagesSnapshot.val();
               const peakPackageKey = Object.keys(userPackagesData).find((key) => userPackagesData[key].packageType === 'Peak'); // find the key of the first peak package
-              const nonPeakPackageKey = Object.keys(userPackagesData).find((key) => userPackagesData[key].packageType === 'Non-peak');  // find the key of the first non-peak package
+              const nonPeakPackageKey = Object.keys(userPackagesData).find((key) => userPackagesData[key].packageType === 'Non-Peak');  // find the key of the first non-peak package
               console.log("Peak Package Key:", peakPackageKey);
               console.log("Non-Peak Package Key:", nonPeakPackageKey);
 
               const bookingStartTimeHour = parseInt(pendingBookingData.time.split('-')[0].split(':')[0]);
               console.log("Booking Start Time Hour:", bookingStartTimeHour);
+              // TODO: Check if the booking time is in peak or non-peak time
               console.log("Start Time:",timeCategories.Peak.startTime, "End Time:",timeCategories.Peak.endTime);
               let timePeriod;
               if (bookingStartTimeHour >= timeCategories.Peak.startTime && bookingStartTimeHour <= timeCategories.Peak.endTime) {
-                  timePeriod = 'peak';
+                  timePeriod = 'Peak';
               } else  {
-                timePeriod = 'non-peak';
+                timePeriod = 'Non-Peak';
               }
 
-              if (timePeriod === 'peak') {
+              if (timePeriod === 'Peak') {
                 if (peakPackageKey && userPackagesData[peakPackageKey].remainingQuota > 0) {
                   console.log("Expiry Date of the package:", userPackagesData[peakPackageKey].expiryDate);
                   // if the user has not used the package before, set the expiry date to according to the effective period from the booking date
@@ -171,7 +175,7 @@ const ViewAllBookingsPage = () => {
                   alert('Insufficient peak package quota!');
                   return;
                 }
-              } else if (timePeriod === 'non-peak') {
+              } else if (timePeriod === 'Non-Peak') {
                 if (nonPeakPackageKey && userPackagesData[nonPeakPackageKey].remainingQuota > 0) {
                   // if the user has not used the package before, set the expiry date to according to the effective period from the booking date
                   if (userPackagesData[peakPackageKey].expiryDate==="") {
@@ -203,9 +207,9 @@ const ViewAllBookingsPage = () => {
                     const updatedNonPeakPackage = { ...userPackagesData[nonPeakPackageKey], remainingQuota: newRemainingQuota };
                     set(ref(db, `userPackages/${auth.currentUser.displayName}/${nonPeakPackageKey}`), updatedNonPeakPackage);
                   }
-                  alert('Use 1 quota from non-peak package!');
+                  alert('Use 1 quota from Non-Peak package!');
                 } else {
-                  alert('Insufficient non-peak package quota!');
+                  alert('Insufficient Non-Peak package quota!');
                   return;
                 }
               } else {
