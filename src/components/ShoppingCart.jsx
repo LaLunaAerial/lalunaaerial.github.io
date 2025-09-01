@@ -44,7 +44,7 @@ const ShoppingCart = () => {
 
   useEffect(() => {
   const db = getDatabase();
-  const userPackagesRef = ref(db, `userPackages/${auth.currentUser.uid}`);
+  const userPackagesRef = ref(db, `userPackages/${auth.currentUser.displayName}`);
   onValue(userPackagesRef, (snapshot) => {
     const packages = snapshot.val();
     setUserPackages(packages);
@@ -91,7 +91,7 @@ const ShoppingCart = () => {
     const storage = getStorage();
   
     // Create a reference to the file in the storage bucket
-    const fileRef = storageRef(storage, `payme-screenshots/${auth.currentUser.uid}_${new Date().getTime()}`);
+    const fileRef = storageRef(storage, `payme-screenshots/${auth.currentUser.displayName}_${new Date().getTime()}`);
   
     // Upload the image file to Firebase Storage
     const uploadTask = uploadBytes(fileRef, imageFile);
@@ -101,10 +101,13 @@ const ShoppingCart = () => {
       packageName: packageItem.name,
       packageType: packageItem.type,
       numberOfSections: packageItem.numberOfSection,
-      expiryDate: new Date(Date.now() + packageItem.effectivePeriod * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+      effectivePeriod: packageItem.effectivePeriod,
+      expiryDate: "", // set null initially, to be updated by the first booking made using this package
+      price: packageItem.price,
+      purchaseDate: new Date().toISOString().split('T')[0], // current date in YYYY-MM-DD format
       remainingQuota: packageItem.numberOfSection,
       status: 'pending',
-      paymentScreenshot: "",
+      paymentScreenshot: "",  // to be updated after the image is uploaded
     };
   
     // Wait for the upload to complete
@@ -118,8 +121,7 @@ const ShoppingCart = () => {
   
         // Update the user package with the new package data
         const db = getDatabase();
-        const userPackagesRef = ref(db, `userPackages/${auth.currentUser.uid}`);
-        const newPackageRef = push(userPackagesRef);
+        const newPackageRef = ref(db, `userPackages/${auth.currentUser.displayName}/${packageData.packageName}`);
         set(newPackageRef, packageData);
         console.log(`Package ${packageData.name} bought successfully!`);
         alert(`You have successfully submit request for buying the ${packageData.name} package! The request is now pending for admin approval.`);
@@ -175,7 +177,7 @@ const ShoppingCart = () => {
     const storage = getStorage();
 
     // Create a reference to the file in the storage bucket
-    const fileRef = storageRef(storage, `payme-screenshots/${auth.currentUser.uid}_${new Date().getTime()}`);
+    const fileRef = storageRef(storage, `payme-screenshots/${auth.currentUser.displayName}_${new Date().getTime()}`);
 
     // Upload the image file to Firebase Storage
     const uploadTask = uploadBytes(fileRef, imageFile);
@@ -191,7 +193,7 @@ const ShoppingCart = () => {
         // Create a pending booking record with the image file path
         const db = getDatabase();
         const bookingRequests = cart.map((item) => {
-          const pendingBookingRef = ref(db, `pendingBookings/${auth.currentUser.uid}_${item.date}_${item.time}`);
+          const pendingBookingRef = ref(db, `pendingBookings/${auth.currentUser.displayName}_${item.date}_${item.time}`);
           return set(pendingBookingRef, {
             username: auth.currentUser.displayName,
             date: item.date,
@@ -218,6 +220,10 @@ const ShoppingCart = () => {
     console.log('User Packages:', userPackages);
     let peakPackage;
     let nonPeakPackage;
+    if (!userPackages) {
+      alert('No user packages found!');
+      return;
+    }
     Object.keys(userPackages).forEach((key) => {
       if (userPackages[key].packageType === 'Peak') {
         peakPackage = userPackages[key];
@@ -254,7 +260,7 @@ const ShoppingCart = () => {
 
     const db = getDatabase();
     const bookingRequests = cart.map((item) => {
-      const pendingBookingRef = ref(db, `pendingBookings/${auth.currentUser.uid}_${item.date}_${item.time}`);
+      const pendingBookingRef = ref(db, `pendingBookings/${auth.currentUser.displayName}_${item.date}_${item.time}`);
       return set(pendingBookingRef, {
         username: auth.currentUser.displayName,
         date: item.date,

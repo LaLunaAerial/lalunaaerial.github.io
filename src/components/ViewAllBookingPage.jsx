@@ -77,6 +77,7 @@ const ViewAllBookingsPage = () => {
     const bookingsRef = ref(db, 'bookings');
     get(bookingsRef).then((snapshot) => {
       if (snapshot.exists()) {
+        
         const bookingsData = snapshot.val();
         const allBookings = [];
         Object.keys(bookingsData).forEach((bookingId) => {
@@ -103,14 +104,21 @@ const ViewAllBookingsPage = () => {
     const pendingBookingRef = ref(db, `pendingBookings/${bookingId}`);
     get(pendingBookingRef).then((snapshot) => {
       if (snapshot.exists()) {
+        console.log("Approving booking:", bookingId);
         const pendingBookingData = snapshot.val();
+        // if payment method is package, check if the user has enough quota in their package:
+          // if yes, check if the user has used the package before:
+            //  if yes, deduct 1 quota from the package and approve the booking
+            //  if no, set the expiry date of the package to 30 days from now and deduct 1 quota from the package and approve the booking
+          // if no, alert the admin that the user does not have enough quota and do not approve the booking
         if (pendingBookingData.paymentMethod === 'package') {
-          const userPackagesRef = ref(db, `userPackages/${auth.currentUser.uid}`);
+          const userPackagesRef = ref(db, `userPackages/${auth.currentUser.displayName}`);
           get(userPackagesRef).then((userPackagesSnapshot) => {
             if (userPackagesSnapshot.exists()) {
+              console.log("User packages data exists");
               const userPackagesData = userPackagesSnapshot.val();
-              const peakPackageKey = Object.keys(userPackagesData).find((key) => userPackagesData[key].packageType === 'Peak');
-              const nonPeakPackageKey = Object.keys(userPackagesData).find((key) => userPackagesData[key].packageType === 'Non-peak');
+              const peakPackageKey = Object.keys(userPackagesData).find((key) => userPackagesData[key].packageType === 'Peak'); // find the key of the first peak package
+              const nonPeakPackageKey = Object.keys(userPackagesData).find((key) => userPackagesData[key].packageType === 'Non-peak');  // find the key of the first non-peak package
               console.log("Peak Package Key:", peakPackageKey);
               console.log("Non-Peak Package Key:", nonPeakPackageKey);
 
@@ -126,10 +134,22 @@ const ViewAllBookingsPage = () => {
 
               if (timePeriod === 'peak') {
                 if (peakPackageKey && userPackagesData[peakPackageKey].remainingQuota > 0) {
+                  console.log("Expiry Date of the package:", userPackagesData[peakPackageKey].expiryDate);
+                  // if the user has not used the package before, set the expiry date to according to the effective period from the booking date
+                  if (userPackagesData[peakPackageKey].expiryDate==="") {
+                    console.log("Setting expiry date for the first time use of the package");
+                    const bookingDate = new Date(pendingBookingData.date); // get the date of the booking according to the effective period from the booking data
+                    const effectivePeriod = userPackagesData[peakPackageKey].effectivePeriod; // get the number of days for effectivePeriod from the package
+                    const expiryDate = new Date(bookingDate.getTime() + effectivePeriod * 24 * 60 * 60 * 1000); // number of days in milliseconds
+                    const updatedPeakPackage = { ...userPackagesData[peakPackageKey], expiryDate: expiryDate.toISOString() };
+                    set(ref(db, `userPackages/${auth.currentUser.displayName}/${peakPackageKey}`), updatedPeakPackage);
+                    console.log("Expiry Date of the packageset to:", expiryDate.toISOString());
+                  }
+
                   const newRemainingQuota = userPackagesData[peakPackageKey].remainingQuota - 1;
                   if (newRemainingQuota === 0) {
                     // Delete the package if the new remaining quota is 0
-                    set(ref(db, `userPackages/${auth.currentUser.uid}/${peakPackageKey}`), null);
+                    set(ref(db, `userPackages/${auth.currentUser.displayName}/${peakPackageKey}`), null);
 
                     // Delete the payment screenshot from storage
                     const paymentScreenshot = userPackagesData[peakPackageKey].paymentScreenshot
@@ -144,7 +164,7 @@ const ViewAllBookingsPage = () => {
                     });
                   } else {
                     const updatedPeakPackage = { ...userPackagesData[peakPackageKey], remainingQuota: newRemainingQuota };
-                    set(ref(db, `userPackages/${auth.currentUser.uid}/${peakPackageKey}`), updatedPeakPackage);
+                    set(ref(db, `userPackages/${auth.currentUser.displayName}/${peakPackageKey}`), updatedPeakPackage);
                   }
                   alert('Use 1 quota from peak package!');
                 } else {
@@ -153,10 +173,20 @@ const ViewAllBookingsPage = () => {
                 }
               } else if (timePeriod === 'non-peak') {
                 if (nonPeakPackageKey && userPackagesData[nonPeakPackageKey].remainingQuota > 0) {
+                  // if the user has not used the package before, set the expiry date to according to the effective period from the booking date
+                  if (userPackagesData[peakPackageKey].expiryDate==="") {
+                    const bookingDate = new Date(pendingBookingData.date); // get the date of the booking according to the effective period from the booking data
+                    const effectivePeriod = userPackagesData[peakPackageKey].effectivePeriod; // get the number of days for effectivePeriod from the package
+                    const expiryDate = new Date(bookingDate.getTime() + effectivePeriod * 24 * 60 * 60 * 1000); // number of days in milliseconds
+                    const updatedPeakPackage = { ...userPackagesData[peakPackageKey], expiryDate: expiryDate.toISOString() };
+                    set(ref(db, `userPackages/${auth.currentUser.displayName}/${peakPackageKey}`), updatedPeakPackage);
+                    console.log("Expiry Date of the packageset to:", expiryDate.toISOString());
+                  }
+
                   const newRemainingQuota = userPackagesData[nonPeakPackageKey].remainingQuota - 1;
                   if (newRemainingQuota === 0) {
                     // Delete the package if the new remaining quota is 0
-                    set(ref(db, `userPackages/${auth.currentUser.uid}/${nonPeakPackageKey}`), null);
+                    set(ref(db, `userPackages/${auth.currentUser.displayName}/${nonPeakPackageKey}`), null);
 
                     // Delete the payment screenshot from storage
                     const paymentScreenshot = userPackagesData[nonPeakPackageKey].paymentScreenshot
@@ -171,7 +201,7 @@ const ViewAllBookingsPage = () => {
                     });
                   } else {
                     const updatedNonPeakPackage = { ...userPackagesData[nonPeakPackageKey], remainingQuota: newRemainingQuota };
-                    set(ref(db, `userPackages/${auth.currentUser.uid}/${nonPeakPackageKey}`), updatedNonPeakPackage);
+                    set(ref(db, `userPackages/${auth.currentUser.displayName}/${nonPeakPackageKey}`), updatedNonPeakPackage);
                   }
                   alert('Use 1 quota from non-peak package!');
                 } else {
@@ -182,6 +212,10 @@ const ViewAllBookingsPage = () => {
                 alert('Error on calculating time period!');
                 return;
               }
+            }
+            else{
+              console.log("User packages data does not exist");
+              return;
             }
           });
           const newBookingId = bookingId;
@@ -196,7 +230,8 @@ const ViewAllBookingsPage = () => {
           });
           // Remove the booking from pending bookings
           set(pendingBookingRef, null);
-        }else{
+        }
+        else{
           const paymentScreenshotUrl = pendingBookingData.paymentScreenshot;
           const bookingData = {
             username: pendingBookingData.username,
