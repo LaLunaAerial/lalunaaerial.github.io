@@ -59,6 +59,7 @@ const ViewAllBookingsPage = () => {
             username: pendingBooking.username,
             date: pendingBooking.date,
             time: pendingBooking.time,
+            timeCategory: pendingBooking.timeCategory,
             status: 'Pending',
             bookingId: key,
             paymentMethod: pendingBooking.paymentMethod,
@@ -114,7 +115,7 @@ const ViewAllBookingsPage = () => {
         if (pendingBookingData.paymentMethod === 'package') {
           console.log("Payment method is package");
           const userPackagesRef = ref(db, `userPackages/${pendingBookingData.username}`); // reference to the user's who make the booking, look for his packages
-          onValue(userPackagesRef, (userPackagesSnapshot) => {
+          get(userPackagesRef).then((userPackagesSnapshot) => {
               const packages = userPackagesSnapshot.val();
               console.log("User Packages:", packages);
             if (userPackagesSnapshot.exists()) {
@@ -265,6 +266,7 @@ const ViewAllBookingsPage = () => {
           setPendingBookings(newPendingBookings);
         }
         alert(`Booking for ${pendingBookingData.username} on ${pendingBookingData.date} at ${pendingBookingData.time} has been approved!`);
+        return;
       }
     });
   }
@@ -373,14 +375,9 @@ const ViewAllBookingsPage = () => {
               <td>{booking.time}</td>
               <td>{booking.status}</td>
                 <td>
-                  {booking.status === 'Approved' ? (
+                  <div>
                     <button onClick={() => handleCancel(booking.bookingId)}>Cancel</button>
-                  ) : (
-                    <div>
-                      <button onClick={() => handleApprove(booking.bookingId)}>Approve</button>
-                      <button onClick={() => handleReject(booking.bookingId)}>Reject</button>
-                    </div>
-                  )}
+                  </div>
                 </td>
                 <td>{booking.paymentMethod}</td>
                 <td>
