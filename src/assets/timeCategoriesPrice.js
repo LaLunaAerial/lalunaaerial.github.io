@@ -1007,4 +1007,40 @@ const getTimeCategoryPrice = (time, date) => {
   }
 };
 
-export { timeCategories, getTimeCategoryPrice };
+const getTimeCategory=(time,date)=>{
+  // use the JSON from 1823 api to determine the public holiday
+  const isPublicHoliday=(holidayData,date)=>{
+    const apiUrl = 'https://www.1823.gov.hk/common/ical/en.json'; //URL for backup
+    const publicHolidays = holidayData.vcalendar[0].vevent.map(event => event.dtstart[0]);
+    const formattedDate = date.toISOString().split('T')[0].replace(/-/g, ''); // YYYYMMDD
+    return publicHolidays.includes(formattedDate);
+  }
+
+  const hour = parseInt(time.split(':')[0]);
+  const dayOfWeek = date.getDay(); // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
+  const dateIsPublicHoliday = isPublicHoliday(holidayData,date);
+
+  console.log("Hour: "+hour)
+  console.log("Day of Week: "+dayOfWeek)
+  console.log("dateIsPublicHoliday: "+dateIsPublicHoliday)
+
+  if (dateIsPublicHoliday || dayOfWeek === 0 || dayOfWeek === 6) { // if it is public holidays/weekends,
+    if (hour >= timeCategories.PeakWeekend.startTime && hour < timeCategories.PeakWeekend.endTime) { // PeakWeekend
+      return "Peak";
+    } else if (hour >= timeCategories.NonPeakWeekend.startTime && hour < timeCategories.NonPeakWeekend.endTime) { // NonPeakWeekend
+      return "Non-Peak";
+    } else if (hour >= timeCategories.OvernightWeekend.startTime || hour < timeCategories.OvernightWeekend.endTime) { // Overnight
+      return "Overnight";
+    }
+  } else { // Monday to Friday
+    if (hour >= timeCategories.PeakWeekday.startTime && hour < timeCategories.PeakWeekday.endTime) { // PeakWeekday
+      return "Peak";
+    } else if (hour >= timeCategories.NonPeakWeekday.startTime && hour < timeCategories.NonPeakWeekday.endTime) { // NonPeakWeekday
+      return "Non-Peak";
+    } else if (hour >= timeCategories.OvernightWeekday.startTime || hour < timeCategories.OvernightWeekday.endTime) { // Overnight
+      return "Overnight";
+    }
+  }
+};
+
+export { timeCategories, getTimeCategory,getTimeCategoryPrice };

@@ -133,6 +133,7 @@ const ShoppingCart = () => {
     });
   };
   
+  //TODO: Fix the issue of remove all package when clicking remove
   // Remove package from the package cart
   const handleRemovePackage = (packageId) => {
     const newPackageCart = packageCart.filter((packageItem) => packageItem.id !== packageId);
@@ -191,15 +192,18 @@ const ShoppingCart = () => {
         console.log('Image uploaded successfully:', downloadURL);
 
         // Create a pending booking record with the image file path
-        const db = getDatabase();
+        const db = getDatabase();       
         const bookingRequests = cart.map((item) => {
-          const pendingBookingRef = ref(db, `pendingBookings/${auth.currentUser.displayName}_${item.date}_${item.time}`);
+          const bookingDate=item.date.toISOString();
+          const bookingTime=item.time.toISOString();
+          const pendingBookingRef = ref(db, `pendingBookings/${auth.currentUser.displayName}_${bookingDate}_${bookingTime}`);
           return set(pendingBookingRef, {
             username: auth.currentUser.displayName,
             date: item.date,
             time: item.time,
             paymentMethod: 'payme',
             paymentScreenshot: downloadURL,
+            timeCategory: item.timeCategory,
           });
         });
 
@@ -216,6 +220,7 @@ const ShoppingCart = () => {
     });
   };
 
+  //TODO: DO the Overnight Package later
   const handlePayByPackage = async () => {
     console.log('User Packages:', userPackages);
     let peakPackage;
@@ -233,19 +238,22 @@ const ShoppingCart = () => {
     });
     console.log('Peak Package:', peakPackage); // Debugging line to check the peak package
     console.log('Non-Peak Package:', nonPeakPackage); // Debugging line to check the non-Peak package
-    const peakSections = cart.filter((item) => item.time === 'Peak').length;
-    const nonPeakSections = cart.filter((item) => item.time === 'Non-Peak').length;
+
+    //TODO: Check if the booking time is in Peak/Non-Peak/Overnight time
+    const peakSections = cart.filter((item) => item.timeCategory === 'Peak').length;
+    const nonPeakSections = cart.filter((item) => item.timeCategory === 'Non-Peak').length;
+    const isAllOvernight = cart.every((item) => item.timeCategory === 'Overnight'); // Check if all bookings are overnight
 
     if (peakSections > 0) {
-    if (!peakPackage) {
-      alert('No peak package found!');
-      return;
+      if (!peakPackage) {
+        alert('No peak package found!');
+        return;
+      }
+      if (peakPackage.remainingQuota < peakSections) {
+        alert('Insufficient peak package quota!');
+        return;
+      }
     }
-    if (peakPackage.remainingQuota < peakSections) {
-      alert('Insufficient peak package quota!');
-      return;
-    }
-  }
 
     if (nonPeakSections > 0) {
       if (!nonPeakPackage) {
@@ -265,6 +273,7 @@ const ShoppingCart = () => {
         username: auth.currentUser.displayName,
         date: item.date,
         time: item.time,
+        timeCategory: item.timeCategory,
         paymentMethod: 'package',
       });
   });
