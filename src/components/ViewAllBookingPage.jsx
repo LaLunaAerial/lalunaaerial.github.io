@@ -138,18 +138,24 @@ const ViewAllBookingsPage = () => {
               if (timePeriod === 'Peak') {
                 if (peakPackageKey && userPackagesData[peakPackageKey].remainingQuota > 0) {
                   console.log("userPackage:", JSON.stringify(userPackagesData[peakPackageKey]));
+                  // Create a copy of the package to update for calculating the new remaining quota and possibly the expiry date
+                  let updatedPeakPackage={...userPackagesData[peakPackageKey]};
                   // if the user has not used the package before, set the expiry date to according to the effective period from the booking date
                   if (userPackagesData[peakPackageKey].expiryDate==="") {
                     console.log("Setting expiry date for the first time use of the package");
                     const bookingDate = new Date(pendingBookingData.date); // get the date of the booking according to the effective period from the booking data
                     const effectivePeriod = userPackagesData[peakPackageKey].effectivePeriod; // get the number of days for effectivePeriod from the package
                     const expiryDate = new Date(bookingDate.getTime() + effectivePeriod * 24 * 60 * 60 * 1000); // number of days in milliseconds
-                    const updatedPeakPackage = { ...userPackagesData[peakPackageKey], expiryDate: expiryDate.toISOString() };
+                    // format the date to YYYY-MM-DD format
+                    const formattedExpiryDate = expiryDate.toISOString().split('T')[0];
+                    updatedPeakPackage = { ...userPackagesData[peakPackageKey], expiryDate: formattedExpiryDate };
                     set(ref(db, `userPackages/${pendingBookingData.username}/${peakPackageKey}`), updatedPeakPackage);
                     console.log("Expiry Date of the packageset to:", updatedPeakPackage.expiryDate);
                   }
 
                   const newRemainingQuota = userPackagesData[peakPackageKey].remainingQuota - 1;
+                  updatedPeakPackage = { ...updatedPeakPackage, remainingQuota: newRemainingQuota };
+
                   if (newRemainingQuota === 0) {
                     // Delete the package if the new remaining quota is 0
                     set(ref(db, `userPackages/${pendingBookingData.username}/${peakPackageKey}`), null);
@@ -166,7 +172,7 @@ const ViewAllBookingsPage = () => {
                       console.error('Error deleting payment screenshot:', error);
                     });
                   } else {
-                    const updatedPeakPackage = { ...userPackagesData[peakPackageKey], remainingQuota: newRemainingQuota };
+                    // Update the package with the new remaining quota and possibly the expiry date
                     set(ref(db, `userPackages/${pendingBookingData.username}/${peakPackageKey}`), updatedPeakPackage);
                   }
                   alert('Use 1 quota from peak package!');
@@ -178,19 +184,24 @@ const ViewAllBookingsPage = () => {
               } else if (timePeriod === 'Non-Peak') {
                 if (nonPeakPackageKey && userPackagesData[nonPeakPackageKey].remainingQuota > 0) {
                   console.log("userPackage:", JSON.stringify(userPackagesData[nonPeakPackageKey]));
+                  // Create a copy of the package to update for calculating the new remaining quota and possibly the expiry date
+                  let updatedNonPeakPackage={...userPackagesData[nonPeakPackageKey]};
                   // if the user has not used the package before, set the expiry date to according to the effective period from the booking date
                   if (userPackagesData[nonPeakPackageKey].expiryDate==="") {
                     console.log("Setting expiry date for the first time use of the package");
                     const bookingDate = new Date(pendingBookingData.date); // get the date of the booking according to the effective period from the booking data
                     const effectivePeriod = userPackagesData[nonPeakPackageKey].effectivePeriod; // get the number of days for effectivePeriod from the package
                     const expiryDate = new Date(bookingDate.getTime() + effectivePeriod * 24 * 60 * 60 * 1000); // number of days in milliseconds
-                    const updatedNonPeakPackage = { ...userPackagesData[nonPeakPackageKey], expiryDate: expiryDate.toISOString() };
+                    // format the date to YYYY-MM-DD format
+                    const formattedExpiryDate = expiryDate.toISOString().split('T')[0];
+                    updatedNonPeakPackage = { ...userPackagesData[nonPeakPackageKey], expiryDate: formattedExpiryDate };
                     set(ref(db, `userPackages/${pendingBookingData.username}/${nonPeakPackageKey}`), updatedNonPeakPackage);
                     console.log("Expiry Date of the package set to:", updatedNonPeakPackage.expiryDate);
                   }
 
                   // reduce the remaining quota by 1
                   const newRemainingQuota = userPackagesData[nonPeakPackageKey].remainingQuota - 1;
+                  updatedNonPeakPackage = { ...updatedNonPeakPackage, remainingQuota: newRemainingQuota };
 
                   if (newRemainingQuota === 0) {
                     // Delete the package if the new remaining quota is 0
@@ -208,7 +219,7 @@ const ViewAllBookingsPage = () => {
                       console.error('Error deleting payment screenshot:', error);
                     });
                   } else {
-                    const updatedNonPeakPackage = { ...userPackagesData[nonPeakPackageKey], remainingQuota: newRemainingQuota };
+                    // Update the package with the new remaining quota and possibly the expiry date
                     set(ref(db, `userPackages/${pendingBookingData.username}/${nonPeakPackageKey}`), updatedNonPeakPackage);
                   }
                   alert('Use 1 quota from Non-Peak package!');
@@ -227,6 +238,8 @@ const ViewAllBookingsPage = () => {
               return;
             }
           });
+
+          // After checking and deducting the quota, approve the booking by moving it from pendingBookings to bookings
           const newBookingId = bookingId;
           const bookingRef = ref(db, `bookings/${newBookingId}`);
           // Set the booking data to the bookings node
