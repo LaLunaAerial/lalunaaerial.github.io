@@ -70,6 +70,16 @@ const ShoppingCart = () => {
 
   // handleBuyPackage
   const handleBuyPackage = async (packageItem) => {
+
+    //check if ther user already buy the package
+    const db = getDatabase();
+    const userPackageRef = ref(db, `userPackages/${auth.currentUser.displayName}/${packageItem.name}`);
+    const snapshot = await get(userPackageRef);
+    if (snapshot.exists()) {
+      alert(`You have already bought the ${packageItem.name} package! Please wait for admin approval if the status is still pending.`);
+      return;
+    }
+
     // Get the image file from the input field
     const imageFile = document.getElementById('image-input').files[0];
   
@@ -95,20 +105,33 @@ const ShoppingCart = () => {
   
     // Upload the image file to Firebase Storage
     const uploadTask = uploadBytes(fileRef, imageFile);
-  
+    
     // Create a package data with the payment screenshot download URL
-    const packageData = {
-      packageName: packageItem.name,
-      packageType: packageItem.type,
-      numberOfSections: packageItem.numberOfSection,
-      effectivePeriod: packageItem.effectivePeriod,
-      expiryDate: "", // set null initially, to be updated by the first booking made using this package
-      price: packageItem.price,
-      purchaseDate: new Date().toISOString().split('T')[0], // current date in YYYY-MM-DD format
-      remainingQuota: packageItem.numberOfSection,
-      status: 'pending',
-      paymentScreenshot: "",  // to be updated after the image is uploaded
-    };
+    let packageData;
+    if(packageItem.type==="Overnight"){
+      packageData = {
+        packageName: packageItem.name,
+        packageType: packageItem.type,
+        paymentScreenshot: "",  // to be updated after the image is uploaded
+        price: packageItem.price,
+        purchaseDate: new Date().toISOString().split('T')[0], // current date in YYYY-MM-DD format
+        status: 'pending',
+      }
+    }
+    else{
+      packageData = {
+        packageName: packageItem.name,
+        packageType: packageItem.type,
+        numberOfSections: packageItem.numberOfSection,
+        effectivePeriod: packageItem.effectivePeriod,
+        expiryDate: "", // set null initially, to be updated by the first booking made using this package
+        price: packageItem.price,
+        purchaseDate: new Date().toISOString().split('T')[0], // current date in YYYY-MM-DD format
+        remainingQuota: packageItem.numberOfSection,
+        status: 'pending',
+        paymentScreenshot: "",  // to be updated after the image is uploaded
+      };
+    }
   
     // Wait for the upload to complete
     uploadTask.then((snapshot) => {
@@ -123,8 +146,8 @@ const ShoppingCart = () => {
         const db = getDatabase();
         const newPackageRef = ref(db, `userPackages/${auth.currentUser.displayName}/${packageData.packageName}`);
         set(newPackageRef, packageData);
-        console.log(`Package ${packageData.name} bought successfully!`);
-        alert(`You have successfully submit request for buying the ${packageData.name} package! The request is now pending for admin approval.`);
+        console.log(`Package ${packageData.packageName} bought successfully!`);
+        alert(`You have successfully submit request for buying the ${packageData.packageName} package! The request is now pending for admin approval.`);
         // Update the packageCart state
         const newPackageCart = packageCart.filter((item) => item.id !== packageItem.id);
         setPackageCart(newPackageCart);

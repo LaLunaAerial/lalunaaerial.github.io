@@ -51,8 +51,13 @@ const PackageBuyPage = () => {
             <h3>{packages[packageId].name}</h3>
             <p>Type: {packages[packageId].type}</p>
             <p>Price: {packages[packageId].price}</p>
-            <p>Number of Sections: {packages[packageId].numberOfSection}</p>
-            <p>Effective Period: {packages[packageId].effectivePeriod}</p>
+            {packages[packageId].type !== "Overnight" && (
+              <div>
+                <p>Number of Sections: {packages[packageId].numberOfSection}</p>
+                <p>Effective Period: {packages[packageId].effectivePeriod}</p>
+              </div>
+            )}
+            
             {packageCart.some((item) => item.type === packages[packageId].type) ? (
               <button disabled style={{backgroundColor: 'grey'}}>Already added into Shopping Cart</button>
             ) : (
