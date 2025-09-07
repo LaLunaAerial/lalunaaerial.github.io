@@ -253,6 +253,11 @@ const ViewAllBookingsPage = () => {
           // Remove the booking from pending bookings
           set(pendingBookingRef, null);
         }
+        //else if payment method is Overnight package
+        else if (pendingBookingData.paymentMethod === 'Overnight package') {
+          //TODO: Approve the booking directly without checking for package quota
+        }
+        // else if payment method is single payment
         else{
           const paymentScreenshotUrl = pendingBookingData.paymentScreenshot;
           const bookingData = {

@@ -71,7 +71,7 @@ const ShoppingCart = () => {
   // handleBuyPackage
   const handleBuyPackage = async (packageItem) => {
 
-    //check if ther user already buy the package
+    // Check if ther user already buy the package
     const db = getDatabase();
     const userPackageRef = ref(db, `userPackages/${auth.currentUser.displayName}/${packageItem.name}`);
     const snapshot = await get(userPackageRef);
@@ -108,6 +108,7 @@ const ShoppingCart = () => {
     
     // Create a package data with the payment screenshot download URL
     let packageData;
+    // Specfial handling for Overnight package
     if(packageItem.type==="Overnight"){
       packageData = {
         packageName: packageItem.name,
@@ -116,6 +117,7 @@ const ShoppingCart = () => {
         price: packageItem.price,
         purchaseDate: new Date().toISOString().split('T')[0], // current date in YYYY-MM-DD format
         status: 'pending',
+        // No number of sections , effective period, remaining quota or expiry date for overnight package
       }
     }
     else{
@@ -243,33 +245,54 @@ const ShoppingCart = () => {
     });
   };
 
-  //TODO: DO the Overnight Package later
+
   const handlePayByPackage = async () => {
     console.log('User Packages:', userPackages);
     let peakPackage;
     let nonPeakPackage;
+    let overnightPackage;
+
+    // Check if userPackages is null or undefined
     if (!userPackages) {
-      alert('No user packages found!');
+      alert('Cannot find your packages! Please contact admin for help.');
       return;
     }
+
     Object.keys(userPackages).forEach((key) => {
       if (userPackages[key].packageType === 'Peak') {
         peakPackage = userPackages[key];
       } else if (userPackages[key].packageType === 'Non-Peak') {
         nonPeakPackage = userPackages[key];
+      } else if (userPackages[key].packageType === 'Overnight') {
+        overnightPackage = userPackages[key];
       }
     });
+
     console.log('Peak Package:', peakPackage); // Debugging line to check the peak package
     console.log('Non-Peak Package:', nonPeakPackage); // Debugging line to check the non-Peak package
+    console.log('Overnight Package:', overnightPackage); // Debugging line to check the overnight package
 
-    //TODO: Check if the booking time is in Peak/Non-Peak/Overnight time
+    
     const peakSections = cart.filter((item) => item.timeCategory === 'Peak').length;
-    const nonPeakSections = cart.filter((item) => item.timeCategory === 'Non-Peak').length;
-    const isAllOvernight = cart.every((item) => item.timeCategory === 'Overnight'); // Check if all bookings are overnight
+    const nonPeakSections = cart.filter((item) => item.timeCategory === 'Non-Peak' || item.timeCategory === 'Overnight').length;
+    let isAllOvernight = false;
+    //TODO: Check all booking are overnight and in the same night
+    if( (cart.every((item) => item.timeCategory === 'Overnight')) && (cart.length===16) ){
+      isAllOvernight = true;
+    }else{
+      isAllOvernight = false;
+    }
+
+    if (isAllOvernight) {
+      if (!overnightPackage) {
+        alert('No Overnight package found!');
+        return;
+      }
+    }
 
     if (peakSections > 0) {
       if (!peakPackage) {
-        alert('No peak package found!');
+        alert('No Peak package found!');
         return;
       }
       if (peakPackage.remainingQuota < peakSections) {
@@ -289,8 +312,22 @@ const ShoppingCart = () => {
       }
     }
 
+    let bookingRequests = [];
     const db = getDatabase();
-    const bookingRequests = cart.map((item) => {
+    // Special handling for Overnight package
+    if(isAllOvernight){
+      bookingRequests = cart.map((item) => {
+        const pendingBookingRef = ref(db, `pendingBookings/${auth.currentUser.displayName}_${item.date}_${item.time}`);
+        return set(pendingBookingRef, {
+          username: auth.currentUser.displayName,
+          date: item.date,
+          time: item.time,
+          timeCategory: item.timeCategory,
+          paymentMethod: 'Overnight package',
+        });
+    });
+    }else{
+    bookingRequests = cart.map((item) => {
       const pendingBookingRef = ref(db, `pendingBookings/${auth.currentUser.displayName}_${item.date}_${item.time}`);
       return set(pendingBookingRef, {
         username: auth.currentUser.displayName,
@@ -299,14 +336,14 @@ const ShoppingCart = () => {
         timeCategory: item.timeCategory,
         paymentMethod: 'package',
       });
-  });
+  });}
 
   Promise.all(bookingRequests).then(() => {
     setCart([]);
     localStorage.setItem('cart', JSON.stringify([]));
     alert('The request of booking by package has been submitted for approval');
   });
-  };
+};
 
   // Calculate the total price of the items in the cart
   const totalPrice = cart.reduce((acc, item) => acc + item.price, 0);
