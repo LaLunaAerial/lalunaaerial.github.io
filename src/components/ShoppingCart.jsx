@@ -277,20 +277,34 @@ const ShoppingCart = () => {
     const nonPeakSections = cart.filter((item) => item.timeCategory === 'Non-Peak' || item.timeCategory === 'Overnight').length;
     let isAllOvernight = false;
     //TODO: Check all booking are overnight and in the same night
-    if( (cart.every((item) => item.timeCategory === 'Overnight')) && (cart.length===16) ){
+    if (
+      (cart.every((item) => item.timeCategory === 'Overnight')) &&
+      (cart.length === 16) &&
+      (cart.every((item, index, array) => {
+        if (index === 0) return true;
+        if (!item.date || !array[index - 1].date) return false;
+        const currentDate = new Date(item.date);
+        const previousDate = new Date(array[index - 1].date);
+        const currentDay = currentDate.getDate();
+        const previousDay = previousDate.getDate();
+        return Math.abs(currentDay - previousDay) <= 1;
+      }))
+    ) {
       isAllOvernight = true;
-    }else{
+    } else {
       isAllOvernight = false;
     }
+    console.log("isAllOvernight: ",isAllOvernight)
 
+    // if all booking are overnight, check for overnight package
     if (isAllOvernight) {
       if (!overnightPackage) {
         alert('No Overnight package found!');
         return;
       }
-    }
-
-    if (peakSections > 0) {
+    }else{
+      // else, check for Peak and Non-Peak package
+      if (peakSections > 0) {
       if (!peakPackage) {
         alert('No Peak package found!');
         return;
@@ -311,6 +325,8 @@ const ShoppingCart = () => {
         return;
       }
     }
+    }
+
 
     let bookingRequests = [];
     const db = getDatabase();

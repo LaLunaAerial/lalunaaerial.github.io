@@ -256,6 +256,86 @@ const ViewAllBookingsPage = () => {
         //else if payment method is Overnight package
         else if (pendingBookingData.paymentMethod === 'Overnight package') {
           //TODO: Approve the booking directly without checking for package quota
+          console.log("Payment method is Overnight package");
+          const userPackagesRef = ref(db, `userPackages/${pendingBookingData.username}`); // reference to the user's who make the booking, look for his packages
+          get(userPackagesRef).then((userPackagesSnapshot) => {
+              const packages = userPackagesSnapshot.val();
+              console.log("User Packages:", packages);
+            if (userPackagesSnapshot.exists()) {
+              console.log("User packages data exists");
+              const userPackagesData = userPackagesSnapshot.val();
+              const overnightPackageKey = Object.keys(userPackagesData).find((key) => userPackagesData[key].packageType === 'Overnight');
+              console.log("Overnight Package Key:", overnightPackageKey);
+
+              // Delete the payment screenshot from storage if there is no other Overnight pending timeslot paid by package
+              const otherOvernightBookingsRef = ref(db, 'pendingBookings');
+              get(otherOvernightBookingsRef).then((snapshot) => {
+                if (snapshot.exists()) {
+                  // Check if there is any other Overnight pending booking by the same user (now didnt check for the same day, assume user only book for one day)
+                  const bookingsData = snapshot.val();
+                  const hasOtherOvernight = Object.keys(bookingsData).some((id) => {
+                    const booking = bookingsData[id];
+                    return (booking.username === pendingBookingData.username) && (booking.paymentMethod === 'Overnight package') && (booking.bookingId !== bookingId);
+                  });
+                  console.log("HasOtherOvernight pending booking by overnight package:", hasOtherOvernight);
+                  // if there is no other Overnight pending booking by package, delete the package and payment screenshot
+                  if (!hasOtherOvernight) {
+                    console.log("No other Overnight pending booking by overnight package");
+                    // Delete the Overnight package 
+                    set(ref(db, `userPackages/${pendingBookingData.username}/${overnightPackageKey}`), null);
+                    alert('Overnight package used, package deleted!');
+
+                    // Delete the payment screenshot from storage
+                    const paymentScreenshot = userPackagesData[overnightPackageKey].paymentScreenshot
+                    const filePath = paymentScreenshot.substring(paymentScreenshot.lastIndexOf("%2F") + 3, paymentScreenshot.indexOf("?alt"));
+                    console.log("File Path to delete:", filePath);
+                    const storage = getStorage();
+                    const paymentScreenshotRef = storageRef(storage, `payme-screenshots/${filePath}`);
+                    deleteObject(paymentScreenshotRef).then(() => {
+                      alert('Payment screenshot deleted successfully');
+                    }).catch((error) => {
+                      console.error('Error deleting payment screenshot:', error);
+                    }
+                    );
+                  }
+                }else{
+                  // No other pending bookings, so delete the Overnight package and payment screenshot
+                  set(ref(db, `userPackages/${pendingBookingData.username}/${overnightPackageKey}`), null);
+                  alert('Overnight package used, package deleted!');
+
+                  // Delete the payment screenshot from storage
+                  const paymentScreenshot = userPackagesData[overnightPackageKey].paymentScreenshot
+                  const filePath = paymentScreenshot.substring(paymentScreenshot.lastIndexOf("%2F") + 3, paymentScreenshot.indexOf("?alt"));
+                  console.log("File Path to delete:", filePath);
+                  const storage = getStorage();
+                  const paymentScreenshotRef = storageRef(storage, `payme-screenshots/${filePath}`);
+                  deleteObject(paymentScreenshotRef).then(() => {
+                    alert('Payment screenshot deleted successfully');
+                  }).catch((error) => {
+                    console.error('Error deleting payment screenshot:', error);
+                  }
+                  );
+                }
+              });
+
+              // After checking and deducting the package, approve the booking by moving it from pendingBookings to bookings
+              const newBookingId = bookingId;
+              const bookingRef = ref(db, `bookings/${newBookingId}`);
+              // Set the booking data to the bookings node
+              set(bookingRef, {
+                username: pendingBookingData.username,
+                date: pendingBookingData.date,
+                time: pendingBookingData.time,
+                bookingId,
+                paymentMethod: pendingBookingData.paymentMethod,
+              });
+              // Remove the booking from pending bookings
+              set(pendingBookingRef, null);
+            }
+            else{
+              alert("User packages data does not exist");
+            }
+          });
         }
         // else if payment method is single payment
         else{
@@ -343,11 +423,15 @@ const ViewAllBookingsPage = () => {
       modal.style.display = 'block';
       const image = document.getElementById('capscreen-image');
       const loadingText = document.getElementById('capscreen-loading-text');
+      const imagePath = paymentScreenshotUrl.substring(paymentScreenshotUrl.lastIndexOf("%2F") + 3, paymentScreenshotUrl.indexOf("?alt"));
       loadingText.style.display = 'block';
       image.src = paymentScreenshotUrl;
       image.onload = () => {
         loadingText.style.display = 'none';
       };
+      const imagePathElement = document.getElementById('capscreen-image-path');
+      imagePathElement.textContent = imagePath;
+      console.log("Image Path: ", imagePath);
     }
   };
 
@@ -364,6 +448,10 @@ const ViewAllBookingsPage = () => {
       image.onload = () => {
         loadingText.style.display = 'none';
       };
+      const imagePath = paymentScreenshotUrl.substring(paymentScreenshotUrl.lastIndexOf("%2F") + 3, paymentScreenshotUrl.indexOf("?alt"));
+      const imagePathElement = document.getElementById('capscreen-image-path');
+      imagePathElement.textContent = imagePath;
+      console.log("Image Path: ", imagePath);
     }
   };
 
@@ -432,6 +520,7 @@ const ViewAllBookingsPage = () => {
       )}
       {/* Modal to display the payment screenshot */}
       <div id="capscreen-modal" style={{ display: 'none', position: 'fixed', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', backgroundColor: 'white', padding: '20px', border: '1px solid black' }}>
+        <p>PaymentScreenshot Path: <span id="capscreen-image-path"></span></p>
         <img id="capscreen-image" src="" alt="Payment Screenshot" style={{ width: '100%', height: '100%' }} />
         <p id="capscreen-loading-text" style={{ display: 'none' }}>Loading...</p>
         <button onClick={() => document.getElementById('capscreen-modal').style.display = 'none'}>Close</button>

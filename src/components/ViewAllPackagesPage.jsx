@@ -103,6 +103,10 @@ const ViewAllPackagesPage = () => {
     image.onload = () => {
         loadingText.style.display = 'none';
       };
+    const imagePath = paymentScreenshotUrl.substring(paymentScreenshotUrl.lastIndexOf("%2F") + 3, paymentScreenshotUrl.indexOf("?alt"));
+    const imagePathElement = document.getElementById('capscreen-image-path');
+    imagePathElement.textContent = imagePath;
+    console.log("Image Path: ", imagePath);
     }
   };
 
@@ -209,6 +213,7 @@ return (
     )}
     {/* Modal to display the payment screenshot */}
     <div id="capscreen-modal" style={{ display: 'none', position: 'fixed', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', backgroundColor: 'white', padding: '20px', border: '1px solid black' }}>
+      <p>Payment Screenshot Path: <span id="capscreen-image-path"></span></p>
       <img id="capscreen-image" src="" alt="Payment Screenshot" style={{ width: '100%', height: '100%' }} />
       <p id="capscreen-loading-text" style={{ display: 'none' }}>Loading...</p>
       <button onClick={() => document.getElementById('capscreen-modal').style.display = 'none'}>Close</button>
