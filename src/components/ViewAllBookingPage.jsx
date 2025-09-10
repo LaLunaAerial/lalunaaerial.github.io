@@ -255,8 +255,7 @@ const ViewAllBookingsPage = () => {
         }
         //else if payment method is Overnight package
         else if (pendingBookingData.paymentMethod === 'Overnight package') {
-          //TODO: Approve the booking directly without checking for package quota
-          console.log("Payment method is Overnight package");
+          //TODO: Approve the Overnight pending booking, delete the Overnight package when there is no Overnight pending booking for the user
           const userPackagesRef = ref(db, `userPackages/${pendingBookingData.username}`); // reference to the user's who make the booking, look for his packages
           get(userPackagesRef).then((userPackagesSnapshot) => {
               const packages = userPackagesSnapshot.val();
@@ -508,9 +507,13 @@ const ViewAllBookingsPage = () => {
                   </div>
                 </td>
                 <td>{booking.paymentMethod}</td>
-                {booking.paymentMethod !== 'package' && (
+                {booking.paymentMethod === 'payme' ?(
                   <td>
                     <button onClick={() => handleShowCapscreenForPedningBooking(booking.bookingId)}>Show Capscreen</button>
+                  </td>
+                ):(
+                  <td>
+                    <span>No Payment Screenshot</span>
                   </td>
                 )}
               </tr>

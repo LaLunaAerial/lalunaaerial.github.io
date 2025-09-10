@@ -43,6 +43,26 @@
     cursor: pointer;
   }
 
+  .disabled-button {
+    margin: 5px;
+    padding: 5px 10px;
+    background-color: #ccc; /* grey background color */
+    color: #fff; /* dark grey text color */
+    border: none;
+    border-radius: 5px;
+    cursor: default;
+  }
+
+  .disabled-button:hover {
+    margin: 5px;
+    padding: 5px 10px;
+    background-color: #ccc; /* grey background color */
+    color: #fff; /* dark grey text color */
+    border: none;
+    border-radius: 5px;
+    cursor: default;
+  }
+
   .payme-code {
     text-align: center;
     margin-top: 20px;

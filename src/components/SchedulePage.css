@@ -60,5 +60,14 @@
   border: none;
   border-radius: 5px;
   padding: 5px 10px;
-  cursor: pointer;
+  cursor: default;
+}
+
+.selected-grey:hover{
+  background-color: #ccc; /* grey background color */
+  color: #fff; /* dark grey text color */
+  border: none;
+  border-radius: 5px;
+  padding: 5px 10px;
+  cursor: default;
 }

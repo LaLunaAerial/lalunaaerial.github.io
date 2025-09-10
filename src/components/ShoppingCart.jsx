@@ -11,6 +11,7 @@ const ShoppingCart = () => {
   const [nonPeakQuota, setNonPeakQuota] = useState(0);
   const [packages, setPackages] = useState({});
   const [packageCart, setPackageCart] = useState([]);
+  const [isAllOvernight,setIsAllOvernight]=useState(false);
 
   useEffect(() => {
     if (!auth.currentUser) {
@@ -43,30 +44,50 @@ const ShoppingCart = () => {
   }, []);
 
   useEffect(() => {
-  const db = getDatabase();
-  const userPackagesRef = ref(db, `userPackages/${auth.currentUser.displayName}`);
-  onValue(userPackagesRef, (snapshot) => {
-    const packages = snapshot.val();
-    setUserPackages(packages);
-    let peakQuota = 0;
-    let nonPeakQuota = 0;
-    if (packages) {
-      Object.keys(packages).forEach((key) => {
-        const packageType = packages[key].packageType;
-        const remainingQuota = packages[key].remainingQuota;
-        console.log(`Package Type: ${packageType}, Remaining Quota: ${remainingQuota}`); // Debugging line to check package type and remaining quota
-        if (packageType === 'Peak') {
-          peakQuota += remainingQuota;
-        } else if (packageType === 'Non-Peak') {
-          nonPeakQuota += remainingQuota;
-        }
-      });
-    }
-    setPeakQuota(peakQuota);
-    setNonPeakQuota(nonPeakQuota);
-  });
-}, [auth.currentUser]);
+    const db = getDatabase();
+    const userPackagesRef = ref(db, `userPackages/${auth.currentUser.displayName}`);
+    get(userPackagesRef).then((snapshot) => {
+      const packages = snapshot.val();
+      setUserPackages(packages);
+      let peakQuota = 0;
+      let nonPeakQuota = 0;
+      if (packages) {
+        Object.keys(packages).forEach((key) => {
+          const packageType = packages[key].packageType;
+          const remainingQuota = packages[key].remainingQuota;
+          console.log(`Package Type: ${packageType}, Remaining Quota: ${remainingQuota}`); // Debugging line to check package type and remaining quota
+          if (packageType === 'Peak') {
+            peakQuota += remainingQuota;
+          } else if (packageType === 'Non-Peak') {
+            nonPeakQuota += remainingQuota;
+          }
+        });
+      }
+      setPeakQuota(peakQuota);
+      setNonPeakQuota(nonPeakQuota);
+    });
+  }, [auth.currentUser]);
 
+  // Check if all bookings are overnight
+  useEffect(()=>{
+    if (
+      (cart.every((item) => item.timeCategory === 'Overnight')) &&
+      (cart.length === 16) &&
+      (cart.every((item, index, array) => {
+        if (index === 0) return true;
+        if (!item.date || !array[index - 1].date) return false;
+        const currentDate = new Date(item.date);
+        const previousDate = new Date(array[index - 1].date);
+        const currentDay = currentDate.getDate();
+        const previousDay = previousDate.getDate();
+        return Math.abs(currentDay - previousDay) <= 1;
+      }))
+    ) {
+      setIsAllOvernight(true);
+    } else {
+      setIsAllOvernight(false);
+    }
+  },[cart]);
 
   // handleBuyPackage
   const handleBuyPackage = async (packageItem) => {
@@ -245,12 +266,60 @@ const ShoppingCart = () => {
     });
   };
 
+  // Handle payment by Overnight package
+  const handlePayByOvernightPackage=async()=>{
+    let overnightPackage;
 
+    Object.keys(userPackages).forEach((key) => {
+      if (userPackages[key].packageType === 'Overnight') {
+        overnightPackage = userPackages[key];
+      }
+    });
+
+    console.log('Overnight Package:', overnightPackage); // Debugging line to check the overnight package
+
+    console.log("isAllOvernight: ",isAllOvernight)
+
+    // if all booking are overnight, check for overnight package
+    if (isAllOvernight) {
+      if (!overnightPackage) {
+        alert('No Overnight package found!');
+        return;
+      }
+    }else{
+      alert("The booking item in shopping cart are not all Overnight")
+      return;
+    }
+
+    // Special handling for Overnight package
+
+      let bookingRequests = [];
+    const db = getDatabase();
+      bookingRequests = cart.map((item) => {
+        const pendingBookingRef = ref(db, `pendingBookings/${auth.currentUser.displayName}_${item.date}_${item.time}`);
+        return set(pendingBookingRef, {
+          username: auth.currentUser.displayName,
+          date: item.date,
+          time: item.time,
+          timeCategory: item.timeCategory,
+          paymentMethod: 'Overnight package',
+        });
+    });
+
+    // Wait for all booking requests to complete, then clear the cart
+    Promise.all(bookingRequests).then(() => {
+      setCart([]);
+      localStorage.setItem('cart', JSON.stringify([]));
+      alert('The request of booking by package has been submitted for approval');
+    });
+
+  }
+
+  // Handle payment by package
   const handlePayByPackage = async () => {
     console.log('User Packages:', userPackages);
     let peakPackage;
     let nonPeakPackage;
-    let overnightPackage;
 
     // Check if userPackages is null or undefined
     if (!userPackages) {
@@ -263,48 +332,18 @@ const ShoppingCart = () => {
         peakPackage = userPackages[key];
       } else if (userPackages[key].packageType === 'Non-Peak') {
         nonPeakPackage = userPackages[key];
-      } else if (userPackages[key].packageType === 'Overnight') {
-        overnightPackage = userPackages[key];
       }
     });
 
     console.log('Peak Package:', peakPackage); // Debugging line to check the peak package
     console.log('Non-Peak Package:', nonPeakPackage); // Debugging line to check the non-Peak package
-    console.log('Overnight Package:', overnightPackage); // Debugging line to check the overnight package
-
     
     const peakSections = cart.filter((item) => item.timeCategory === 'Peak').length;
     const nonPeakSections = cart.filter((item) => item.timeCategory === 'Non-Peak' || item.timeCategory === 'Overnight').length;
-    let isAllOvernight = false;
-    //TODO: Check all booking are overnight and in the same night
-    if (
-      (cart.every((item) => item.timeCategory === 'Overnight')) &&
-      (cart.length === 16) &&
-      (cart.every((item, index, array) => {
-        if (index === 0) return true;
-        if (!item.date || !array[index - 1].date) return false;
-        const currentDate = new Date(item.date);
-        const previousDate = new Date(array[index - 1].date);
-        const currentDay = currentDate.getDate();
-        const previousDay = previousDate.getDate();
-        return Math.abs(currentDay - previousDay) <= 1;
-      }))
-    ) {
-      isAllOvernight = true;
-    } else {
-      isAllOvernight = false;
-    }
-    console.log("isAllOvernight: ",isAllOvernight)
 
-    // if all booking are overnight, check for overnight package
-    if (isAllOvernight) {
-      if (!overnightPackage) {
-        alert('No Overnight package found!');
-        return;
-      }
-    }else{
-      // else, check for Peak and Non-Peak package
-      if (peakSections > 0) {
+    
+    // else, check for Peak and Non-Peak package
+    if (peakSections > 0) {
       if (!peakPackage) {
         alert('No Peak package found!');
         return;
@@ -325,24 +364,10 @@ const ShoppingCart = () => {
         return;
       }
     }
-    }
-
-
+    
     let bookingRequests = [];
     const db = getDatabase();
-    // Special handling for Overnight package
-    if(isAllOvernight){
-      bookingRequests = cart.map((item) => {
-        const pendingBookingRef = ref(db, `pendingBookings/${auth.currentUser.displayName}_${item.date}_${item.time}`);
-        return set(pendingBookingRef, {
-          username: auth.currentUser.displayName,
-          date: item.date,
-          time: item.time,
-          timeCategory: item.timeCategory,
-          paymentMethod: 'Overnight package',
-        });
-    });
-    }else{
+    
     bookingRequests = cart.map((item) => {
       const pendingBookingRef = ref(db, `pendingBookings/${auth.currentUser.displayName}_${item.date}_${item.time}`);
       return set(pendingBookingRef, {
@@ -352,14 +377,15 @@ const ShoppingCart = () => {
         timeCategory: item.timeCategory,
         paymentMethod: 'package',
       });
-  });}
-
-  Promise.all(bookingRequests).then(() => {
-    setCart([]);
-    localStorage.setItem('cart', JSON.stringify([]));
-    alert('The request of booking by package has been submitted for approval');
-  });
-};
+    });
+  
+    // Wait for all booking requests to complete, then clear the cart
+    Promise.all(bookingRequests).then(() => {
+      setCart([]);
+      localStorage.setItem('cart', JSON.stringify([]));
+      alert('The request of booking by package has been submitted for approval');
+    });
+  };
 
   // Calculate the total price of the items in the cart
   const totalPrice = cart.reduce((acc, item) => acc + item.price, 0);
@@ -445,6 +471,11 @@ const ShoppingCart = () => {
         </div>
         <button className="submit-button" onClick={handleSubmit}>Submit Booking With Payme Screenshot</button>
         <button className="submit-button" onClick={handlePayByPackage}>Submit Booking By Using Package</button>
+        {(isAllOvernight)?(
+          <button className="submit-button" onClick={handlePayByOvernightPackage}>Submit Booking By Overnight Package</button>
+        ):(
+          <button className="disabled-button" disbaled >Submit Booking By Overnight Package</button>
+        )}
       </div>
     </div>
   );
