@@ -267,14 +267,15 @@ const ViewAllBookingsPage = () => {
               console.log("Overnight Package Key:", overnightPackageKey);
 
               // Delete the payment screenshot from storage if there is no other Overnight pending timeslot paid by package
-              const otherOvernightBookingsRef = ref(db, 'pendingBookings');
-              get(otherOvernightBookingsRef).then((snapshot) => {
+              const otherOvernightPendingBookingsRef = ref(db, 'pendingBookings');
+              get(otherOvernightPendingBookingsRef).then((snapshot) => {
                 if (snapshot.exists()) {
                   // Check if there is any other Overnight pending booking by the same user (now didnt check for the same day, assume user only book for one day)
-                  const bookingsData = snapshot.val();
-                  const hasOtherOvernight = Object.keys(bookingsData).some((id) => {
-                    const booking = bookingsData[id];
-                    return (booking.username === pendingBookingData.username) && (booking.paymentMethod === 'Overnight package') && (booking.bookingId !== bookingId);
+                  const pendingBookingsData = snapshot.val();
+                  console.log("Pending Bookings Data:", pendingBookingsData);
+                  const hasOtherOvernight = Object.keys(pendingBookingsData).some((id) => {
+                    const booking = pendingBookingsData[id];
+                    return (booking.username === pendingBookingData.username) && (booking.paymentMethod === 'Overnight package') && ((booking.date !== pendingBookingData.date) || (booking.time !== pendingBookingData.time));
                   });
                   console.log("HasOtherOvernight pending booking by overnight package:", hasOtherOvernight);
                   // if there is no other Overnight pending booking by package, delete the package and payment screenshot
