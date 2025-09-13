@@ -177,6 +177,27 @@ const ShoppingCart = () => {
         localStorage.setItem('packageCart', JSON.stringify(newPackageCart));
       });
     });
+
+    // notify the admin
+    fetch('https://us-central1-laluna-website.cloudfunctions.net/sendMail', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        to: 'la.luna.aerial@gmail.com', // receiver email
+        subject: 'New Package Buy Request',
+        html: `
+          <p>A new package buy request has been submitted by ${auth.currentUser.displayName}. Please review the request and take necessary actions.</p>
+          `,
+      }),
+      }).then((response) => {
+        response.json().then((data) => {
+          console.log("fetch API res: ",data);
+        })
+      }).catch((error) => {
+        console.error("fetch API error: ",error);
+      });
   };
   
   //TODO: Fix the issue of remove all package when clicking remove
