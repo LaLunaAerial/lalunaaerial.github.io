@@ -171,6 +171,33 @@ const ShoppingCart = () => {
         set(newPackageRef, packageData);
         console.log(`Package ${packageData.packageName} bought successfully!`);
         alert(`You have successfully submit request for buying the ${packageData.packageName} package! The request is now pending for admin approval.`);
+        
+        // use fetchAPI to send email to notify the admin
+        fetch('https://us-central1-laluna-website.cloudfunctions.net/sendMail', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            to: 'la.luna.aerial@gmail.com', // receiver email
+            subject: '(Testing)New Package Buy Request',
+            html: `
+              <p>A new package buy request has been submitted by ${auth.currentUser.displayName}. Please review the request and take necessary actions.</p>
+              <p>Package Name: ${packageData.packageName}</p>
+              <p>Package Type: ${packageData.packageType}</p>
+              <p>Price: ${packageData.price}</p>
+              <p>Payment Screenshot: ${packageData.paymentScreenshot}</p>
+              `,
+          }),
+          }).then((response) => {
+            response.json().then((data) => {
+              console.log("fetch API res: ",data);
+              console.log("Email sent successfully");
+            })
+          }).catch((error) => {
+            console.error("fetch API error: ",error);
+          });
+        
         // Update the packageCart state
         const newPackageCart = packageCart.filter((item) => item.id !== packageItem.id);
         setPackageCart(newPackageCart);
@@ -178,26 +205,7 @@ const ShoppingCart = () => {
       });
     });
 
-    // notify the admin
-    fetch('https://us-central1-laluna-website.cloudfunctions.net/sendMail', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        to: 'la.luna.aerial@gmail.com', // receiver email
-        subject: 'New Package Buy Request',
-        html: `
-          <p>A new package buy request has been submitted by ${auth.currentUser.displayName}. Please review the request and take necessary actions.</p>
-          `,
-      }),
-      }).then((response) => {
-        response.json().then((data) => {
-          console.log("fetch API res: ",data);
-        })
-      }).catch((error) => {
-        console.error("fetch API error: ",error);
-      });
+    
   };
   
   //TODO: Fix the issue of remove all package when clicking remove
