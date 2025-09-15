@@ -47,7 +47,7 @@ exports.sendMail= functions.https.onRequest(async (req,res)=>{cors(req, res,asyn
         subject: subject,
         html: html,
       }).then(() => {
-        res.status(200).send('Email sent successfully');
+        res.status(200).send({Message:'Email sent successfully'});
       }).catch((error) => {
         res.status(400).send(error);
       });

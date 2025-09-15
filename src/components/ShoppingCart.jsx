@@ -269,8 +269,8 @@ const ShoppingCart = () => {
         // Create a pending booking record with the image file path
         const db = getDatabase();       
         const bookingRequests = cart.map((item) => {
-          const bookingDate=item.date.toISOString();
-          const bookingTime=item.time.toISOString();
+          const bookingDate=item.date;
+          const bookingTime=item.time;
           const pendingBookingRef = ref(db, `pendingBookings/${auth.currentUser.displayName}_${bookingDate}_${bookingTime}`);
           return set(pendingBookingRef, {
             username: auth.currentUser.displayName,
@@ -503,7 +503,7 @@ const ShoppingCart = () => {
         {(isAllOvernight)?(
           <button className="submit-button" onClick={handlePayByOvernightPackage}>Submit Booking By Overnight Package</button>
         ):(
-          <button className="disabled-button" disbaled >Submit Booking By Overnight Package</button>
+          <button className="disabled-button" disabled >Submit Booking By Overnight Package</button>
         )}
       </div>
     </div>

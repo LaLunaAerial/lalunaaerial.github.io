@@ -14,4 +14,4 @@ Changed:
 
 
 Fast Key:
-I am doing a room booking webiste using React. Now please scan the code in the project directory to familiar yourself with the project.
+I am doing a room booking website using React. Now please scan the code in the project directory to familiar yourself with the project.
