@@ -50,6 +50,7 @@ function OvernightSchedulePage() {
       const endTime2 = `${nextHour.toString().padStart(2, '0')}:00`
       const time2 = `${hour.toString().padStart(2, '0')}:30-${endTime2}`;
       slots.push({ time: time1, date: nextDayStr });
+      slots.push({ time: time2, date: nextDayStr });
     }
     return slots;
   };
