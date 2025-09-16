@@ -210,8 +210,8 @@ const ShoppingCart = () => {
   
   //TODO: Fix the issue of remove all package when clicking remove
   // Remove package from the package cart
-  const handleRemovePackage = (packageId) => {
-    const newPackageCart = packageCart.filter((packageItem) => packageItem.id !== packageId);
+  const handleRemovePackage = (index) => {
+    const newPackageCart = packageCart.filter((_, i) => i !== index);
     setPackageCart(newPackageCart);
     localStorage.setItem('packageCart', JSON.stringify(newPackageCart));
   };
@@ -469,7 +469,7 @@ const ShoppingCart = () => {
               <td>${packageItem.price}</td>
               <td>
                 <button onClick={() => handleBuyPackage(packageItem)}>Buy</button>
-                <button onClick={() => handleRemovePackage(packageItem.id)}>Remove</button>
+                <button onClick={() => handleRemovePackage(index)}>Remove</button>
               </td>
             </tr>
           ))}
