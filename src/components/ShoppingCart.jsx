@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { getDatabase, ref, set, get, onValue,push } from 'firebase/database';
+import { getDatabase, ref, set, get, onValue, push } from 'firebase/database';
 import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { auth } from '../assets/firebaseConfig';
 import './ShoppingCart.css';
@@ -11,7 +11,7 @@ const ShoppingCart = () => {
   const [nonPeakQuota, setNonPeakQuota] = useState(0);
   const [packages, setPackages] = useState({});
   const [packageCart, setPackageCart] = useState([]);
-  const [isAllOvernight,setIsAllOvernight]=useState(false);
+  const [isAllOvernight, setIsAllOvernight] = useState(false);
 
   useEffect(() => {
     if (!auth.currentUser) {
@@ -69,7 +69,7 @@ const ShoppingCart = () => {
   }, [auth.currentUser]);
 
   // Check if all bookings are overnight
-  useEffect(()=>{
+  useEffect(() => {
     if (
       (cart.every((item) => item.timeCategory === 'Overnight')) &&
       (cart.length === 16) &&
@@ -87,7 +87,7 @@ const ShoppingCart = () => {
     } else {
       setIsAllOvernight(false);
     }
-  },[cart]);
+  }, [cart]);
 
   // handleBuyPackage
   const handleBuyPackage = async (packageItem) => {
@@ -103,13 +103,13 @@ const ShoppingCart = () => {
 
     // Get the image file from the input field
     const imageFile = document.getElementById('image-input').files[0];
-  
+
     // Check if there is no upload file
     if (!imageFile) {
       alert("You should insert the capscreen of payment for the booking");
       return;
     }
-  
+
     // Check if the uploaded file size is larger than 5MB
     const fileSize = imageFile.size;
     const maxSize = 5 * 1024 * 1024; // 5MB
@@ -117,20 +117,20 @@ const ShoppingCart = () => {
       alert("The upload image should not be larger than 5MB");
       return;
     }
-  
+
     // Create a reference to the Firebase Storage
     const storage = getStorage();
-  
+
     // Create a reference to the file in the storage bucket
     const fileRef = storageRef(storage, `payme-screenshots/${auth.currentUser.displayName}_${new Date().getTime()}`);
-  
+
     // Upload the image file to Firebase Storage
     const uploadTask = uploadBytes(fileRef, imageFile);
-    
+
     // Create a package data with the payment screenshot download URL
     let packageData;
     // Specfial handling for Overnight package
-    if(packageItem.type==="Overnight"){
+    if (packageItem.type === "Overnight") {
       packageData = {
         packageName: packageItem.name,
         packageType: packageItem.type,
@@ -141,7 +141,7 @@ const ShoppingCart = () => {
         // No number of sections , effective period, remaining quota or expiry date for overnight package
       }
     }
-    else{
+    else {
       packageData = {
         packageName: packageItem.name,
         packageType: packageItem.type,
@@ -155,7 +155,7 @@ const ShoppingCart = () => {
         paymentScreenshot: "",  // to be updated after the image is uploaded
       };
     }
-  
+
     // Wait for the upload to complete
     uploadTask.then((snapshot) => {
       // Get the download URL of the uploaded image
@@ -164,14 +164,14 @@ const ShoppingCart = () => {
         alert('Payment screenshot image uploaded Successfully')
         // update the packageData.paymentScrrenshot with downloadURL
         packageData.paymentScreenshot = downloadURL;
-  
+
         // Update the user package with the new package data
         const db = getDatabase();
         const newPackageRef = ref(db, `userPackages/${auth.currentUser.displayName}/${packageData.packageName}`);
         set(newPackageRef, packageData);
         console.log(`Package ${packageData.packageName} bought successfully!`);
         alert(`You have successfully submit request for buying the ${packageData.packageName} package! The request is now pending for admin approval.`);
-        
+
         // use fetchAPI to send email to notify the admin
         fetch('https://us-central1-laluna-website.cloudfunctions.net/sendMail', {
           method: 'POST',
@@ -189,15 +189,15 @@ const ShoppingCart = () => {
               <p>Payment Screenshot: ${packageData.paymentScreenshot}</p>
               `,
           }),
-          }).then((response) => {
-            response.json().then((data) => {
-              console.log("fetch API res: ",data);
-              console.log("Email sent successfully");
-            })
-          }).catch((error) => {
-            console.error("fetch API error: ",error);
-          });
-        
+        }).then((response) => {
+          response.json().then((data) => {
+            console.log("fetch API res: ", data);
+            console.log("Email sent successfully");
+          })
+        }).catch((error) => {
+          console.error("fetch API error: ", error);
+        });
+
         // Update the packageCart state
         const newPackageCart = packageCart.filter((item) => item.id !== packageItem.id);
         setPackageCart(newPackageCart);
@@ -205,9 +205,9 @@ const ShoppingCart = () => {
       });
     });
 
-    
+
   };
-  
+
   //TODO: Fix the issue of remove all package when clicking remove
   // Remove package from the package cart
   const handleRemovePackage = (index) => {
@@ -267,10 +267,10 @@ const ShoppingCart = () => {
         console.log('Image uploaded successfully:', downloadURL);
 
         // Create a pending booking record with the image file path
-        const db = getDatabase();       
+        const db = getDatabase();
         const bookingRequests = cart.map((item) => {
-          const bookingDate=item.date;
-          const bookingTime=item.time;
+          const bookingDate = item.date;
+          const bookingTime = item.time;
           const pendingBookingRef = ref(db, `pendingBookings/${auth.currentUser.displayName}_${bookingDate}_${bookingTime}`);
           return set(pendingBookingRef, {
             username: auth.currentUser.displayName,
@@ -296,7 +296,7 @@ const ShoppingCart = () => {
   };
 
   // Handle payment by Overnight package
-  const handlePayByOvernightPackage=async()=>{
+  const handlePayByOvernightPackage = async () => {
     let overnightPackage;
 
     Object.keys(userPackages).forEach((key) => {
@@ -307,7 +307,7 @@ const ShoppingCart = () => {
 
     console.log('Overnight Package:', overnightPackage); // Debugging line to check the overnight package
 
-    console.log("isAllOvernight: ",isAllOvernight)
+    console.log("isAllOvernight: ", isAllOvernight)
 
     // if all booking are overnight, check for overnight package
     if (isAllOvernight) {
@@ -315,24 +315,24 @@ const ShoppingCart = () => {
         alert('No Overnight package found!');
         return;
       }
-    }else{
+    } else {
       alert("The booking item in shopping cart are not all Overnight")
       return;
     }
 
     // Special handling for Overnight package
 
-      let bookingRequests = [];
+    let bookingRequests = [];
     const db = getDatabase();
-      bookingRequests = cart.map((item) => {
-        const pendingBookingRef = ref(db, `pendingBookings/${auth.currentUser.displayName}_${item.date}_${item.time}`);
-        return set(pendingBookingRef, {
-          username: auth.currentUser.displayName,
-          date: item.date,
-          time: item.time,
-          timeCategory: item.timeCategory,
-          paymentMethod: 'Overnight package',
-        });
+    bookingRequests = cart.map((item) => {
+      const pendingBookingRef = ref(db, `pendingBookings/${auth.currentUser.displayName}_${item.date}_${item.time}`);
+      return set(pendingBookingRef, {
+        username: auth.currentUser.displayName,
+        date: item.date,
+        time: item.time,
+        timeCategory: item.timeCategory,
+        paymentMethod: 'Overnight package',
+      });
     });
 
     // Wait for all booking requests to complete, then clear the cart
@@ -366,11 +366,11 @@ const ShoppingCart = () => {
 
     console.log('Peak Package:', peakPackage); // Debugging line to check the peak package
     console.log('Non-Peak Package:', nonPeakPackage); // Debugging line to check the non-Peak package
-    
+
     const peakSections = cart.filter((item) => item.timeCategory === 'Peak').length;
     const nonPeakSections = cart.filter((item) => item.timeCategory === 'Non-Peak' || item.timeCategory === 'Overnight').length;
 
-    
+
     // else, check for Peak and Non-Peak package
     if (peakSections > 0) {
       if (!peakPackage) {
@@ -393,10 +393,10 @@ const ShoppingCart = () => {
         return;
       }
     }
-    
+
     let bookingRequests = [];
     const db = getDatabase();
-    
+
     bookingRequests = cart.map((item) => {
       const pendingBookingRef = ref(db, `pendingBookings/${auth.currentUser.displayName}_${item.date}_${item.time}`);
       return set(pendingBookingRef, {
@@ -407,7 +407,7 @@ const ShoppingCart = () => {
         paymentMethod: 'package',
       });
     });
-  
+
     // Wait for all booking requests to complete, then clear the cart
     Promise.all(bookingRequests).then(() => {
       setCart([]);
@@ -416,8 +416,32 @@ const ShoppingCart = () => {
     });
   };
 
+  // Group overnight items
+  const overnightItems = cart.filter(item => item.timeCategory === 'Overnight');
+  const otherItems = cart.filter(item => item.timeCategory !== 'Overnight');
+
   // Calculate the total price of the items in the cart
-  const totalPrice = cart.reduce((acc, item) => acc + item.price, 0);
+  const overnightTotalPrice = overnightItems.reduce((acc, item) => acc + item.price, 0);
+  const otherItemsTotalPrice = otherItems.reduce((acc, item) => acc + item.price, 0);
+  const totalPrice = overnightTotalPrice + otherItemsTotalPrice;
+
+  // Function to remove all overnight items
+  const handleRemoveOvernight = () => {
+    const newCart = [...cart];
+    const overnightIndices = [];
+    cart.forEach((item, index) => {
+      if (item.timeCategory === 'Overnight') {
+        overnightIndices.push(index);
+      }
+    });
+    // Remove from the end to avoid index issues
+    overnightIndices.reverse().forEach(index => newCart.splice(index, 1));
+    setCart(newCart);
+    localStorage.setItem('cart', JSON.stringify(newCart));
+  };
+
+  // Get the first date from overnightItems
+  const overnightDate = overnightItems.length > 0 ? overnightItems[0].date : '';
 
   return (
     <div className="shopping-cart">
@@ -432,7 +456,20 @@ const ShoppingCart = () => {
           </tr>
         </thead>
         <tbody>
-          {cart.map((item, index) => (
+          {/* Display overnight items as a single row */}
+          {overnightItems.length > 0 && (
+            <tr>
+              <td>{overnightDate}</td>
+              <td>23:00 - 07:00</td>
+              <td>${overnightTotalPrice}</td>
+              <td>
+                <button onClick={handleRemoveOvernight}>Clear</button>
+              </td>
+            </tr>
+          )}
+
+          {/* Display other items normally */}
+          {otherItems.map((item, index) => (
             <tr key={index}>
               <td>{item.date}</td>
               <td>{item.time}</td>
@@ -476,7 +513,7 @@ const ShoppingCart = () => {
         </tbody>
       </table>
       <hr />
-      
+
       {auth.currentUser && (
         <div>
           <h4>Package Quota:</h4>
@@ -486,7 +523,7 @@ const ShoppingCart = () => {
       )}
 
       <hr />
-      
+
       <div className="payment-instruction">
         <h6>當您提交預訂之後,請將付款金額傳至以下Payme帳號。</h6>
       </div>
@@ -500,9 +537,9 @@ const ShoppingCart = () => {
         </div>
         <button className="submit-button" onClick={handleSubmit}>Submit Booking With Payme Screenshot</button>
         <button className="submit-button" onClick={handlePayByPackage}>Submit Booking By Using Package</button>
-        {(isAllOvernight)?(
+        {(isAllOvernight) ? (
           <button className="submit-button" onClick={handlePayByOvernightPackage}>Submit Booking By Overnight Package</button>
-        ):(
+        ) : (
           <button className="disabled-button" disabled >Submit Booking By Overnight Package</button>
         )}
       </div>
