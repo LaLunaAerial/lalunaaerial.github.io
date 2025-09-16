@@ -12,6 +12,7 @@ import PricePage from './components/PricePage';
 import PackageBuyPage from './components/PackageBuyPage';
 import AccountInformationPage from './components/AccountInformationPage';
 import ViewAllPackagesPage from './components/ViewAllPackagesPage';
+import OvernightSchedulePage from "./components/OvernightSchedulePage";
 
 function New() {
   const [showNavbar, setShowNavbar] = useState(false);
@@ -49,6 +50,7 @@ function New() {
             <Route path="/price" element={<PricePage />} />
             <Route path="/buy-packages" element={<PackageBuyPage />} />
             <Route path="/account-information" element={<AccountInformationPage />} />
+            <Route path="/overnight-schedule" element={<OvernightSchedulePage />} />
           </Routes>
         </div>
       </div>
