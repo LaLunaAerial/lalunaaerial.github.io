@@ -17,7 +17,7 @@ const ViewAllPackagesPage = () => {
     });
   }, []);
 
-  const handleEdit = (userName, packageType, field, value) => {
+  const handleEdit = (userName, packageType,purchaseDate, field, value) => {
     setEditedPackages((prevEditedPackages) => ({
       ...prevEditedPackages,
       [userName]: {
@@ -27,7 +27,7 @@ const ViewAllPackagesPage = () => {
     }));
   };
 
-  const handleSubmitEdit = (userName, packageType) => {
+  const handleSubmitEdit = (userName, packageType, purchaseDate) => {
     const packageRef = ref(db, `userPackages/${userName}/${packageType}`);
     update(packageRef, editedPackages[userName][packageType]).then(() => {
       alert('Package informationupdated successfully!');
@@ -39,7 +39,7 @@ const ViewAllPackagesPage = () => {
     });
   };
 
-  const handleApprove = (userName, packageType) => {
+  const handleApprove = (userName, packageType, purchaseDate) => {
     const packageRef = ref(db, `userPackages/${userName}/${packageType}`);
     update(packageRef, { status: 'approved' }).then(() => {
       alert('Package approved!');
@@ -51,7 +51,7 @@ const ViewAllPackagesPage = () => {
     });
   };
 
-  const handleReject = (userName, packageType) => {
+  const handleReject = (userName, packageType, purchaseDate) => {
     const packageRef = ref(db, `userPackages/${userName}/${packageType}`);
     update(packageRef, { status: 'rejected' }).then(() => {
       alert('Package rejected!');
@@ -63,7 +63,7 @@ const ViewAllPackagesPage = () => {
     });
   };
 
-  const handleDeletePackage = (userName, packageType) => {
+  const handleDeletePackage = (userName, packageType, purchaseDate) => {
     if (window.confirm('Are you sure you want to delete this package?')) {
       const packageRef = ref(db, `userPackages/${userName}/${packageType}`);
       remove(packageRef).then(() => {
@@ -90,7 +90,7 @@ const ViewAllPackagesPage = () => {
     }
   };
 
-  const handleShowCapscreen = (userName, packageType) => {
+  const handleShowCapscreen = (userName, packageType, purchaseDate) => {
   const paymentScreenshotUrl = userPackages[userName][packageType].paymentScreenshot;
   if (paymentScreenshotUrl) {
     // Create a modal to display the payment screenshot
@@ -133,6 +133,7 @@ return (
         {Object.keys(userPackages).map((userName) => (
           <React.Fragment key={userName}>
             {Object.keys(userPackages[userName]).map((packageType) => (
+              Object.keys(userPackages[userName][packageType]).forEach((purchaseDate) => (
               <tr key={packageType}>
                 <td>{userName}</td>
                 <td>{packageType}</td>
@@ -202,7 +203,7 @@ return (
                   )}
                 </td>
               </tr>
-            ))}
+            ))))}
           </React.Fragment>
         ))}
       </tbody>

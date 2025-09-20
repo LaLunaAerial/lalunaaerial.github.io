@@ -11,7 +11,6 @@ const MyBookingsPage = () => {
   const [roomPassword, setRoomPassword] = useState('');
 
   useEffect(() => {
-
     //get the bookings and pending bookings from the database
     const db = getDatabase();
     const bookingsRef = ref(db, 'bookings');
@@ -58,47 +57,60 @@ const MyBookingsPage = () => {
       setLoading(false);
     });
 
-    // get the package information for the user
-      const userName = auth.currentUser.displayName;
-      const userPackagesRef = ref(db, `userPackages/${userName}`);
-      get(userPackagesRef).then((snapshot) => {
-        if (snapshot.exists()) {
-          const userPackagesData = snapshot.val();
-          console.log('User Packages:', userPackagesData);
-          setUserPackages(userPackagesData);
-        } else {
-          console.log('No packages found for the user.');
-        }
-      });
+     // get the package information for the user
+    const userName = auth.currentUser.displayName;
+    const userPackagesRef = ref(db, `userPackages/${userName}`);
+    get(userPackagesRef).then((snapshot) => {
+      if (snapshot.exists()) {
+        const userPackagesData = snapshot.val();
+        const userPackages = [];
+
+        Object.keys(userPackagesData).forEach((packageName) => {
+          Object.keys(userPackagesData[packageName]).forEach((purchaseDate) => {
+            const packageData = userPackagesData[packageName][purchaseDate];
+            userPackages.push({
+              packageName: packageName,
+              purchaseDate: purchaseDate,
+              ...packageData,
+            });
+          });
+        });
+
+        console.log('User Packages:', userPackages);
+        setUserPackages(userPackages);
+      } else {
+        console.log('No packages found for the user.');
+      }
+    });
   }, []);
 
-useEffect(() => {
-  // Check if any booking's time slot starts within the next hour
-  const checkIfTimeSlotStartsWithinOneHour = () => {
-    const currentTime = new Date().getTime();
-    const oneHourLater = new Date(currentTime).setHours(new Date(currentTime).getHours() + 1);
-    const bookingsWithTimeSlotWithinOneHour = bookings.filter((booking) => {
-      const [startTime, endTime] = booking.time.split('-');
-      const [startHour, startMinute] = startTime.split(':');
-      const [endHour, endMinute] = endTime.split(':');
-      const bookingStartDate = new Date(`${booking.date}T${startHour}:${startMinute}:00`);
-      const bookingStartTime = bookingStartDate.getTime();
-      const bookingEndDate = new Date(`${booking.date}T${endHour}:${endMinute}:00`);
-      const bookingEndTime = bookingEndDate.getTime();
-      console.log(bookingEndTime >= currentTime && bookingStartTime <= oneHourLater)
-      return bookingEndTime >= currentTime && bookingStartTime <= oneHourLater;
-    });
-    if (bookingsWithTimeSlotWithinOneHour.length > 0) {
-      const db = getDatabase();
-      const roomPasswordRef = ref(db, 'roomPassword');
-      get(roomPasswordRef).then((snapshot) => {
-        const roomPasswordData = snapshot.val();
-        setRoomPassword(roomPasswordData);
+  useEffect(() => {
+    // Check if any booking's time slot starts within the next hour
+    const checkIfTimeSlotStartsWithinOneHour = () => {
+      const currentTime = new Date().getTime();
+      const oneHourLater = new Date(currentTime).setHours(new Date(currentTime).getHours() + 1);
+      const bookingsWithTimeSlotWithinOneHour = bookings.filter((booking) => {
+        const [startTime, endTime] = booking.time.split('-');
+        const [startHour, startMinute] = startTime.split(':');
+        const [endHour, endMinute] = endTime.split(':');
+        const bookingStartDate = new Date(`${booking.date}T${startHour}:${startMinute}:00`);
+        const bookingStartTime = bookingStartDate.getTime();
+        const bookingEndDate = new Date(`${booking.date}T${endHour}:${endMinute}:00`);
+        const bookingEndTime = bookingEndDate.getTime();
+        console.log(bookingEndTime >= currentTime && bookingStartTime <= oneHourLater)
+        return bookingEndTime >= currentTime && bookingStartTime <= oneHourLater;
       });
-    }
-  };
-  checkIfTimeSlotStartsWithinOneHour();
-}, [bookings]);
+      if (bookingsWithTimeSlotWithinOneHour.length > 0) {
+        const db = getDatabase();
+        const roomPasswordRef = ref(db, 'roomPassword');
+        get(roomPasswordRef).then((snapshot) => {
+          const roomPasswordData = snapshot.val();
+          setRoomPassword(roomPasswordData);
+        });
+      }
+    };
+    checkIfTimeSlotStartsWithinOneHour();
+  }, [bookings]);
 
   return (
     <div className='mybookings-page'>

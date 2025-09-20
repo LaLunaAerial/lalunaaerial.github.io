@@ -15,3 +15,9 @@ Changed:
 
 Fast Key:
 I am doing a room booking website using React. Now please scan the code in the project directory to familiar yourself with the project.
+
+
+
+Now, the in ShoppingCart.jsx, handleBuyPackage will create the record acording to the packageItem.name, and will check if the same package has been bought by the user. It will not allow the user to buy the package.
+
+However, now i want to change the logic. For now, I would like to allow the user to buy the same package more than once, and when the user buy the package, it will increase the remainning quota of the corresponding userPackage. Please adjust the logic in the ShoppingCart.jsx and ViewAllPackage.jsx so that they could fulfill this requirement.

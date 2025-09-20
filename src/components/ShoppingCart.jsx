@@ -92,15 +92,6 @@ const ShoppingCart = () => {
   // handleBuyPackage
   const handleBuyPackage = async (packageItem) => {
 
-    // Check if ther user already buy the package
-    const db = getDatabase();
-    const userPackageRef = ref(db, `userPackages/${auth.currentUser.displayName}/${packageItem.name}`);
-    const snapshot = await get(userPackageRef);
-    if (snapshot.exists()) {
-      alert(`You have already bought the ${packageItem.name} package! Please wait for admin approval if the status is still pending.`);
-      return;
-    }
-
     // Get the image file from the input field
     const imageFile = document.getElementById('image-input').files[0];
 
@@ -141,6 +132,7 @@ const ShoppingCart = () => {
         // No number of sections , effective period, remaining quota or expiry date for overnight package
       }
     }
+    // Normal handling for Peak and Non-Peak package
     else {
       packageData = {
         packageName: packageItem.name,
@@ -167,7 +159,7 @@ const ShoppingCart = () => {
 
         // Update the user package with the new package data
         const db = getDatabase();
-        const newPackageRef = ref(db, `userPackages/${auth.currentUser.displayName}/${packageData.packageName}`);
+        const newPackageRef = ref(db, `userPackages/${auth.currentUser.displayName}/${packageData.packageName}/${packageData.purchaseDate}`);
         set(newPackageRef, packageData);
         console.log(`Package ${packageData.packageName} bought successfully!`);
         alert(`You have successfully submit request for buying the ${packageData.packageName} package! The request is now pending for admin approval.`);
@@ -186,6 +178,7 @@ const ShoppingCart = () => {
               <p>Package Name: ${packageData.packageName}</p>
               <p>Package Type: ${packageData.packageType}</p>
               <p>Price: ${packageData.price}</p>
+              <p>Purchase Date: ${packageData.purchaseDate}</p>
               <p>Payment Screenshot: ${packageData.paymentScreenshot}</p>
               `,
           }),
@@ -208,7 +201,6 @@ const ShoppingCart = () => {
 
   };
 
-  //TODO: Fix the issue of remove all package when clicking remove
   // Remove package from the package cart
   const handleRemovePackage = (index) => {
     const newPackageCart = packageCart.filter((_, i) => i !== index);
