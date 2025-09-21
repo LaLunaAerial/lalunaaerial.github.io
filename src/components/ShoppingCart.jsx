@@ -193,6 +193,7 @@ const ShoppingCart = () => {
           })
         }).catch((error) => {
           console.error("fetch API error: ", error);
+          alert("Email failed to send, please contact admin to notify for your package buy request");
         });
 
         // Update the packageCart state
@@ -265,16 +266,49 @@ const ShoppingCart = () => {
         // Create a pending booking record with the image file path
         const db = getDatabase();
         const bookingRequests = cart.map((item) => {
+          // Create a pending booking record
           const bookingDate = item.date;
           const bookingTime = item.time;
           const pendingBookingRef = ref(db, `pendingBookings/${auth.currentUser.displayName}_${bookingDate}_${bookingTime}`);
-          return set(pendingBookingRef, {
+          set(pendingBookingRef, {
             username: auth.currentUser.displayName,
             date: item.date,
             time: item.time,
             paymentMethod: 'payme',
             paymentScreenshot: downloadURL,
             timeCategory: item.timeCategory,
+          }).catch((error) => {
+            console.error('Error creating pending booking:', error);
+            alert('Error creating pending booking. Please try again.');
+            return;
+          });
+
+          // use fetchAPI to send email to notify the admin
+          return fetch('https://us-central1-laluna-website.cloudfunctions.net/sendMail', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              to: 'la.luna.aerial@gmail.com', // receiver email
+              subject: '(Testing)New Single Booking Request',
+              html: `
+                <p>A new Single Booking request has been submitted by ${auth.currentUser.displayName}. Please review the request and take necessary actions.</p>
+                <p>Date: ${item.date}</p>
+                    <p>Time: ${item.time}</p>
+                    <p>Price: ${item.price}</p>
+                    <p>Payment Method: payme</p>
+                    <p>Payment Screenshot: ${downloadURL}</p>
+                    `,
+            }),
+          }).then((response) => {
+            response.json().then((data) => {
+              console.log("fetch API res: ", data);
+              console.log("Email sent successfully");
+            })
+          }).catch((error) => {
+            console.error("fetch API error: ", error);
+            alert("Email failed to send, please contact admin to notify for your package buy request");
           });
         });
 
@@ -285,6 +319,7 @@ const ShoppingCart = () => {
           localStorage.setItem('cart', JSON.stringify([]));
           alert('Booking requests submitted for approval');
         });
+
       });
     }).catch((error) => {
       console.error('Error uploading image:', error);
@@ -295,10 +330,13 @@ const ShoppingCart = () => {
   const handlePayByOvernightPackage = async () => {
     let overnightPackage;
 
-    Object.keys(userPackages).forEach((key) => {
-      if (userPackages[key].packageType === 'Overnight') {
-        overnightPackage = userPackages[key];
+    Object.keys(userPackages).forEach((packageName) => {
+      Object.keys(userPackages[packageName]).forEach((purchaseDate) => {
+        if (userPackages[packageName][purchaseDate].packageType === 'Overnight') {
+        overnightPackage = userPackages[packageName][purchaseDate];
       }
+      })
+      
     });
 
     console.log('Overnight Package:', overnightPackage); // Debugging line to check the overnight package
@@ -333,6 +371,31 @@ const ShoppingCart = () => {
 
     // Wait for all booking requests to complete, then clear the cart
     Promise.all(bookingRequests).then(() => {
+      // use fetchAPI to send email to notify the admin
+      fetch('https://us-central1-laluna-website.cloudfunctions.net/sendMail', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          to: 'la.luna.aerial@gmail.com', // receiver email
+          subject: '(Testing)New Booking Request By Overnight Package',
+          html: `
+                <p>A new booking request by Overnight Package has been submitted by ${auth.currentUser.displayName}. Please review the request and take necessary actions.</p>
+                <p>Date: ${cart[0].date}</p>
+                <p>Payment Method: Overnight package</p>
+                `,
+        }),
+      }).then((response) => {
+        response.json().then((data) => {
+          console.log("fetch API res: ", data);
+          console.log("Email sent successfully");
+        })
+      }).catch((error) => {
+        console.error("fetch API error: ", error);
+        alert("Email failed to send, please contact admin to notify for your package buy request");
+      });
+      // Clear the cart
       setCart([]);
       localStorage.setItem('cart', JSON.stringify([]));
       alert('The request of booking by package has been submitted for approval');
@@ -397,17 +460,50 @@ const ShoppingCart = () => {
 
     bookingRequests = cart.map((item) => {
       const pendingBookingRef = ref(db, `pendingBookings/${auth.currentUser.displayName}_${item.date}_${item.time}`);
-      return set(pendingBookingRef, {
+      set(pendingBookingRef, {
         username: auth.currentUser.displayName,
         date: item.date,
         time: item.time,
         timeCategory: item.timeCategory,
         paymentMethod: 'package',
+      }).catch((error) => {
+        console.error('Error creating pending booking:', error);
+        alert('Error creating pending booking. Please try again.');
+        return;
+      });
+
+      // use fetchAPI to send email to notify the admin
+      return fetch('https://us-central1-laluna-website.cloudfunctions.net/sendMail', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          to: 'la.luna.aerial@gmail.com', // receiver email
+          subject: '(Testing)New Booking Request By Package',
+          html: `
+              <p>A new Booking request by Package has been submitted by ${auth.currentUser.displayName}. Please review the request and take necessary actions.</p>
+              <p>Date: ${item.date}</p>
+              <p>Time: ${item.time}</p>
+              <p>Price: ${item.price}</p>
+              <p>Time Category: ${item.timeCategory}</p>
+              <p>Payment Method: package</p>
+              `,
+        }),
+      }).then((response) => {
+        response.json().then((data) => {
+          console.log("fetch API res: ", data);
+          console.log("Email sent successfully");
+        })
+      }).catch((error) => {
+        console.error("fetch API error: ", error);
+        alert("Email failed to send, please contact admin to notify for your package buy request");
       });
     });
 
     // Wait for all booking requests to complete, then clear the cart
     Promise.all(bookingRequests).then(() => {
+      // Clear the cart
       setCart([]);
       localStorage.setItem('cart', JSON.stringify([]));
       alert('The request of booking by package has been submitted for approval');
