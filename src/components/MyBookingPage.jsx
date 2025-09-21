@@ -159,7 +159,9 @@ const MyBookingsPage = () => {
             <tr>
               <th className="package-name-column">Package Name</th>
               <th className="package-type-column">Package Type</th>
+              <th className="purchase-date-column">Purchase Date</th>
               <th className="number-of-sections-column">Number of Sections</th>
+              <th className="effective-period-column">Effective Period</th>
               <th className="expiry-date-column">Expiry Date</th>
               <th className="remaining-quota-column">Remaining Quota</th>
               <th className="status-column">Status</th>
@@ -170,7 +172,9 @@ const MyBookingsPage = () => {
               <tr key={packageId}>
                 <td>{userPackages[packageId].packageName}</td>
                 <td>{userPackages[packageId].packageType}</td>
+                <td>{userPackages[packageId].purchaseDate}</td>
                 <td>{userPackages[packageId].numberOfSections}</td>
+                <td>{userPackages[packageId].effectivePeriod}</td>
                 <td>{userPackages[packageId].expiryDate}</td>
                 <td>{userPackages[packageId].remainingQuota}</td>
                 <td>
