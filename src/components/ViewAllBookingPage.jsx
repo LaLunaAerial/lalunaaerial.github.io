@@ -107,11 +107,22 @@ const ViewAllBookingsPage = () => {
       if (snapshot.exists()) {
         console.log("Approving booking:", bookingId);
         const pendingBookingData = snapshot.val();
-        // if payment method is package, check if the user has enough quota in their package:
-          // if yes, check if the user has used the package before:
-            //  if yes, deduct 1 quota from the package and approve the booking
-            //  if no, set the expiry date of the package to 30 days from now and deduct 1 quota from the package and approve the booking
-          // if no, alert the admin that the user does not have enough quota and do not approve the booking
+
+        /*  Logic for approving the booking:
+            if payment method is package:
+              check if the user has enough quota in their package:
+                if yes, check if the user has used the package before:
+                  if yes, deduct 1 quota from the package and approve the booking
+                  if no, set the expiry date of the package according to the effective period and deduct 1 quota from the package and approve the booking
+                if no, alert the admin that the user does not have enough quota and do not approve the booking
+            if payment method is Overnight package:
+              check if there is any other Overnight pending booking by the same user:
+                if yes, approve the booking
+                if no, delete the Overnight package, approve the booking and delete the payment screenshot from storage
+            if payment method is single payment:
+              approve the booking and delete the single payment screenshot from storage
+        */
+
         if (pendingBookingData.paymentMethod === 'package') {
           console.log("Payment method is package");
           const userPackagesRef = ref(db, `userPackages/${pendingBookingData.username}`); // reference to the user's who make the booking, look for his packages
@@ -121,14 +132,50 @@ const ViewAllBookingsPage = () => {
             if (userPackagesSnapshot.exists()) {
               console.log("User packages data exists");
               const userPackagesData = userPackagesSnapshot.val();
-              const peakPackageKey = Object.keys(userPackagesData).find((key) => userPackagesData[key].packageType === 'Peak'); // find the key of the first peak package
-              const nonPeakPackageKey = Object.keys(userPackagesData).find((key) => userPackagesData[key].packageType === 'Non-Peak');  // find the key of the first non-peak package
+
+              //TODO: Update the logic here to fit the new data strcuture of userPackages
+              // Find the first peak package and the first non-peak packages of the user
+              const peakPackageKey = Object.keys(userPackagesData).find((key) => {
+                const packageData = userPackagesData[key];
+                return Object.keys(packageData).some((purchaseDateKey) => {
+                  const packageItem = packageData[purchaseDateKey];
+                  return packageItem.packageType === 'Peak';
+                });
+              });
+              const nonPeakPackageKey = Object.keys(userPackagesData).find((key) => {
+                const packageData = userPackagesData[key];
+                return Object.keys(packageData).some((purchaseDateKey) => {
+                  const packageItem = packageData[purchaseDateKey];
+                  return packageItem.packageType === 'Non-Peak';
+                });
+              });
               console.log("Peak Package Key:", peakPackageKey);
               console.log("Non-Peak Package Key:", nonPeakPackageKey);
+              
+              // Find the purchase date keys of the first peak package and the first non-peak package
+              let peakPackagePurchaseDateKey;
+              let nonPeakPackagePurchaseDateKey;
 
-              // TODO: Check if the booking time is in peak or non-peak time
+              if(peakPackageKey){
+                // find the key of the first peak package with purchase date
+                peakPackagePurchaseDateKey=Object.keys(userPackagesData[peakPackageKey]).find((purchaseDateKey) => {
+                  const packageItem = userPackagesData[peakPackageKey][purchaseDateKey];
+                    return packageItem.packageType === 'Peak';
+                  }); 
+              }              
+              if(nonPeakPackageKey){
+                // find the key of the first non-peak package with purchase date
+                nonPeakPackagePurchaseDateKey=Object.keys(userPackagesData[nonPeakPackageKey]).find((purchaseDateKey) => {
+                  const packageItem = userPackagesData[nonPeakPackageKey][purchaseDateKey];
+                    return packageItem.packageType === 'Non-Peak';
+                  }); 
+              }
+              console.log("Peak Package Purchase Date Key:", peakPackagePurchaseDateKey);
+              console.log("Non-Peak Package Purchase Date Key:", nonPeakPackagePurchaseDateKey);
+
+              // Check if the booking time is in peak or non-peak time
               let timePeriod;
-              // TODO: Now just do checking on PEak/Non-Peak, see Overnight as Non-Peak
+              // determine the time period based on the timeCategory field in the pending booking data
               if (pendingBookingData.timeCategory === 'Peak') {
                   timePeriod = 'Peak';
               } else  {
@@ -136,32 +183,32 @@ const ViewAllBookingsPage = () => {
               }
 
               if (timePeriod === 'Peak') {
-                if (peakPackageKey && userPackagesData[peakPackageKey].remainingQuota > 0) {
-                  console.log("userPackage:", JSON.stringify(userPackagesData[peakPackageKey]));
+                if (peakPackagePurchaseDateKey && userPackagesData[peakPackageKey][peakPackagePurchaseDateKey].remainingQuota > 0) {
+                  console.log("userPackage:", JSON.stringify(userPackagesData[peakPackageKey][peakPackagePurchaseDateKey]));
                   // Create a copy of the package to update for calculating the new remaining quota and possibly the expiry date
-                  let updatedPeakPackage={...userPackagesData[peakPackageKey]};
+                  let updatedPeakPackage={...userPackagesData[peakPackageKey][peakPackagePurchaseDateKey]};
                   // if the user has not used the package before, set the expiry date to according to the effective period from the booking date
-                  if (userPackagesData[peakPackageKey].expiryDate==="") {
+                  if (userPackagesData[peakPackageKey][peakPackagePurchaseDateKey].expiryDate==="") {
                     console.log("Setting expiry date for the first time use of the package");
                     const bookingDate = new Date(pendingBookingData.date); // get the date of the booking according to the effective period from the booking data
-                    const effectivePeriod = userPackagesData[peakPackageKey].effectivePeriod; // get the number of days for effectivePeriod from the package
+                    const effectivePeriod = userPackagesData[peakPackageKey][peakPackagePurchaseDateKey].effectivePeriod; // get the number of days for effectivePeriod from the package
                     const expiryDate = new Date(bookingDate.getTime() + effectivePeriod * 24 * 60 * 60 * 1000); // number of days in milliseconds
                     // format the date to YYYY-MM-DD format
                     const formattedExpiryDate = expiryDate.toISOString().split('T')[0];
-                    updatedPeakPackage = { ...userPackagesData[peakPackageKey], expiryDate: formattedExpiryDate };
-                    set(ref(db, `userPackages/${pendingBookingData.username}/${peakPackageKey}`), updatedPeakPackage);
+                    updatedPeakPackage = { ...userPackagesData[peakPackageKey][peakPackagePurchaseDateKey], expiryDate: formattedExpiryDate };
+                    set(ref(db, `userPackages/${pendingBookingData.username}/${peakPackageKey}/${peakPackagePurchaseDateKey}`), updatedPeakPackage);
                     console.log("Expiry Date of the packageset to:", updatedPeakPackage.expiryDate);
                   }
 
-                  const newRemainingQuota = userPackagesData[peakPackageKey].remainingQuota - 1;
+                  const newRemainingQuota = userPackagesData[peakPackageKey][peakPackagePurchaseDateKey].remainingQuota - 1;
                   updatedPeakPackage = { ...updatedPeakPackage, remainingQuota: newRemainingQuota };
 
                   if (newRemainingQuota === 0) {
                     // Delete the package if the new remaining quota is 0
-                    set(ref(db, `userPackages/${pendingBookingData.username}/${peakPackageKey}`), null);
+                    set(ref(db, `userPackages/${pendingBookingData.username}/${peakPackageKey}/${peakPackagePurchaseDateKey}`), null);
 
                     // Delete the payment screenshot from storage
-                    const paymentScreenshot = userPackagesData[peakPackageKey].paymentScreenshot
+                    const paymentScreenshot = userPackagesData[peakPackageKey][peakPackagePurchaseDateKey].paymentScreenshot
                     const filePath = paymentScreenshot.substring(paymentScreenshot.lastIndexOf("%2F") + 3, paymentScreenshot.indexOf("?alt"));
                     console.log("File Path to delete:", filePath);
                     const storage = getStorage();
@@ -173,7 +220,7 @@ const ViewAllBookingsPage = () => {
                     });
                   } else {
                     // Update the package with the new remaining quota and possibly the expiry date
-                    set(ref(db, `userPackages/${pendingBookingData.username}/${peakPackageKey}`), updatedPeakPackage);
+                    set(ref(db, `userPackages/${pendingBookingData.username}/${peakPackageKey}/${peakPackagePurchaseDateKey}`), updatedPeakPackage);
                   }
                   alert('Use 1 quota from peak package!');
                   return;
@@ -182,33 +229,33 @@ const ViewAllBookingsPage = () => {
                   return;
                 }
               } else if (timePeriod === 'Non-Peak') {
-                if (nonPeakPackageKey && userPackagesData[nonPeakPackageKey].remainingQuota > 0) {
-                  console.log("userPackage:", JSON.stringify(userPackagesData[nonPeakPackageKey]));
+                if (nonPeakPackageKey && userPackagesData[nonPeakPackageKey][nonPeakPackagePurchaseDateKey].remainingQuota > 0) {
+                  console.log("userPackage:", JSON.stringify(userPackagesData[nonPeakPackageKey][nonPeakPackagePurchaseDateKey]));
                   // Create a copy of the package to update for calculating the new remaining quota and possibly the expiry date
-                  let updatedNonPeakPackage={...userPackagesData[nonPeakPackageKey]};
+                  let updatedNonPeakPackage={...userPackagesData[nonPeakPackageKey][nonPeakPackagePurchaseDateKey]};
                   // if the user has not used the package before, set the expiry date to according to the effective period from the booking date
-                  if (userPackagesData[nonPeakPackageKey].expiryDate==="") {
+                  if (userPackagesData[nonPeakPackageKey][nonPeakPackagePurchaseDateKey].expiryDate==="") {
                     console.log("Setting expiry date for the first time use of the package");
                     const bookingDate = new Date(pendingBookingData.date); // get the date of the booking according to the effective period from the booking data
-                    const effectivePeriod = userPackagesData[nonPeakPackageKey].effectivePeriod; // get the number of days for effectivePeriod from the package
+                    const effectivePeriod = userPackagesData[nonPeakPackageKey][nonPeakPackagePurchaseDateKey].effectivePeriod; // get the number of days for effectivePeriod from the package
                     const expiryDate = new Date(bookingDate.getTime() + effectivePeriod * 24 * 60 * 60 * 1000); // number of days in milliseconds
                     // format the date to YYYY-MM-DD format
                     const formattedExpiryDate = expiryDate.toISOString().split('T')[0];
-                    updatedNonPeakPackage = { ...userPackagesData[nonPeakPackageKey], expiryDate: formattedExpiryDate };
-                    set(ref(db, `userPackages/${pendingBookingData.username}/${nonPeakPackageKey}`), updatedNonPeakPackage);
+                    updatedNonPeakPackage = { ...userPackagesData[nonPeakPackageKey][nonPeakPackagePurchaseDateKey], expiryDate: formattedExpiryDate };
+                    set(ref(db, `userPackages/${pendingBookingData.username}/${nonPeakPackageKey}/${nonPeakPackagePurchaseDateKey}`), updatedNonPeakPackage);
                     console.log("Expiry Date of the package set to:", updatedNonPeakPackage.expiryDate);
                   }
 
                   // reduce the remaining quota by 1
-                  const newRemainingQuota = userPackagesData[nonPeakPackageKey].remainingQuota - 1;
+                  const newRemainingQuota = userPackagesData[nonPeakPackageKey][nonPeakPackagePurchaseDateKey].remainingQuota - 1;
                   updatedNonPeakPackage = { ...updatedNonPeakPackage, remainingQuota: newRemainingQuota };
 
                   if (newRemainingQuota === 0) {
                     // Delete the package if the new remaining quota is 0
-                    set(ref(db, `userPackages/${pendingBookingData.username}/${nonPeakPackageKey}`), null);
+                    set(ref(db, `userPackages/${pendingBookingData.username}/${nonPeakPackageKey}/${nonPeakPackagePurchaseDateKey}`), null);
 
                     // Delete the payment screenshot from storage
-                    const paymentScreenshot = userPackagesData[nonPeakPackageKey].paymentScreenshot
+                    const paymentScreenshot = userPackagesData[nonPeakPackageKey][nonPeakPackagePurchaseDateKey].paymentScreenshot
                     const filePath = paymentScreenshot.substring(paymentScreenshot.lastIndexOf("%2F") + 3, paymentScreenshot.indexOf("?alt"));
                     console.log("File Path to delete:", filePath);
                     const storage = getStorage();
@@ -220,7 +267,7 @@ const ViewAllBookingsPage = () => {
                     });
                   } else {
                     // Update the package with the new remaining quota and possibly the expiry date
-                    set(ref(db, `userPackages/${pendingBookingData.username}/${nonPeakPackageKey}`), updatedNonPeakPackage);
+                    set(ref(db, `userPackages/${pendingBookingData.username}/${nonPeakPackageKey}/${nonPeakPackagePurchaseDateKey}`), updatedNonPeakPackage);
                   }
                   alert('Use 1 quota from Non-Peak package!');
                   return;
