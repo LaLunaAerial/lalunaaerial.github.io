@@ -37,8 +37,7 @@ const ViewAllPackagesPage = () => {
   }, []);
 
 const handleEdit = (userName, packageType, purchaseDate, field, value) => {
-  setEditedPackages((prevEditedPackages) => {
-    const updatedPackages = {
+  setEditedPackages((prevEditedPackages) => ({
       ...prevEditedPackages,
       [userName]: {
         ...prevEditedPackages[userName],
@@ -50,10 +49,7 @@ const handleEdit = (userName, packageType, purchaseDate, field, value) => {
           },
         },
       },
-    };
-    console.log("Edited Packages Data: ", updatedPackages);
-    return updatedPackages;
-  });
+  }));
 };
 
   const handleSubmitEdit = (userName, packageType, purchaseDate) => {
@@ -99,7 +95,7 @@ const handleEdit = (userName, packageType, purchaseDate, field, value) => {
         alert('Package deleted successfully!');
   
         // Delete the payment screenshot from storage
-        const paymentScreenshot = userPackages[userName][packageType].paymentScreenshot;
+        const paymentScreenshot = userPackages[userName][packageType][purchaseDate].paymentScreenshot;
         const filePath = paymentScreenshot.substring(paymentScreenshot.lastIndexOf("%2F") + 3, paymentScreenshot.indexOf("?alt"));
         console.log("File Path to delete:", filePath);
         const storage = getStorage();
@@ -176,7 +172,7 @@ return (
                     <p>{packageRecord.expiryDate}</p>
                     <input
                       type="date"
-                      value={editedPackages[username]?.[packageType]?.expiryDate || ''}
+                      value={editedPackages[username]?.[packageType]?.[purchaseDate]?.expiryDate || ''}
                       onChange={(e) => handleEdit(username, packageType,purchaseDate, 'expiryDate', e.target.value)}
                       placeholder="Enter new value"
                     />
@@ -184,7 +180,7 @@ return (
                   <td><p>{packageRecord.remainingQuota}</p>
                     <input
                     type="number"
-                    value={editedPackages[username]?.[packageType]?.remainingQuota || ''}
+                    value={editedPackages[username]?.[packageType]?.[purchaseDate]?.remainingQuota || ''}
                     onChange={(e) => handleEdit(username, packageType,purchaseDate, 'remainingQuota', e.target.value)}
                     placeholder="Enter new value"
                   />
@@ -199,7 +195,7 @@ return (
                     )}
                     {packageRecord.status === 'approved' && (
                       <>
-                        <button onClick={() => handleSubmitEdit(username, packageType, purchaseDate)}>Edit</button>
+                        <button onClick={() => handleSubmitEdit(username, packageType, purchaseDate)}>Submit Edit</button>
                         <button onClick={() => handleDeletePackage(username, packageType, purchaseDate)}>Delete</button>
                       </>
                     )}
