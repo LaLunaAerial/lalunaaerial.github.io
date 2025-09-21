@@ -149,7 +149,7 @@ return (
             <th>Payment Screenshot</th>
             <th>Price</th>
             <th>Number of Sections</th>
-            <th>Effective Period</th>
+            <th>Expiry Date</th>
             <th>Remaining Quota</th>
             <th>Status</th>
             <th>Actions</th>

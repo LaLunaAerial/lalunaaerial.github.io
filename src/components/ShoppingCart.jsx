@@ -352,12 +352,14 @@ const ShoppingCart = () => {
       return;
     }
 
-    Object.keys(userPackages).forEach((key) => {
-      if (userPackages[key].packageType === 'Peak') {
-        peakPackage = userPackages[key];
-      } else if (userPackages[key].packageType === 'Non-Peak') {
-        nonPeakPackage = userPackages[key];
-      }
+    Object.keys(userPackages).forEach((packageName) => {
+      Object.keys(userPackages[packageName]).forEach((purchaseDate) => {
+        if (userPackages[packageName][purchaseDate].packageType === 'Peak') {
+          peakPackage = userPackages[packageName][purchaseDate];
+        } else if (userPackages[packageName][purchaseDate].packageType === 'Non-Peak') {
+          nonPeakPackage = userPackages[packageName][purchaseDate];
+        }
+      });
     });
 
     console.log('Peak Package:', peakPackage); // Debugging line to check the peak package
