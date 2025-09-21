@@ -170,20 +170,25 @@ return (
                   <td>{packageRecord.numberOfSections}</td>
                   <td>
                     <p>{packageRecord.expiryDate}</p>
-                    <input
+                    {packageRecord.status === 'approved' && (
+                      <input
                       type="date"
                       value={editedPackages[username]?.[packageType]?.[purchaseDate]?.expiryDate || ''}
                       onChange={(e) => handleEdit(username, packageType,purchaseDate, 'expiryDate', e.target.value)}
                       placeholder="Enter new value"
                     />
+                    )}
                   </td>
-                  <td><p>{packageRecord.remainingQuota}</p>
-                    <input
-                    type="number"
-                    value={editedPackages[username]?.[packageType]?.[purchaseDate]?.remainingQuota || ''}
-                    onChange={(e) => handleEdit(username, packageType,purchaseDate, 'remainingQuota', e.target.value)}
-                    placeholder="Enter new value"
-                  />
+                  <td>
+                    <p>{packageRecord.remainingQuota}</p>
+                    {packageRecord.status === 'approved' && (
+                      <input
+                      type="number"
+                      value={editedPackages[username]?.[packageType]?.[purchaseDate]?.remainingQuota || ''}
+                      onChange={(e) => handleEdit(username, packageType,purchaseDate, 'remainingQuota', e.target.value)}
+                      placeholder="Enter new value"
+                    />
+                    )}
                   </td>
                   <td>{packageRecord.status}</td>
                   <td>
