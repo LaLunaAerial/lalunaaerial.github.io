@@ -44,6 +44,7 @@ const ShoppingCart = () => {
   }, []);
 
   useEffect(() => {
+    if (!auth.currentUser) return;
     const db = getDatabase();
     const userPackagesRef = ref(db, `userPackages/${auth.currentUser.displayName}`);
     get(userPackagesRef).then((snapshot) => {
@@ -52,15 +53,18 @@ const ShoppingCart = () => {
       let peakQuota = 0;
       let nonPeakQuota = 0;
       if (packages) {
-        Object.keys(packages).forEach((key) => {
-          const packageType = packages[key].packageType;
-          const remainingQuota = packages[key].remainingQuota;
-          console.log(`Package Type: ${packageType}, Remaining Quota: ${remainingQuota}`); // Debugging line to check package type and remaining quota
-          if (packageType === 'Peak') {
-            peakQuota += remainingQuota;
-          } else if (packageType === 'Non-Peak') {
-            nonPeakQuota += remainingQuota;
-          }
+        Object.keys(packages).forEach((packageName) => {
+          Object.keys(packages[packageName]).forEach((purchaseDate) => {
+            const packageInstance = packages[packageName][purchaseDate];
+            const packageType = packageInstance.packageType;
+            const remainingQuota = packageInstance.remainingQuota;
+            console.log(`Package Type: ${packageType}, Remaining Quota: ${remainingQuota}`); // Debugging line to check package type and remaining quota
+            if (packageType === 'Peak') {
+              peakQuota += remainingQuota;
+            } else if (packageType === 'Non-Peak') {
+              nonPeakQuota += remainingQuota;
+            }
+          });
         });
       }
       setPeakQuota(peakQuota);
