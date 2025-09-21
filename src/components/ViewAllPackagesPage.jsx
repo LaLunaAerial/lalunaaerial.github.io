@@ -12,25 +12,54 @@ const ViewAllPackagesPage = () => {
   useEffect(() => {
     const userPackagesRef = ref(db, 'userPackages');
     get(userPackagesRef).then((snapshot) => {
-      setUserPackages(snapshot.val());
-      setEditedPackages(JSON.parse(JSON.stringify(snapshot.val()))); // Initialize editedPackages state with a copy of userPackages
+      const packages = snapshot.val();
+      const formattedPackages = {};
+      for (const username in packages) {
+        for (const packageType in packages[username]) {
+          for (const purchaseDate in packages[username][packageType]) {
+            const packageData = packages[username][packageType][purchaseDate];
+            if (!formattedPackages[username]) {
+              formattedPackages[username] = {};
+            }
+            if (!formattedPackages[username][packageType]) {
+              formattedPackages[username][packageType] = {};
+            }
+            formattedPackages[username][packageType][purchaseDate] = packageData;
+          }
+        }
+      }
+      setUserPackages(formattedPackages);
+      setEditedPackages(JSON.parse(JSON.stringify(formattedPackages)));
     });
+
+    // debug log
+    console.log("User Packages Data: ", userPackages);
   }, []);
 
-  const handleEdit = (userName, packageType,purchaseDate, field, value) => {
-    setEditedPackages((prevEditedPackages) => ({
+const handleEdit = (userName, packageType, purchaseDate, field, value) => {
+  setEditedPackages((prevEditedPackages) => {
+    const updatedPackages = {
       ...prevEditedPackages,
       [userName]: {
         ...prevEditedPackages[userName],
-        [packageType]: { ...prevEditedPackages[userName][packageType], [field]: value },
+        [packageType]: {
+          ...prevEditedPackages[userName][packageType],
+          [purchaseDate]: {
+            ...prevEditedPackages[userName][packageType][purchaseDate],
+            [field]: value,
+          },
+        },
       },
-    }));
-  };
+    };
+    console.log("Edited Packages Data: ", updatedPackages);
+    return updatedPackages;
+  });
+};
 
   const handleSubmitEdit = (userName, packageType, purchaseDate) => {
-    const packageRef = ref(db, `userPackages/${userName}/${packageType}`);
-    update(packageRef, editedPackages[userName][packageType]).then(() => {
-      alert('Package informationupdated successfully!');
+    const packageRef = ref(db, `userPackages/${userName}/${packageType}/${purchaseDate}`);
+    update(packageRef, editedPackages[userName][packageType][purchaseDate]).then(() => {
+      alert('Package information updated successfully!');
       const userPackagesRef = ref(db, 'userPackages');
       get(userPackagesRef).then((snapshot) => {
         setUserPackages(snapshot.val());
@@ -40,7 +69,7 @@ const ViewAllPackagesPage = () => {
   };
 
   const handleApprove = (userName, packageType, purchaseDate) => {
-    const packageRef = ref(db, `userPackages/${userName}/${packageType}`);
+    const packageRef = ref(db, `userPackages/${userName}/${packageType}/${purchaseDate}`);
     update(packageRef, { status: 'approved' }).then(() => {
       alert('Package approved!');
       const userPackagesRef = ref(db, 'userPackages');
@@ -52,7 +81,7 @@ const ViewAllPackagesPage = () => {
   };
 
   const handleReject = (userName, packageType, purchaseDate) => {
-    const packageRef = ref(db, `userPackages/${userName}/${packageType}`);
+    const packageRef = ref(db, `userPackages/${userName}/${packageType}/${purchaseDate}`);
     update(packageRef, { status: 'rejected' }).then(() => {
       alert('Package rejected!');
       const userPackagesRef = ref(db, 'userPackages');
@@ -65,7 +94,7 @@ const ViewAllPackagesPage = () => {
 
   const handleDeletePackage = (userName, packageType, purchaseDate) => {
     if (window.confirm('Are you sure you want to delete this package?')) {
-      const packageRef = ref(db, `userPackages/${userName}/${packageType}`);
+      const packageRef = ref(db, `userPackages/${userName}/${packageType}/${purchaseDate}`);
       remove(packageRef).then(() => {
         alert('Package deleted successfully!');
   
@@ -91,7 +120,7 @@ const ViewAllPackagesPage = () => {
   };
 
   const handleShowCapscreen = (userName, packageType, purchaseDate) => {
-  const paymentScreenshotUrl = userPackages[userName][packageType].paymentScreenshot;
+  const paymentScreenshotUrl = userPackages[userName][packageType][purchaseDate].paymentScreenshot;
   if (paymentScreenshotUrl) {
     // Create a modal to display the payment screenshot
     const modal = document.getElementById('capscreen-modal');
@@ -116,98 +145,72 @@ return (
     {userPackages?(
       <div className="view-all-packages-table">
       <table>
-      <thead>
-        <tr>
-          <th>User Name</th>
-          <th>Package Type</th>
-          <th>Package Name</th>
-          <th>Number of Sections</th>
-          <th>Expiry Date</th>
-          <th>Remaining Quota</th>
-          <th>Status</th>
-          <th>Actions</th>
-          <th>Payment Screenshot</th>
-        </tr>
-      </thead>
-      <tbody>
-        {Object.keys(userPackages).map((userName) => (
-          <React.Fragment key={userName}>
-            {Object.keys(userPackages[userName]).map((packageType) => (
-              Object.keys(userPackages[userName][packageType]).forEach((purchaseDate) => (
-              <tr key={packageType}>
-                <td>{userName}</td>
-                <td>{packageType}</td>
-                <td>
-                  <p>{userPackages[userName][packageType].packageName}</p>
-                  <input
-                    type="text"
-                    value={editedPackages[userName]?.[packageType]?.packageName || ''}
-                    onChange={(e) => handleEdit(userName, packageType, 'packageName', e.target.value)}
-                    placeholder="Enter new value"
-                  />
-                </td>
-                <td>
-                  <p>{userPackages[userName][packageType].numberOfSections}</p>
-                  <input
+        <thead>
+          <tr>
+            <th>Package Name</th>
+            <th>Package Type</th>
+            <th>Purchase Date</th>
+            <th>Payment Screenshot</th>
+            <th>Price</th>
+            <th>Number of Sections</th>
+            <th>Effective Period</th>
+            <th>Remaining Quota</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {Object.entries(userPackages).map(([username, packages]) => (
+            Object.entries(packages).map(([packageType, packageData]) => (
+              Object.entries(packageData).map(([purchaseDate, packageRecord]) => (
+                <tr key={purchaseDate}>
+                  <td>{packageRecord.packageName}</td>
+                  <td>{packageRecord.packageType}</td>
+                  <td>{packageRecord.purchaseDate}</td>
+                  <td>
+                    <button onClick={() => handleShowCapscreen(username, packageType, purchaseDate)}>Show Capscreen</button>
+                  </td>
+                  <td>{packageRecord.price}</td>
+                  <td>{packageRecord.numberOfSections}</td>
+                  <td>
+                    <p>{packageRecord.expiryDate}</p>
+                    <input
+                      type="date"
+                      value={editedPackages[username]?.[packageType]?.expiryDate || ''}
+                      onChange={(e) => handleEdit(username, packageType,purchaseDate, 'expiryDate', e.target.value)}
+                      placeholder="Enter new value"
+                    />
+                  </td>
+                  <td><p>{packageRecord.remainingQuota}</p>
+                    <input
                     type="number"
-                    value={editedPackages[userName]?.[packageType]?.numberOfSections || ''}
-                    onChange={(e) => handleEdit(userName, packageType, 'numberOfSections', e.target.value)}
+                    value={editedPackages[username]?.[packageType]?.remainingQuota || ''}
+                    onChange={(e) => handleEdit(username, packageType,purchaseDate, 'remainingQuota', e.target.value)}
                     placeholder="Enter new value"
                   />
-                </td>
-                <td>
-                  <p>{userPackages[userName][packageType].expiryDate}</p>
-                  <input
-                    type="date"
-                    value={editedPackages[userName]?.[packageType]?.expiryDate || ''}
-                    onChange={(e) => handleEdit(userName, packageType, 'expiryDate', e.target.value)}
-                    placeholder="Enter new value"
-                  />
-                </td>
-                <td>
-                  <p>{userPackages[userName][packageType].remainingQuota}</p>
-                  <input
-                    type="number"
-                    value={editedPackages[userName]?.[packageType]?.remainingQuota || ''}
-                    onChange={(e) => handleEdit(userName, packageType, 'remainingQuota', e.target.value)}
-                    placeholder="Enter new value"
-                  />
-                </td>
-                <td>
-                  <p>{userPackages[userName][packageType].status}</p>
-                  <select
-                    value={editedPackages[userName]?.[packageType]?.status || ''}
-                    onChange={(e) => handleEdit(userName, packageType, 'status', e.target.value)}
-                  >
-                    <option value="pending">Pending</option>
-                    <option value="approved">Approved</option>
-                    <option value="rejected">Rejected</option>
-                  </select>
-                </td>
-                <td>
-                  {
-                    userPackages[userName][packageType].status === 'approved' ? (
-                      <button onClick={() => handleSubmitEdit(userName, packageType)}>Submit Edit</button>
-                    ) : (
-                      <div>
-                        <button onClick={() => handleApprove(userName, packageType)}>Approve</button>
-                        <button onClick={() => handleReject(userName, packageType)}>Reject</button>
-                      </div>
-                    )
-                  }
-                  <button onClick={() => handleDeletePackage(userName, packageType)}>Delete</button>
-                </td>
-                <td>
-                  {userPackages[userName][packageType].paymentScreenshot && (
-                    <button onClick={() => handleShowCapscreen(userName, packageType)}>Show CapScreen</button>
-                  )}
-                </td>
-              </tr>
-            ))))}
-          </React.Fragment>
-        ))}
-      </tbody>
-    </table>
+                  </td>
+                  <td>{packageRecord.status}</td>
+                  <td>
+                    {packageRecord.status === 'pending' && (
+                      <>
+                        <button onClick={() => handleApprove(username, packageType, purchaseDate)}>Approve</button>
+                        <button onClick={() => handleReject(username, packageType, purchaseDate)}>Reject</button>
+                      </>
+                    )}
+                    {packageRecord.status === 'approved' && (
+                      <>
+                        <button onClick={() => handleSubmitEdit(username, packageType, purchaseDate)}>Edit</button>
+                        <button onClick={() => handleDeletePackage(username, packageType, purchaseDate)}>Delete</button>
+                      </>
+                    )}
+                    
+                  </td>
+                </tr>
+              ))
+            ))
+          ))}
+        </tbody>
+      </table>
     </div>
     ):(
       <p>No any packages found in the database.</p>
