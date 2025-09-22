@@ -218,14 +218,18 @@ function OvernightSchedulePage() {
               ) : allSlotsRegistered ? (
                 <button className="selected-grey" disabled>Registered</button>
               ) : (
-                <button
-                  className="book-button"
-                  onClick={() => handleBookOvernight(date)}
-                  disabled={allSlotsSelected}
-                >
+                overnightTimeSlots.every(slot => bookingStatus[slot.time] === 'Free' && pendingBookingStatus[slot.time] === 'Free') ? (
+                  <button
+                    className="book-button"
+                    onClick={() => handleBookOvernight(date)}
+                    disabled={allSlotsSelected}
+                  >
                   Book Overnight
                 </button>
-              )}
+                ) : (
+                  <button className="selected-grey" disabled>Partially Occupied</button>
+                )
+                )}
             </td>
           </tr>
         </tbody>
