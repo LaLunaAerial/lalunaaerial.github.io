@@ -309,9 +309,28 @@ const ViewAllBookingsPage = () => {
               console.log("User Packages:", packages);
             if (userPackagesSnapshot.exists()) {
               console.log("User packages data exists");
+
+              // Get the Overnight package key and purchase date key
               const userPackagesData = userPackagesSnapshot.val();
-              const overnightPackageKey = Object.keys(userPackagesData).find((key) => userPackagesData[key].packageType === 'Overnight');
+              const overnightPackageKey = Object.keys(userPackagesData).find((key) => {
+                  const packageData = userPackagesData[key];
+                  return Object.keys(packageData).some((purchaseDateKey) => {
+                    const packageItem = packageData[purchaseDateKey];
+                    return packageItem.packageType === 'Overnight';
+                  });
+                });
               console.log("Overnight Package Key:", overnightPackageKey);
+
+              // Find the purchase date key of the first Overnight package
+              let overnightPackagePurchaseDateKey;
+              if (overnightPackageKey) {
+                // find the key of the first Overnight package with purchase date
+                overnightPackagePurchaseDateKey=Object.keys(userPackagesData[overnightPackageKey]).find((purchaseDateKey) => {
+                  const packageItem = userPackagesData[overnightPackageKey][purchaseDateKey];
+                    return packageItem.packageType === 'Overnight';
+                  }); 
+                  console.log("Overnight Package Purchase Date Key:", overnightPackagePurchaseDateKey);
+              }
 
               // Delete the payment screenshot from storage if there is no other Overnight pending timeslot paid by package
               const otherOvernightPendingBookingsRef = ref(db, 'pendingBookings');
@@ -329,11 +348,11 @@ const ViewAllBookingsPage = () => {
                   if (!hasOtherOvernight) {
                     console.log("No other Overnight pending booking by overnight package");
                     // Delete the Overnight package 
-                    set(ref(db, `userPackages/${pendingBookingData.username}/${overnightPackageKey}`), null);
+                    set(ref(db, `userPackages/${pendingBookingData.username}/${overnightPackageKey}/${overnightPackagePurchaseDateKey}`), null);
                     alert('Overnight package used, package deleted!');
 
                     // Delete the payment screenshot from storage
-                    const paymentScreenshot = userPackagesData[overnightPackageKey].paymentScreenshot
+                    const paymentScreenshot = userPackagesData[overnightPackageKey][overnightPackagePurchaseDateKey].paymentScreenshot
                     const filePath = paymentScreenshot.substring(paymentScreenshot.lastIndexOf("%2F") + 3, paymentScreenshot.indexOf("?alt"));
                     console.log("File Path to delete:", filePath);
                     const storage = getStorage();
@@ -347,11 +366,11 @@ const ViewAllBookingsPage = () => {
                   }
                 }else{
                   // No other pending bookings, so delete the Overnight package and payment screenshot
-                  set(ref(db, `userPackages/${pendingBookingData.username}/${overnightPackageKey}`), null);
+                  set(ref(db, `userPackages/${pendingBookingData.username}/${overnightPackageKey}/${overnightPackagePurchaseDateKey}`), null);
                   alert('Overnight package used, package deleted!');
 
                   // Delete the payment screenshot from storage
-                  const paymentScreenshot = userPackagesData[overnightPackageKey].paymentScreenshot
+                  const paymentScreenshot = userPackagesData[overnightPackageKey][overnightPackagePurchaseDateKey].paymentScreenshot
                   const filePath = paymentScreenshot.substring(paymentScreenshot.lastIndexOf("%2F") + 3, paymentScreenshot.indexOf("?alt"));
                   console.log("File Path to delete:", filePath);
                   const storage = getStorage();
@@ -385,7 +404,7 @@ const ViewAllBookingsPage = () => {
           });
         }
         // else if payment method is single payment
-        else{
+        else{ 
           const paymentScreenshotUrl = pendingBookingData.paymentScreenshot;
           const bookingData = {
             username: pendingBookingData.username,
