@@ -4,7 +4,7 @@ import { DateCalendar } from '@mui/x-date-pickers/DateCalendar';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import dayjs from 'dayjs';
-import { get, ref, getDatabase } from 'firebase/database';
+import { get, ref, getDatabase, set } from 'firebase/database';
 import { auth } from '../assets/firebaseConfig';
 import './OvernightSchedulePage.css';
 import { useNavigate } from 'react-router-dom';
@@ -17,6 +17,7 @@ function OvernightSchedulePage() {
   const [pendingBookingStatus, setPendingBookingStatus] = useState({});
   const [overnightTimeSlots, setOvernightTimeSlots] = useState([]);
   const [cart, setCart] = useState(JSON.parse(localStorage.getItem('cart')) || []);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     // check the login status, if the user is not logged in, redirect to login page
@@ -97,6 +98,7 @@ function OvernightSchedulePage() {
           // Handle error appropriately
         }
       }
+      setLoading(false);
 
       setBookingStatus(bookingStatus);
       setPendingBookingStatus(pendingBookingStatus);
@@ -186,6 +188,7 @@ function OvernightSchedulePage() {
       <p>
         Selected date: {date ? date.format('MM/DD/YYYY') : 'No date selected'}
       </p>
+      <p>{loading}</p>
       <table className="timetable-table">
         <thead>
           <tr>
@@ -198,38 +201,41 @@ function OvernightSchedulePage() {
           <tr>
             <td>23:00 - 07:00</td>
             <td>
-              {anySlotExpired ? (
-                <span>Expired</span>
-              ) : allSlotsRegistered ? (
-                <span>Occupied</span>
-              ) : (
-                <span>
-                  {overnightTimeSlots.every(slot => bookingStatus[slot.time] === 'Free' && pendingBookingStatus[slot.time] === 'Free')
-                    ? 'Available'
-                    : 'Partially Occupied'}
-                </span>
-              )}
+              {loading ? 
+                  <span>Loading...</span>
+                  : anySlotExpired ? 
+                    <span>Expired</span>
+                    : allSlotsRegistered ? 
+                      <span>Occupied</span>
+                      : <span>
+                          {overnightTimeSlots.every(slot => bookingStatus[slot.time] === 'Free' && pendingBookingStatus[slot.time] === 'Free')
+                            ? 'Available'
+                            : 'Partially Occupied'}
+                        </span> 
+              }
             </td>
             <td>
-              {anySlotExpired ? (
-                <button className="selected-grey" disabled>Expired</button>
-              ) : allSlotsSelected ? (
-                <button className="selected-grey" disabled>Selected</button>
-              ) : allSlotsRegistered ? (
-                <button className="selected-grey" disabled>Registered</button>
-              ) : (
-                overnightTimeSlots.every(slot => bookingStatus[slot.time] === 'Free' && pendingBookingStatus[slot.time] === 'Free') ? (
-                  <button
-                    className="book-button"
-                    onClick={() => handleBookOvernight(date)}
-                    disabled={allSlotsSelected}
-                  >
-                  Book Overnight
-                </button>
-                ) : (
-                  <button className="selected-grey" disabled>Partially Occupied</button>
-                )
-                )}
+              {loading?
+                <button className="selected-grey" disabled>Loading...</button>
+                : anySlotExpired ? (
+                    <button className="selected-grey" disabled>Expired</button>
+                    ) : allSlotsSelected ? (
+                      <button className="selected-grey" disabled>Selected</button>
+                    ) : allSlotsRegistered ? (
+                      <button className="selected-grey" disabled>Registered</button>
+                    ) : (
+                      overnightTimeSlots.every(slot => bookingStatus[slot.time] === 'Free' && pendingBookingStatus[slot.time] === 'Free') ? (
+                        <button
+                          className="book-button"
+                          onClick={() => handleBookOvernight(date)}
+                          disabled={allSlotsSelected}
+                        >
+                        Book Overnight
+                      </button>
+                      ) : (
+                        <button className="selected-grey" disabled>Partially Occupied</button>
+                      )
+                    )}
             </td>
           </tr>
         </tbody>
