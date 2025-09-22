@@ -540,6 +540,41 @@ const ShoppingCart = () => {
   return (
     <div className="shopping-cart">
       <h2>Shopping Cart</h2>
+
+      <hr />
+
+      <h3>Packages Cart:</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Package Name</th>
+            <th>Package Type</th>
+            <th>Number of Sections</th>
+            <th>Effective Period</th>
+            <th>Price</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {packageCart.map((packageItem, index) => (
+            <tr key={index}>
+              <td>{packageItem.name}</td>
+              <td>{packageItem.type}</td>
+              <td>{packageItem.numberOfSection}</td>
+              <td>{packageItem.effectivePeriod}</td>
+              <td>${packageItem.price}</td>
+              <td>
+                <button onClick={() => handleBuyPackage(packageItem)}>Buy</button>
+                <button onClick={() => handleRemovePackage(index)}>Remove</button>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+      
+      <hr />
+
+      <h3>Time Section Cart</h3>
       <table>
         <thead>
           <tr>
@@ -589,41 +624,12 @@ const ShoppingCart = () => {
         </tbody>
       </table>
       <span>Total: ${totalPrice}</span>
-
-      <hr />
-      <h3>Packages:</h3>
-      <table>
-        <thead>
-          <tr>
-            <th>Package Name</th>
-            <th>Package Type</th>
-            <th>Number of Sections</th>
-            <th>Effective Period</th>
-            <th>Price</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {packageCart.map((packageItem, index) => (
-            <tr key={index}>
-              <td>{packageItem.name}</td>
-              <td>{packageItem.type}</td>
-              <td>{packageItem.numberOfSection}</td>
-              <td>{packageItem.effectivePeriod}</td>
-              <td>${packageItem.price}</td>
-              <td>
-                <button onClick={() => handleBuyPackage(packageItem)}>Buy</button>
-                <button onClick={() => handleRemovePackage(index)}>Remove</button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      
       <hr />
 
       {auth.currentUser && (
         <div>
-          <h4>Package Quota:</h4>
+          <h4>Package Quota for booking:</h4>
           <p>Peak: {peakQuota}</p>
           <p>Non-Peak: {nonPeakQuota}</p>
         </div>
@@ -631,24 +637,27 @@ const ShoppingCart = () => {
 
       <hr />
 
+      <div className="upload-instruction" style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', flex: 3 }}>
+        <h4>如要使用Payme付款購買套票或租借單次時段,請上載您的Payme付款截圖:</h4>
+        <input type="file" id="image-input" />
+      </div>
+
+      <button className="submit-button" onClick={handleSubmit}>Submit Booking With Payme Screenshot</button>
+      <button className="submit-button" onClick={handlePayByPackage}>Submit Booking By Using Package</button>
+      {(isAllOvernight) ? (
+        <button className="submit-button" onClick={handlePayByOvernightPackage}>Submit Booking By Overnight Package</button>
+      ) : (
+        <button className="disabled-button" disabled >Submit Booking By Overnight Package</button>
+      )}
+      
+      <hr />
+
       <div className="payment-instruction">
-        <h6>當您提交預訂之後,請將付款金額傳至以下Payme帳號。</h6>
+        <h4>當您提交預訂之後,請將付款金額傳至以下Payme帳號。</h4>
       </div>
       <div className="payme-code">
         <h2>Payme Code:</h2>
         <img src={require('../assets/PaymeCode.jpg')} alt="Payme Code" />
-        <div className="upload-instruction" style={{ display: 'flex', flexDirection: 'row', alignItems: 'left', flex: 3 }}>
-          <input type="file" id="image-input" />
-          <h6>請上載您的Payme付款截圖</h6>
-
-        </div>
-        <button className="submit-button" onClick={handleSubmit}>Submit Booking With Payme Screenshot</button>
-        <button className="submit-button" onClick={handlePayByPackage}>Submit Booking By Using Package</button>
-        {(isAllOvernight) ? (
-          <button className="submit-button" onClick={handlePayByOvernightPackage}>Submit Booking By Overnight Package</button>
-        ) : (
-          <button className="disabled-button" disabled >Submit Booking By Overnight Package</button>
-        )}
       </div>
     </div>
   );
