@@ -404,7 +404,7 @@ const ViewAllBookingsPage = () => {
           });
         }
         // else if payment method is single payment
-        else{ 
+        else{
           const paymentScreenshotUrl = pendingBookingData.paymentScreenshot;
           const bookingData = {
             username: pendingBookingData.username,

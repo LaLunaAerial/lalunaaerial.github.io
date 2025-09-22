@@ -551,8 +551,9 @@ const ShoppingCart = () => {
         </thead>
         <tbody>
           {/* Display overnight items as a single row */}
-          {overnightItems.length > 0 && (
+          {overnightItems.length === 16 && overnightTotalPrice === 704 && (
             <tr>
+              <td>{overnightTotalPrice}</td>
               <td>{overnightDate}</td>
               <td>23:00 - 07:00</td>
               <td>${overnightTotalPrice}</td>
@@ -560,6 +561,18 @@ const ShoppingCart = () => {
                 <button onClick={handleRemoveOvernight}>Clear</button>
               </td>
             </tr>
+          )}
+          {!(overnightItems.length === 16 && overnightTotalPrice === 704) && (
+          overnightItems.map((item, index) => (
+            <tr key={index}>
+              <td>{item.date}</td>
+              <td>{item.time}</td>
+              <td>${item.price}</td>
+              <td>
+                <button onClick={() => handleRemove(index)}>Clear</button>
+              </td>
+            </tr>
+          ))
           )}
 
           {/* Display other items normally */}
