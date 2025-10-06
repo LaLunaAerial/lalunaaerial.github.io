@@ -57,11 +57,14 @@ const ShoppingCart = () => {
           Object.keys(packages[packageName]).forEach((purchaseDate) => {
             const packageInstance = packages[packageName][purchaseDate];
             const packageType = packageInstance.packageType;
+            const packageStatus = packageInstance.status;
             const remainingQuota = packageInstance.remainingQuota;
-            console.log(`Package Type: ${packageType}, Remaining Quota: ${remainingQuota}`); // Debugging line to check package type and remaining quota
-            if (packageType === 'Peak') {
+            console.log(`Package Type: ${packageType}, packageStatus: ${packageStatus}, Remaining Quota: ${remainingQuota}`); // Debugging line to check package type and remaining quota
+            
+            // Only count quota for Active packages
+            if (packageType === 'Peak' && packageStatus === 'Active') {
               peakQuota += remainingQuota;
-            } else if (packageType === 'Non-Peak') {
+            } else if (packageType === 'Non-Peak' && packageStatus === 'Active') {
               nonPeakQuota += remainingQuota;
             }
           });
@@ -417,9 +420,9 @@ const ShoppingCart = () => {
 
     Object.keys(userPackages).forEach((packageName) => {
       Object.keys(userPackages[packageName]).forEach((purchaseDate) => {
-        if (userPackages[packageName][purchaseDate].packageType === 'Peak') {
+        if (userPackages[packageName][purchaseDate].packageType === 'Peak' && userPackages[packageName][purchaseDate].status === 'Active') {
           peakPackage = userPackages[packageName][purchaseDate];
-        } else if (userPackages[packageName][purchaseDate].packageType === 'Non-Peak') {
+        } else if (userPackages[packageName][purchaseDate].packageType === 'Non-Peak' && userPackages[packageName][purchaseDate].status === 'Active') {
           nonPeakPackage = userPackages[packageName][purchaseDate];
         }
       });
@@ -435,10 +438,11 @@ const ShoppingCart = () => {
     // else, check for Peak and Non-Peak package
     if (peakSections > 0) {
       if (!peakPackage) {
-        alert('No Peak package found!');
+        alert('No approved Peak package found!');
         return;
       }
       if (peakPackage.remainingQuota < peakSections) {
+        //TODO: check if there is other Peak package with sufficient quota, then try to use other Peak package for remaining sections
         alert('Insufficient peak package quota!');
         return;
       }
@@ -446,10 +450,11 @@ const ShoppingCart = () => {
 
     if (nonPeakSections > 0) {
       if (!nonPeakPackage) {
-        alert('No Non-Peak package found!');
+        alert('No approved Non-Peak package found!');
         return;
       }
       if (nonPeakPackage.remainingQuota < nonPeakSections) {
+        //TODO: check if there is other Non-Peak package with sufficient quota, then try to use other Peak package for remaining sections
         alert('Insufficient Non-Peak package quota!');
         return;
       }

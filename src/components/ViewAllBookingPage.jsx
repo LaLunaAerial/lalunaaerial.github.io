@@ -139,14 +139,14 @@ const ViewAllBookingsPage = () => {
                 const packageData = userPackagesData[key];
                 return Object.keys(packageData).some((purchaseDateKey) => {
                   const packageItem = packageData[purchaseDateKey];
-                  return packageItem.packageType === 'Peak';
+                  return packageItem.packageType === 'Peak' && packageItem.status === 'Active'; // return if the package is Peak and Active
                 });
               });
               const nonPeakPackageKey = Object.keys(userPackagesData).find((key) => {
                 const packageData = userPackagesData[key];
                 return Object.keys(packageData).some((purchaseDateKey) => {
                   const packageItem = packageData[purchaseDateKey];
-                  return packageItem.packageType === 'Non-Peak';
+                  return packageItem.packageType === 'Non-Peak'&& packageItem.status === 'Active';  // return if the package is Non-Peak and Active
                 });
               });
               console.log("Peak Package Key:", peakPackageKey);
