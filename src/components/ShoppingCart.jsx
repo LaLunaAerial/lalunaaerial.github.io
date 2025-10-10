@@ -608,6 +608,16 @@ const ShoppingCart = () => {
       <span>Total: ${totalPrice}</span>
       
       <hr />
+      
+      {auth.currentUser && (
+        <div>
+          <h4>Package Quota for booking:</h4>
+          <p>Peak: {peakQuota}</p>
+          <p>Non-Peak: {nonPeakQuota}</p>
+        </div>
+      )}
+
+      <hr />
 
       {/* TODO make sure handleSubmit can process both packages and bookings*/}
       {(packageCart.length > 0 ||
