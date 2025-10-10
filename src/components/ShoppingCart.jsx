@@ -448,9 +448,7 @@ const ShoppingCart = () => {
         alert('No approved Peak package found!');
         return;
       }
-      if (peakPackage.remainingQuota < peakSections) {
-        //TODO: check if there is other Peak package with sufficient quota, then try to use other Peak package for remaining sections
-        alert('Insufficient peak package quota!');
+      if (peakQuota < peakSections) {
         return;
       }
     }
@@ -460,8 +458,7 @@ const ShoppingCart = () => {
         alert('No approved Non-Peak package found!');
         return;
       }
-      if (nonPeakPackage.remainingQuota < nonPeakSections) {
-        //TODO: check if there is other Non-Peak package with sufficient quota, then try to use other Peak package for remaining sections
+      if (nonPeakQuota < nonPeakSections) {
         alert('Insufficient Non-Peak package quota!');
         return;
       }
