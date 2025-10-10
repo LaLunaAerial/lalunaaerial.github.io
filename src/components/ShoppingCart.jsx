@@ -327,6 +327,13 @@ const ShoppingCart = () => {
     }).catch((error) => {
       console.error('Error uploading image:', error);
     });
+
+    // NEW: Submit the package buy requests
+    if (packageCart.length > 0) {
+      for (let i = 0; i < packageCart.length; i++) {
+        await handleBuyPackage(packageCart[i]);
+      }
+    }
   };
 
   // Handle payment by Overnight package
@@ -520,9 +527,10 @@ const ShoppingCart = () => {
   const otherItems = cart.filter(item => item.timeCategory !== 'Overnight');
 
   // Calculate the total price of the items in the cart
+  const packageTotalPrice = packageCart.reduce((acc, item) => acc + item.price, 0);
   const overnightTotalPrice = overnightItems.reduce((acc, item) => acc + item.price, 0);
   const otherItemsTotalPrice = otherItems.reduce((acc, item) => acc + item.price, 0);
-  const totalPrice = overnightTotalPrice + otherItemsTotalPrice;
+  const totalPrice = packageTotalPrice + overnightTotalPrice + otherItemsTotalPrice;
 
   // Function to remove all overnight items
   const handleRemoveOvernight = () => {
@@ -547,15 +555,10 @@ const ShoppingCart = () => {
       <h2>Shopping Cart</h2>
 
       <hr />
-
-      <h3>Packages Cart:</h3>
       <table>
         <thead>
           <tr>
-            <th>Package Name</th>
-            <th>Package Type</th>
-            <th>Number of Sections</th>
-            <th>Effective Period</th>
+            <th>Item</th>
             <th>Price</th>
             <th>Actions</th>
           </tr>
@@ -563,53 +566,31 @@ const ShoppingCart = () => {
         <tbody>
           {packageCart.map((packageItem, index) => (
             <tr key={index}>
-              <td>{packageItem.name}</td>
-              <td>{packageItem.type}</td>
-              <td>{packageItem.numberOfSection}</td>
-              <td>{packageItem.effectivePeriod}</td>
+              {packageItem.type === "Overnight" ?
+              <td>{packageItem.name}</td> :
+              <td>{packageItem.name}<p>有效期:{packageItem.effectivePeriod}天</p></td>
+              }
               <td>${packageItem.price}</td>
-              <td>
-                <button onClick={() => handleBuyPackage(packageItem)}>Buy</button>
-                <button onClick={() => handleRemovePackage(index)}>Remove</button>
-              </td>
+              <td><button onClick={() => handleRemovePackage(index)}>Remove</button></td>
             </tr>
           ))}
-        </tbody>
-      </table>
-      
-      <hr />
-
-      <h3>Time Section Cart</h3>
-      <table>
-        <thead>
-          <tr>
-            <th>Date</th>
-            <th>Time</th>
-            <th>Price</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
           {/* Display overnight items as a single row */}
           {overnightItems.length === 16 && overnightTotalPrice === 704 && (
             <tr>
-              <td>{overnightTotalPrice}</td>
-              <td>{overnightDate}</td>
-              <td>23:00 - 07:00</td>
+              <td>{overnightDate+" 23:00 - 07:00"}</td>
               <td>${overnightTotalPrice}</td>
               <td>
-                <button onClick={handleRemoveOvernight}>Clear</button>
+                <button onClick={handleRemoveOvernight}>Remove</button>
               </td>
             </tr>
           )}
           {!(overnightItems.length === 16 && overnightTotalPrice === 704) && (
           overnightItems.map((item, index) => (
             <tr key={index}>
-              <td>{item.date}</td>
-              <td>{item.time}</td>
+              <td>{item.date+" "+item.time}</td>
               <td>${item.price}</td>
               <td>
-                <button onClick={() => handleRemove(index)}>Clear</button>
+                <button onClick={() => handleRemove(index)}>Remove</button>
               </td>
             </tr>
           ))
@@ -618,11 +599,10 @@ const ShoppingCart = () => {
           {/* Display other items normally */}
           {otherItems.map((item, index) => (
             <tr key={index}>
-              <td>{item.date}</td>
-              <td>{item.time}</td>
+              <td>{item.date+" "+item.time}</td>
               <td>${item.price}</td>
               <td>
-                <button onClick={() => handleRemove(index)}>Clear</button>
+                <button onClick={() => handleRemove(index)}>Remove</button>
               </td>
             </tr>
           ))}
@@ -641,21 +621,38 @@ const ShoppingCart = () => {
       )}
 
       <hr />
+      {/* TODO make sure handleSubmit can process both packages and bookings*/}
+      {(packageCart.length > 0 ||
+        cart.length > 0) 
+        ? (<button className="submit-button" onClick={handleSubmit}>Submit Booking With Payme Screenshot</button>)
+        :(<button className="disabled-button" disabled>Submit Booking With Payme Screenshot</button>)
+      }
+      
+      {/* TODO: make sure the button do all bookings with different types of packages */}
+      {(packageCart.length === 0 &&
+        cart.filter((item) => item.timeCategory === "Peak").length < peakQuota && 
+        cart.filter((item) => item.timeCategory === "Non-Peak").length < nonPeakQuota) 
+        ? (
+          <button className="submit-button" onClick={handlePayByPackage}>Submit Booking By Using Package</button>
+        )
+        : (
+          <button className="disabled-button" disabled >Submit Booking By Using Package</button>
+        )
+      }
+
+      {(isAllOvernight) ? (
+          <button className="submit-button" onClick={handlePayByOvernightPackage}>Submit Booking By Overnight Package</button>
+        ) : (
+          <button className="disabled-button" disabled >Submit Booking By Overnight Package</button>
+        )
+      }
+      
+      <hr />
 
       <div className="upload-instruction" style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', flex: 3 }}>
         <h4>如要使用Payme付款購買套票或租借單次時段,請上載您的Payme付款截圖:</h4>
         <input type="file" id="image-input" />
       </div>
-
-      <button className="submit-button" onClick={handleSubmit}>Submit Booking With Payme Screenshot</button>
-      <button className="submit-button" onClick={handlePayByPackage}>Submit Booking By Using Package</button>
-      {(isAllOvernight) ? (
-        <button className="submit-button" onClick={handlePayByOvernightPackage}>Submit Booking By Overnight Package</button>
-      ) : (
-        <button className="disabled-button" disabled >Submit Booking By Overnight Package</button>
-      )}
-      
-      <hr />
 
       <div className="payment-instruction">
         <h4>當您提交預訂之後,請將付款金額傳至以下Payme帳號。</h4>
