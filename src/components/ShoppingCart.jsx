@@ -612,38 +612,38 @@ const ShoppingCart = () => {
       
       <hr />
 
-      {auth.currentUser && (
-        <div>
-          <h4>Package Quota for booking:</h4>
-          <p>Peak: {peakQuota}</p>
-          <p>Non-Peak: {nonPeakQuota}</p>
-        </div>
-      )}
-
-      <hr />
       {/* TODO make sure handleSubmit can process both packages and bookings*/}
       {(packageCart.length > 0 ||
         cart.length > 0) 
-        ? (<button className="submit-button" onClick={handleSubmit}>Submit Booking With Payme Screenshot</button>)
-        :(<button className="disabled-button" disabled>Submit Booking With Payme Screenshot</button>)
+        ? (<button className="submit-button" onClick={handleSubmit}>Pay By Uploading Payme/FPS Screenshot</button>)
+        :(<div>
+          <p>You have not selected any package or booking.</p>
+          <button className="disabled-button" disabled>Pay By Uploading Payme/FPS Screenshot</button>
+        </div>)
       }
       
       {/* TODO: make sure the button do all bookings with different types of packages */}
       {(packageCart.length === 0 &&
         cart.filter((item) => item.timeCategory === "Peak").length < peakQuota && 
-        cart.filter((item) => item.timeCategory === "Non-Peak").length < nonPeakQuota) 
+        cart.filter((item) => item.timeCategory === "Non-Peak").length < nonPeakQuota &&
+        !isAllOvernight) 
         ? (
-          <button className="submit-button" onClick={handlePayByPackage}>Submit Booking By Using Package</button>
-        )
-        : (
-          <button className="disabled-button" disabled >Submit Booking By Using Package</button>
+          <div>
+            <h4>OR</h4>
+            <button className="submit-button" onClick={handlePayByPackage}>Submit Booking By Using Package</button>
+          </div>
+        ) : (
+        <></>
         )
       }
 
       {(isAllOvernight) ? (
-          <button className="submit-button" onClick={handlePayByOvernightPackage}>Submit Booking By Overnight Package</button>
+        <div>
+            <h4>OR</h4>
+            <button className="submit-button" onClick={handlePayByOvernightPackage}>Submit Booking By Overnight Package</button>
+        </div>
         ) : (
-          <button className="disabled-button" disabled >Submit Booking By Overnight Package</button>
+          <></>
         )
       }
       
