@@ -54,16 +54,20 @@ const AccountInformationPage = () => {
         storeUserInDatabase(user, newPassword);
       });
     });
+
+    alert('Account Information updated successfully');
   };
 
-  const storeUserInDatabase = async (user, password) => {
-    const db = getDatabase();
-    const usersRef = ref(db, 'users');
-    await set(usersRef.child(user.uid), {
+const storeUserInDatabase = async (user, password) => {
+  const db = getDatabase();
+  const usersRef = ref(db, 'users');
+  await set(usersRef, {
+    [user.uid]: {
       displayName: user.displayName,
       password: password,
-    });
-  };
+    },
+  });
+};
 
   if (!user) {
     return <div>Please log in to view your account information.</div>;
@@ -74,6 +78,7 @@ const AccountInformationPage = () => {
       <h2>Account Information</h2>
       <div className="account-info">
         <h4>Current Username: {username}</h4>
+        <h4>Email: {user.email}</h4>
       </div>
       {isEditing ? (
         <div className="edit-form">
@@ -98,7 +103,7 @@ const AccountInformationPage = () => {
             onChange={(e) => setConfirmNewPassword(e.target.value)}
             placeholder="Confirm New Password"
           />
-          <button onClick={handleSubmitClick}>Submit</button>
+          <button onClick={handleSubmitClick}>Submit the updates</button>
           <button onClick={handleCancelClick}>Cancel</button>
           <p>Notes: Please save your new password before submit.</p>
         </div>
