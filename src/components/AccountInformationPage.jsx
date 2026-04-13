@@ -1,11 +1,14 @@
 // AccountInformationPage.jsx
 import React, { useState, useEffect } from 'react';
 import { getAuth, updateProfile, updatePassword } from 'firebase/auth';
-import { getDatabase, ref, set } from 'firebase/database';
+import { get, getDatabase, ref, set, update } from 'firebase/database';
 import './AccountInformationPage.css';
 
 const AccountInformationPage = () => {
   const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
+  const [password, setPassword] = useState('');
   const [newUsername, setNewUsername] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmNewPassword, setConfirmNewPassword] = useState('');
@@ -17,6 +20,25 @@ const AccountInformationPage = () => {
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged((currentUser) => {
       setUser(currentUser);
+
+      // Fetch user data from database
+      if (currentUser) {
+        const db = getDatabase();
+        const usersRef = ref(db, `users/${currentUser.uid}`);
+        get(usersRef).then((snapshot) => {
+          if (snapshot.exists()) {
+            const userData = snapshot.val();
+            setUsername(userData.displayName);
+            setEmail(userData.email);
+            setPhone(userData.phone);
+            setPassword(userData.password);
+          } else {
+            console.log('No user data found in database');
+          }
+        }).catch((error) => {
+          console.error('Error fetching user data:', error);
+        })
+      }
     });
     return unsubscribe;
   }, []);
@@ -38,36 +60,49 @@ const AccountInformationPage = () => {
     setConfirmNewPassword('');
   };
 
-  const handleSubmitClick = () => {
+  const handleSubmitClick = async () => {
     if (newPassword !== confirmNewPassword) {
       alert('Passwords do not match');
       return;
     }
 
-    updateProfile(user, {
-      displayName: newUsername,
-    }).then(() => {
-      updatePassword(user, newPassword).then(() => {
-        setUsername(newUsername);
-        setIsEditing(false);
-        // Update password in database
-        storeUserInDatabase(user, newPassword);
+    await auth.currentUser.getIdToken(true).then((token) => {
+      const user = auth.currentUser;
+      // Update password in database
+      storeUserInDatabase(user, newUsername, newPassword);
+      // Use the token for authentication purposes
+      updateProfile(user, {
+        displayName: newUsername,
+      }).then(() => {
+        updatePassword(user, newPassword).then(() => {
+          setUsername(newUsername);
+          setIsEditing(false);
+        });
+      }).catch((error) => {
+        console.error('Error updating profile or password:', error);
       });
+    }).catch((error) => {
+      console.error('Error refreshing token:', error);
     });
 
     alert('Account Information updated successfully');
+
+    //refresh the page to show the updated information
+    window.location.reload();
   };
 
-const storeUserInDatabase = async (user, password) => {
-  const db = getDatabase();
-  const usersRef = ref(db, 'users');
-  await set(usersRef, {
-    [user.uid]: {
-      displayName: user.displayName,
-      password: password,
-    },
-  });
-};
+    const storeUserInDatabase = async (user,newUsername, newPassword) => {
+      const db = getDatabase();
+      console.log(user.uid)
+      const usersRef = ref(db, `users/${user.uid}`);
+      await update(usersRef, {
+          email: email,
+          phone: phone,
+          displayName: newUsername,
+          password: newPassword,
+        },
+      );
+    };
 
   if (!user) {
     return <div>Please log in to view your account information.</div>;
@@ -78,7 +113,9 @@ const storeUserInDatabase = async (user, password) => {
       <h2>Account Information</h2>
       <div className="account-info">
         <h4>Current Username: {username}</h4>
-        <h4>Email: {user.email}</h4>
+        <h4>Email: {email}</h4>
+        <h4>Phone: {phone}</h4>
+        <h4>Password: {password}</h4>
       </div>
       {isEditing ? (
         <div className="edit-form">
