@@ -10,6 +10,7 @@ const AccountInformationPage = () => {
   const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
   const [newUsername, setNewUsername] = useState('');
+  const [newPhone, setNewPhone] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmNewPassword, setConfirmNewPassword] = useState('');
   const [isEditing, setIsEditing] = useState(false);
@@ -97,7 +98,7 @@ const AccountInformationPage = () => {
       const usersRef = ref(db, `users/${user.uid}`);
       await update(usersRef, {
           email: email,
-          phone: phone,
+          phone: newPhone,
           displayName: newUsername,
           password: newPassword,
         },
@@ -119,12 +120,19 @@ const AccountInformationPage = () => {
       </div>
       {isEditing ? (
         <div className="edit-form">
-            <p> New Username:</p>
+          <p> New Username:</p>
           <input
             type="text"
             value={newUsername}
             onChange={(e) => setNewUsername(e.target.value)}
             placeholder="New Username"
+          />
+          <p> New Phone Number:</p>
+          <input
+            type="text"
+            value={newPhone}
+            onChange={(e) => setNewPhone(e.target.value)}
+            placeholder="New Phone Number"
           />
           <p>New Password:</p>
           <input
